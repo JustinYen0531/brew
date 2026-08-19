@@ -305,7 +305,7 @@
         <div class="selection-note"><p><strong>每日組成</strong> · 5 個新鮮發現／3 個近期耐用想法／1 篇高價值舊作／1 個經典</p><p class="reserve">● 01 經典保留</p></div>
         <div class="lesson-list" id="lesson-list" aria-live="polite"></div>
         <section class="brew-panel" aria-labelledby="brew-title">
-          <div><h3 id="brew-title">再手沖一批</h3><p>從同一間編輯廚房，請一份更小、更專注的內容。</p></div>
+          <div><h3 id="brew-title">再手沖一批</h3><p>從同一間編輯廚房，請一份更小、更專注的內容。請透過本機 server 開啟，以保護 API key。</p></div>
           <form class="brew-form" id="brew-form"><label for="brew-count" class="sr-only">學習篇數</label><input class="brew-input" id="brew-count" type="number" value="5" min="1" max="10" aria-label="學習篇數"><button class="brew-submit" type="submit">手沖 →</button></form>
           <div class="brew-status" id="brew-status" role="status"><span id="brew-message">正在手沖 5 篇學習…</span><span class="stage" id="brew-stage">發現中</span></div>
         </section>
@@ -377,18 +377,29 @@
     const detailContent = document.getElementById('detail-content');
     const stages = ['發現中', '篩選中', '提煉中', '準備學習內容'];
 
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>"']/g, character => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[character]);
+    }
+
+    function safeUrl(value) {
+      try {
+        const url = new URL(value);
+        return /^https?:$/.test(url.protocol) ? escapeHtml(url.href) : '#';
+      } catch { return '#'; }
+    }
+
     function dots(value, label, important = false) {
       const count = Math.max(1, Math.min(5, Math.round(value)));
       return `<div class="rating-line ${important ? 'timeless' : ''}"><span>${label}</span><span class="rating-dots" aria-label="${label} ${value} 分（滿分 5 分）">${[1,2,3,4,5].map(i => `<i class="rating-dot ${i <= count ? 'filled' : ''}" aria-hidden="true"></i>`).join('')}</span><span class="rating-value">${value.toFixed(1)}</span></div>`;
     }
 
     function renderLessons(items = lessons) {
-      lessonList.innerHTML = items.map((lesson, index) => `<article class="lesson-row" data-index="${lessons.indexOf(lesson)}"><div class="lesson-number">${lesson.n}</div><div class="lesson-main"><div class="lesson-meta"><span>${lesson.category}</span><span class="tag">${lesson.tag}</span><span>${lesson.time}</span></div><h3 class="lesson-title">${lesson.title}</h3><p class="lesson-takeaway">${lesson.takeaway}</p><span class="lesson-source">${lesson.source}</span></div><div class="lesson-rating">${dots(lesson.timeless, '長久度', true)}${dots(lesson.importance, '重要性')}${dots(lesson.heat, '熱度')}</div><button class="start-link" data-lesson="${lessons.indexOf(lesson)}">開始閱讀</button></article>`).join('');
+      lessonList.innerHTML = items.map((lesson, index) => `<article class="lesson-row" data-index="${lessons.indexOf(lesson)}"><div class="lesson-number">${escapeHtml(lesson.n)}</div><div class="lesson-main"><div class="lesson-meta"><span>${escapeHtml(lesson.category)}</span><span class="tag">${escapeHtml(lesson.tag)}</span><span>${escapeHtml(lesson.time)}</span></div><h3 class="lesson-title">${escapeHtml(lesson.title)}</h3><p class="lesson-takeaway">${escapeHtml(lesson.takeaway)}</p><span class="lesson-source">${escapeHtml(lesson.source)}</span></div><div class="lesson-rating">${dots(lesson.timeless, '長久度', true)}${dots(lesson.importance, '重要性')}${dots(lesson.heat, '熱度')}</div><button class="start-link" data-lesson="${lessons.indexOf(lesson)}">開始閱讀</button></article>`).join('');
       lessonList.querySelectorAll('[data-lesson]').forEach(button => button.addEventListener('click', () => openLesson(Number(button.dataset.lesson))));
     }
 
     function renderFilters() {
-      document.getElementById('filter-list').innerHTML = categoryFilters.map((filter, i) => `<button class="filter-button ${i === 0 ? 'is-active' : ''}" data-filter="${filter}">${filter}</button>`).join('');
+      document.getElementById('filter-list').innerHTML = categoryFilters.map((filter, i) => `<button class="filter-button ${i === 0 ? 'is-active' : ''}" data-filter="${escapeHtml(filter)}">${escapeHtml(filter)}</button>`).join('');
       document.querySelectorAll('[data-filter]').forEach(button => button.addEventListener('click', () => {
         document.querySelectorAll('[data-filter]').forEach(b => b.classList.remove('is-active'));
         button.classList.add('is-active');
@@ -399,13 +410,13 @@
     function renderPantry(filter = '全部學習', query = '') {
       const normalized = query.trim().toLowerCase();
       const matches = lessons.filter(item => (filter === '全部學習' || item.category === filter) && (!normalized || `${item.title} ${item.takeaway} ${item.category}`.toLowerCase().includes(normalized)));
-      pantryList.innerHTML = matches.length ? matches.map(item => `<button class="pantry-item" data-lesson="${lessons.indexOf(item)}"><div><h3>${item.title}</h3><p>${item.category} · ${item.time} · ${item.sourceType}</p></div><div class="ratings">長久度 ${item.timeless.toFixed(1)} · 重要性 ${item.importance.toFixed(1)}</div><div class="date">${new Date(item.date).toLocaleDateString('zh-TW', { month:'short', day:'numeric', year:'numeric' })}</div></button>`).join('') : '<p class="empty-state">找不到學習內容，試試更寬的搜尋範圍。</p>';
+      pantryList.innerHTML = matches.length ? matches.map(item => `<button class="pantry-item" data-lesson="${lessons.indexOf(item)}"><div><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(item.category)} · ${escapeHtml(item.time)} · ${escapeHtml(item.sourceType)}</p></div><div class="ratings">長久度 ${item.timeless.toFixed(1)} · 重要性 ${item.importance.toFixed(1)}</div><div class="date">${escapeHtml(new Date(item.date).toLocaleDateString('zh-TW', { month:'short', day:'numeric', year:'numeric' }))}</div></button>`).join('') : '<p class="empty-state">找不到學習內容，試試更寬的搜尋範圍。</p>';
       pantryList.querySelectorAll('[data-lesson]').forEach(button => button.addEventListener('click', () => openLesson(Number(button.dataset.lesson))));
     }
 
     function openLesson(index) {
       const item = lessons[index];
-      detailContent.innerHTML = `<div class="eyebrow">第 ${item.n} 篇 · ${item.category} · ${item.time}</div><h2 id="detail-title">${item.title}</h2><p class="detail-lead">${item.takeaway}</p><div class="detail-scoreboard"><span>長久度 <strong>${item.timeless.toFixed(1)} / 5</strong></span><span>重要性 <strong>${item.importance.toFixed(1)} / 5</strong></span><span>熱度 <strong>${item.heat.toFixed(1)} / 5</strong></span></div><section class="reading-section" id="idea"><h3>核心想法</h3><p>${item.principle}</p><div class="callout"><strong>關鍵想法</strong><p>目的不是讓 Agent 聽起來很確定，而是讓下一個有用的決定更容易被看見。</p></div></section><section class="reading-section" id="why"><h3>為什麼有效</h3><p>${item.problem}</p></section><section class="reading-section" id="mental-model"><h3>心智模型</h3><div class="flow"><span>問題</span><i>→</i><span>上下文</span><i>→</i><span>Agent</span><i>→</i><span>驗證</span><i>→</i><span>修訂</span></div><p>每一個箭頭都是人類可以檢查工作狀態的地方。當狀態可見，速度就更容易被信任。</p></section><section class="reading-section" id="example"><h3>範例</h3><p>${item.tryIt}</p></section><section class="reading-section" id="try-it"><h3>試試看</h3><ul class="checklist"><li>替目前的一個任務寫出這個做法的最小版本。</li><li>執行一次可觀察的檢查，並把結果放在變更旁邊。</li><li>記錄什麼變得更容易決定、驗證或交接。</li><li>只有在它能替下次省下注意力時，才留下這個 artifact。</li></ul><p class="detail-lead" style="font-size:16px;margin:22px 0 0;color:var(--ink)"><em>練習題：${item.prompt}</em></p></section><section class="reading-section" id="limits"><h3>何時不要用</h3><p>${item.tradeoffs}</p></section><section class="reading-section" id="evidence"><h3>社群證據</h3><p>${item.evidence}</p></section><section class="reading-section" id="sources"><h3>來源</h3><div class="source-box"><a href="${item.url}" target="_blank" rel="noreferrer">${item.source}</a><br>發布日期：${item.date} · ${item.sourceType}<br><span>Prototype 狀態：來源完整性、互動數據與 canonical evidence 仍需在正式發布前驗證。</span></div></section>`;
+      detailContent.innerHTML = `<div class="eyebrow">第 ${escapeHtml(item.n)} 篇 · ${escapeHtml(item.category)} · ${escapeHtml(item.time)}</div><h2 id="detail-title">${escapeHtml(item.title)}</h2><p class="detail-lead">${escapeHtml(item.takeaway)}</p><div class="detail-scoreboard"><span>長久度 <strong>${item.timeless.toFixed(1)} / 5</strong></span><span>重要性 <strong>${item.importance.toFixed(1)} / 5</strong></span><span>熱度 <strong>${item.heat.toFixed(1)} / 5</strong></span></div><section class="reading-section" id="idea"><h3>核心想法</h3><p>${escapeHtml(item.principle)}</p><div class="callout"><strong>關鍵想法</strong><p>目的不是讓 Agent 聽起來很確定，而是讓下一個有用的決定更容易被看見。</p></div></section><section class="reading-section" id="why"><h3>為什麼有效</h3><p>${escapeHtml(item.problem)}</p></section><section class="reading-section" id="mental-model"><h3>心智模型</h3><div class="flow"><span>問題</span><i>→</i><span>上下文</span><i>→</i><span>Agent</span><i>→</i><span>驗證</span><i>→</i><span>修訂</span></div><p>每一個箭頭都是人類可以檢查工作狀態的地方。當狀態可見，速度就更容易被信任。</p></section><section class="reading-section" id="example"><h3>範例</h3><p>${escapeHtml(item.tryIt)}</p></section><section class="reading-section" id="try-it"><h3>試試看</h3><ul class="checklist"><li>替目前的一個任務寫出這個做法的最小版本。</li><li>執行一次可觀察的檢查，並把結果放在變更旁邊。</li><li>記錄什麼變得更容易決定、驗證或交接。</li><li>只有在它能替下次省下注意力時，才留下這個 artifact。</li></ul><p class="detail-lead" style="font-size:16px;margin:22px 0 0;color:var(--ink)"><em>練習題：${escapeHtml(item.prompt)}</em></p></section><section class="reading-section" id="limits"><h3>何時不要用</h3><p>${escapeHtml(item.tradeoffs)}</p></section><section class="reading-section" id="evidence"><h3>社群證據</h3><p>${escapeHtml(item.evidence)}</p></section><section class="reading-section" id="sources"><h3>來源</h3><div class="source-box"><a href="${safeUrl(item.url)}" target="_blank" rel="noreferrer">${escapeHtml(item.source)}</a><br>發布日期：${escapeHtml(item.date)} · ${escapeHtml(item.sourceType)}<br><span>原型狀態：來源完整性、互動數據與 canonical evidence 仍需在正式發布前驗證。</span></div></section>`;
       detailOverlay.classList.add('is-open');
       document.body.style.overflow = 'hidden';
       document.getElementById('detail-close').focus();
@@ -430,19 +441,46 @@
     globalSearch.addEventListener('input', () => {
       const q = globalSearch.value.trim().toLowerCase();
       const results = lessons.filter(item => `${item.title} ${item.category} ${item.takeaway}`.toLowerCase().includes(q)).slice(0, 5);
-      document.getElementById('global-results').innerHTML = q ? (results.length ? results.map(item => `<button class="global-result" data-lesson="${lessons.indexOf(item)}"><strong>${item.title}</strong><small>${item.category} · ${item.time}</small></button>`).join('') : '<small>暫時找不到有用的想法。</small>') : '<small>搜尋今日手沖裡的十個想法。</small>';
+      document.getElementById('global-results').innerHTML = q ? (results.length ? results.map(item => `<button class="global-result" data-lesson="${lessons.indexOf(item)}"><strong>${escapeHtml(item.title)}</strong><small>${escapeHtml(item.category)} · ${escapeHtml(item.time)}</small></button>`).join('') : '<small>暫時找不到有用的想法。</small>') : '<small>搜尋今日手沖裡的十個想法。</small>';
       document.querySelectorAll('.global-result').forEach(button => button.addEventListener('click', () => { searchDrawer.classList.remove('is-open'); openLesson(Number(button.dataset.lesson)); }));
     });
 
     document.getElementById('pantry-search').addEventListener('input', event => { const active = document.querySelector('.filter-button.is-active'); renderPantry(active ? active.dataset.filter : '全部學習', event.target.value); });
-    document.getElementById('brew-form').addEventListener('submit', event => {
+    document.getElementById('brew-form').addEventListener('submit', async event => {
       event.preventDefault();
       const count = Math.max(1, Math.min(10, Number(document.getElementById('brew-count').value) || 5));
       const status = document.getElementById('brew-status');
       const message = document.getElementById('brew-message');
       const stage = document.getElementById('brew-stage');
-      status.classList.add('is-active'); message.textContent = `正在手沖 ${count} 篇學習…`; let i = 0;
-      const timer = setInterval(() => { stage.textContent = stages[i]; i += 1; if (i === stages.length) { clearInterval(timer); stage.textContent = '下一份內容已準備好 · 僅供 prototype 示範'; } }, 650);
+      const submit = event.currentTarget.querySelector('button[type="submit"]');
+      status.classList.add('is-active');
+      if (location.protocol === 'file:') {
+        message.textContent = '尚未連上本機手沖服務';
+        stage.textContent = '請用 node server.mjs 開啟網站';
+        return;
+      }
+      submit.disabled = true;
+      message.textContent = `正在手沖 ${count} 篇學習…`;
+      let i = 0;
+      const timer = setInterval(() => { stage.textContent = stages[Math.min(i, stages.length - 1)]; i += 1; }, 650);
+      try {
+        const response = await fetch('/api/brew', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ count }) });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(payload.error || '手沖服務暫時無法使用。');
+        const incoming = Array.isArray(payload.items) ? payload.items : [];
+        const startNumber = lessons.length + 1;
+        lessons.push(...incoming.map((item, index) => ({ ...item, n: String(startNumber + index).padStart(2, '0'), timeless: Number(item.timeless) || 3, importance: Number(item.importance) || 3, heat: Number(item.heat) || 2 })));
+        renderLessons();
+        renderPantry();
+        message.textContent = `已完成：新增 ${incoming.length} 篇即時學習`;
+        stage.textContent = `模型：${payload.model || 'deepseek/deepseek-v4-flash-0731'} · 來源已整理`;
+      } catch (error) {
+        message.textContent = '這次手沖沒有完成';
+        stage.textContent = error.message || '請確認本機手沖服務。';
+      } finally {
+        clearInterval(timer);
+        submit.disabled = false;
+      }
     });
 
     renderLessons();
