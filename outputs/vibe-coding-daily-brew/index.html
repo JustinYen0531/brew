@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Vibe Coding Daily Brew — freshly edited lessons for a deliberate building practice.">
+  <title>Vibe Coding Daily Brew</title>
+  <style>
+    :root {
+      --paper: #f5f0e7;
+      --paper-deep: #ece3d5;
+      --paper-bright: #fbf8f2;
+      --ink: #29231f;
+      --muted: #766b61;
+      --faint: #a99b8d;
+      --line: #d9cfc2;
+      --espresso: #6d4331;
+      --terracotta: #af654d;
+      --olive: #697158;
+      --amber: #c2914b;
+      --shadow: rgba(66, 46, 33, .11);
+      --serif: Georgia, 'Times New Roman', serif;
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --mono: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--sans);
+      line-height: 1.55;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: .18;
+      background-image: radial-gradient(rgba(109,67,49,.09) .55px, transparent .7px), radial-gradient(rgba(194,145,75,.07) .45px, transparent .65px);
+      background-size: 19px 19px, 31px 31px;
+      mix-blend-mode: multiply;
+      z-index: 10;
+    }
+    button, input { font: inherit; }
+    button { color: inherit; }
+    a { color: inherit; }
+    :focus-visible { outline: 3px solid var(--amber); outline-offset: 4px; }
+
+    .site-shell { width: min(1240px, calc(100% - 56px)); margin: 0 auto; }
+    .site-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 28px;
+      padding: 28px 0 22px;
+      border-bottom: 1px solid var(--line);
+      position: relative;
+      z-index: 2;
+    }
+    .brand-lockup { display: flex; align-items: center; gap: 12px; min-width: 240px; }
+    .brand-mark {
+      width: 34px; height: 34px; border: 1.5px solid var(--espresso); border-radius: 50%;
+      position: relative; display: grid; place-items: center; transform: rotate(-8deg);
+    }
+    .brand-mark::before { content: ''; width: 17px; height: 10px; border: 1.5px solid var(--espresso); border-radius: 2px 2px 8px 8px; transform: translateY(1px); }
+    .brand-mark::after { content: ''; position: absolute; width: 7px; height: 8px; border: 1.5px solid var(--espresso); border-left: 0; border-radius: 0 7px 7px 0; right: -2px; top: 12px; }
+    .brand-name { font-size: 12px; letter-spacing: .16em; text-transform: uppercase; font-weight: 700; }
+    .brand-sub { display: block; color: var(--muted); font: 11px/1.4 var(--mono); letter-spacing: .04em; margin-top: 2px; }
+    .top-nav { display: flex; align-items: center; gap: 26px; }
+    .nav-button, .quiet-button {
+      border: 0; background: transparent; padding: 7px 0; cursor: pointer; font: 12px var(--mono); letter-spacing: .04em;
+      color: var(--muted); position: relative;
+    }
+    .nav-button::after { content: ''; position: absolute; bottom: 0; left: 0; right: 100%; height: 1px; background: var(--espresso); transition: right .25s ease; }
+    .nav-button:hover, .nav-button.is-active { color: var(--ink); }
+    .nav-button:hover::after, .nav-button.is-active::after { right: 0; }
+    .header-actions { display: flex; align-items: center; gap: 15px; }
+    .search-trigger, .circle-trigger { border: 1px solid var(--line); background: rgba(251,248,242,.45); width: 34px; height: 34px; border-radius: 50%; cursor: pointer; display: grid; place-items: center; }
+    .search-trigger:hover, .circle-trigger:hover { background: var(--paper-bright); border-color: var(--espresso); }
+    .search-glyph { width: 13px; height: 13px; border: 1.5px solid var(--ink); border-radius: 50%; display: block; position: relative; }
+    .search-glyph::after { content: ''; position: absolute; width: 6px; height: 1.5px; background: var(--ink); right: -5px; bottom: -2px; transform: rotate(45deg); }
+    .circle-trigger { font: 11px var(--mono); }
+
+    .view { display: none; padding: 64px 0 100px; }
+    .view.is-visible { display: block; }
+    .eyebrow { color: var(--espresso); font: 11px var(--mono); letter-spacing: .16em; text-transform: uppercase; }
+    .hero { display: grid; grid-template-columns: minmax(0, 1fr) 270px; gap: 70px; align-items: end; padding-bottom: 48px; border-bottom: 1px solid var(--line); }
+    h1, h2, h3, p { margin-top: 0; }
+    .hero h1 { font: 400 clamp(56px, 8vw, 106px)/.9 var(--serif); letter-spacing: -.055em; margin: 14px 0 22px; }
+    .hero-dek { max-width: 480px; font: 400 21px/1.35 var(--serif); color: var(--muted); margin-bottom: 28px; }
+    .edition-line { color: var(--muted); font: 11px var(--mono); letter-spacing: .06em; text-transform: uppercase; }
+    .edition-line span { color: var(--ink); }
+    .coffee-note { border-left: 1px solid var(--line); padding: 18px 0 22px 28px; position: relative; min-height: 155px; }
+    .coffee-note::before { content: ''; position: absolute; width: 65px; height: 1px; left: 28px; top: 24px; background: var(--terracotta); transform: rotate(-12deg); transform-origin: left; }
+    .coffee-note::after { content: ''; position: absolute; width: 92px; height: 1px; left: 42px; top: 50px; background: var(--amber); transform: rotate(12deg); }
+    .coffee-note p { font: 17px/1.4 var(--serif); margin: 76px 0 0; max-width: 190px; }
+    .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; padding: 25px 0 14px; border-bottom: 1px solid var(--line); }
+    .metric { min-height: 54px; border-right: 1px solid var(--line); }
+    .metric:last-child { border-right: 0; }
+    .metric-value { display: block; font: 23px var(--mono); letter-spacing: -.06em; }
+    .metric-label { display: block; color: var(--muted); font: 10px var(--mono); letter-spacing: .08em; text-transform: uppercase; margin-top: 4px; }
+
+    .section-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 20px; padding: 54px 0 20px; }
+    .section-heading h2 { font: 400 35px var(--serif); letter-spacing: -.035em; margin: 0; }
+    .section-heading p { color: var(--muted); font: 11px var(--mono); margin: 0; }
+    .selection-note { display: flex; justify-content: space-between; gap: 24px; padding: 16px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); margin-bottom: 2px; }
+    .selection-note p { margin: 0; color: var(--muted); font: 12px/1.5 var(--mono); }
+    .selection-note strong { color: var(--ink); font-weight: 500; }
+    .selection-note .reserve { color: var(--olive); white-space: nowrap; }
+
+    .lesson-list { border-bottom: 1px solid var(--line); }
+    .lesson-row { display: grid; grid-template-columns: 54px minmax(0, 1fr) 235px 110px; gap: 28px; align-items: center; padding: 28px 0 30px; border-top: 1px solid var(--line); transition: background .25s ease, padding .25s ease; }
+    .lesson-row:first-child { border-top: 0; }
+    .lesson-row:hover { background: rgba(251,248,242,.5); padding-left: 14px; padding-right: 14px; }
+    .lesson-number { font: 15px var(--mono); color: var(--faint); align-self: start; padding-top: 6px; }
+    .lesson-main { min-width: 0; }
+    .lesson-meta { display: flex; flex-wrap: wrap; gap: 10px; color: var(--espresso); font: 10px var(--mono); letter-spacing: .12em; text-transform: uppercase; margin-bottom: 8px; }
+    .lesson-meta .tag { color: var(--olive); }
+    .lesson-title { font: 400 clamp(23px, 3vw, 34px)/1.06 var(--serif); letter-spacing: -.035em; margin: 0 0 8px; }
+    .lesson-takeaway { color: var(--muted); font: 15px/1.45 var(--serif); margin: 0; max-width: 610px; }
+    .lesson-rating { display: grid; gap: 6px; }
+    .rating-line { display: grid; grid-template-columns: 78px 1fr 30px; align-items: center; gap: 7px; font: 9px var(--mono); letter-spacing: .05em; color: var(--muted); text-transform: uppercase; }
+    .rating-line.timeless { color: var(--espresso); }
+    .rating-dots { display: flex; gap: 3px; }
+    .rating-dot { width: 7px; height: 7px; border-radius: 50%; border: 1px solid currentColor; opacity: .7; }
+    .rating-dot.filled { background: currentColor; opacity: 1; }
+    .rating-value { text-align: right; color: var(--ink); }
+    .start-link { justify-self: end; border: 0; background: transparent; cursor: pointer; font: 11px var(--mono); color: var(--espresso); white-space: nowrap; padding: 8px 0; }
+    .start-link::after { content: '  →'; transition: padding .2s ease; }
+    .start-link:hover::after { padding-left: 5px; }
+    .lesson-source { display: block; color: var(--faint); font: 10px var(--mono); margin-top: 11px; }
+
+    .brew-panel { display: grid; grid-template-columns: 1fr auto; gap: 30px; align-items: center; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); margin-top: 70px; padding: 28px 0; }
+    .brew-panel h3 { font: 400 28px var(--serif); margin: 0 0 4px; }
+    .brew-panel p { color: var(--muted); font: 13px var(--mono); margin: 0; }
+    .brew-form { display: flex; align-items: center; gap: 8px; }
+    .brew-input { width: 48px; border: 1px solid var(--line); background: var(--paper-bright); padding: 11px 6px; text-align: center; color: var(--ink); }
+    .brew-submit { border: 1px solid var(--espresso); background: var(--espresso); color: #fff8ef; padding: 11px 17px; cursor: pointer; font: 11px var(--mono); }
+    .brew-submit:hover { background: var(--ink); }
+    .brew-status { grid-column: 1 / -1; display: none; color: var(--espresso); font: 11px var(--mono); padding-top: 7px; border-top: 1px dashed var(--line); }
+    .brew-status.is-active { display: block; }
+    .brew-status .stage { color: var(--muted); margin-left: 8px; }
+
+    .footer-note { display: flex; justify-content: space-between; gap: 24px; color: var(--muted); padding: 32px 0 0; font: 11px var(--mono); }
+    .footer-note em { font-family: var(--serif); font-size: 14px; color: var(--ink); }
+    .prototype-label { display: inline-block; border: 1px solid var(--line); padding: 5px 8px; color: var(--faint); font: 9px var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+
+    .archive-list { border-top: 1px solid var(--line); }
+    .archive-row { display: grid; grid-template-columns: 130px 1fr 120px 100px; align-items: center; padding: 22px 0; border-bottom: 1px solid var(--line); }
+    .archive-date { font: 18px var(--serif); }
+    .archive-edition { color: var(--muted); font: 12px var(--mono); }
+    .archive-count, .archive-time { color: var(--muted); font: 11px var(--mono); text-align: right; }
+    .archive-time { color: var(--espresso); }
+    .archive-intro { max-width: 650px; padding-bottom: 46px; }
+    .archive-intro h1, .pantry-intro h1 { font: 400 clamp(54px, 8vw, 92px)/.94 var(--serif); letter-spacing: -.06em; margin: 15px 0 18px; }
+    .archive-intro p, .pantry-intro p { color: var(--muted); font: 19px/1.4 var(--serif); max-width: 500px; }
+    .archive-heading { color: var(--muted); border-bottom: 1px solid var(--line); padding: 13px 0; font: 10px var(--mono); letter-spacing: .13em; text-transform: uppercase; }
+
+    .pantry-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 18px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 13px 0; margin-top: 30px; }
+    .filter-list { display: flex; flex-wrap: wrap; gap: 5px; }
+    .filter-button { border: 0; background: transparent; color: var(--muted); cursor: pointer; padding: 5px 9px; font: 10px var(--mono); }
+    .filter-button:hover, .filter-button.is-active { color: var(--ink); background: var(--paper-deep); }
+    .pantry-search { width: 200px; border: 0; border-bottom: 1px solid var(--line); background: transparent; padding: 7px 0; font: 11px var(--mono); color: var(--ink); }
+    .pantry-search::placeholder { color: var(--faint); }
+    .pantry-list { margin-top: 14px; }
+    .pantry-item { display: grid; grid-template-columns: 1fr 190px 80px; gap: 24px; padding: 19px 0; border: 0; border-bottom: 1px solid var(--line); background: transparent; color: inherit; text-align: left; cursor: pointer; align-items: center; width: 100%; }
+    .pantry-item h3 { font: 400 22px var(--serif); margin: 0 0 5px; }
+    .pantry-item p { color: var(--muted); font: 11px var(--mono); margin: 0; }
+    .pantry-item .ratings { color: var(--espresso); font: 10px var(--mono); }
+    .pantry-item .date { color: var(--muted); font: 10px var(--mono); text-align: right; }
+    .empty-state { color: var(--muted); padding: 30px 0; font: 12px var(--mono); }
+
+    .detail-overlay { position: fixed; inset: 0; display: none; z-index: 20; background: rgba(41,35,31,.32); padding: 32px; }
+    .detail-overlay.is-open { display: flex; justify-content: center; align-items: stretch; }
+    .detail-sheet { background: var(--paper-bright); width: min(1060px, 100%); height: 100%; overflow: auto; box-shadow: 0 18px 80px var(--shadow); position: relative; }
+    .detail-close { position: absolute; top: 22px; right: 26px; border: 1px solid var(--line); background: var(--paper); width: 35px; height: 35px; border-radius: 50%; cursor: pointer; font: 18px var(--serif); z-index: 1; }
+    .detail-layout { display: grid; grid-template-columns: 180px minmax(0, 650px); gap: 70px; justify-content: center; padding: 90px 70px 100px; }
+    .detail-nav { position: sticky; top: 0; align-self: start; padding-top: 10px; }
+    .detail-nav p { color: var(--espresso); font: 10px var(--mono); letter-spacing: .12em; text-transform: uppercase; margin-bottom: 16px; }
+    .detail-nav a { display: block; color: var(--muted); text-decoration: none; font: 11px var(--mono); padding: 6px 0; }
+    .detail-nav a:hover { color: var(--ink); }
+    .detail-content .eyebrow { margin-bottom: 15px; }
+    .detail-content h2 { font: 400 clamp(47px, 7vw, 78px)/.94 var(--serif); letter-spacing: -.06em; margin: 0 0 20px; max-width: 690px; }
+    .detail-lead { font: 21px/1.4 var(--serif); color: var(--muted); margin-bottom: 32px; max-width: 620px; }
+    .detail-scoreboard { display: flex; gap: 22px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 15px 0; margin-bottom: 54px; flex-wrap: wrap; }
+    .detail-scoreboard span { color: var(--muted); font: 10px var(--mono); }
+    .detail-scoreboard strong { color: var(--ink); font-weight: 500; }
+    .reading-section { scroll-margin-top: 20px; margin-bottom: 42px; }
+    .reading-section h3 { font: 400 26px var(--serif); margin-bottom: 10px; }
+    .reading-section p { font: 17px/1.65 var(--serif); color: #51473f; }
+    .callout { background: var(--paper); border-left: 3px solid var(--terracotta); padding: 20px 24px; margin: 24px 0; }
+    .callout strong { display: block; color: var(--espresso); font: 10px var(--mono); letter-spacing: .1em; text-transform: uppercase; margin-bottom: 7px; }
+    .callout p { margin: 0; font-size: 18px; color: var(--ink); }
+    .flow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 17px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); margin: 20px 0; font: 11px var(--mono); color: var(--espresso); }
+    .flow i { color: var(--faint); font-style: normal; }
+    .checklist { margin: 14px 0 0; padding: 0; list-style: none; }
+    .checklist li { border-bottom: 1px solid var(--line); padding: 11px 0 11px 26px; position: relative; font: 13px/1.5 var(--mono); color: var(--muted); }
+    .checklist li::before { content: ''; width: 11px; height: 11px; border: 1px solid var(--olive); position: absolute; left: 1px; top: 15px; }
+    .source-box { padding-top: 18px; border-top: 1px solid var(--line); color: var(--muted); font: 11px/1.7 var(--mono); }
+    .source-box a { color: var(--espresso); }
+
+    .search-drawer { position: fixed; top: 83px; right: max(28px, calc((100vw - 1240px) / 2)); width: min(360px, calc(100vw - 56px)); background: var(--paper-bright); border: 1px solid var(--line); box-shadow: 0 16px 40px var(--shadow); padding: 18px; z-index: 15; display: none; }
+    .search-drawer.is-open { display: block; }
+    .search-drawer label { color: var(--espresso); display: block; font: 10px var(--mono); letter-spacing: .1em; text-transform: uppercase; margin-bottom: 9px; }
+    .global-search { width: 100%; border: 0; border-bottom: 1px solid var(--line); background: transparent; padding: 9px 0; font: 14px var(--serif); }
+    .global-results { padding-top: 12px; }
+    .global-result { width: 100%; background: transparent; border: 0; border-bottom: 1px solid var(--line); padding: 9px 0; text-align: left; cursor: pointer; }
+    .global-result strong { display: block; font: 15px var(--serif); }
+    .global-result small { color: var(--muted); font: 9px var(--mono); }
+
+    @media (max-width: 850px) {
+      .site-shell { width: min(100% - 36px, 680px); }
+      .site-header { align-items: flex-start; flex-wrap: wrap; gap: 16px; }
+      .brand-lockup { min-width: auto; }
+      .top-nav { order: 3; width: 100%; justify-content: space-between; gap: 8px; border-top: 1px solid var(--line); padding-top: 12px; }
+      .header-actions { margin-left: auto; }
+      .view { padding-top: 46px; }
+      .hero { grid-template-columns: 1fr; gap: 25px; }
+      .coffee-note { border-left: 0; border-top: 1px solid var(--line); padding: 20px 0 0; min-height: auto; }
+      .coffee-note::before { left: 0; top: 18px; }
+      .coffee-note::after { left: 14px; top: 43px; }
+      .coffee-note p { margin-top: 52px; }
+      .lesson-row { grid-template-columns: 38px minmax(0, 1fr); gap: 15px; }
+      .lesson-rating { grid-column: 2; grid-row: 2; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; border-top: 1px dashed var(--line); padding-top: 14px; }
+      .rating-line { grid-template-columns: 1fr; gap: 4px; }
+      .rating-value { text-align: left; }
+      .start-link { grid-column: 2; grid-row: 3; justify-self: start; }
+      .brew-panel { grid-template-columns: 1fr; }
+      .brew-form { justify-content: flex-start; }
+      .archive-row { grid-template-columns: 1fr 1fr; gap: 8px; }
+      .archive-count, .archive-time { text-align: left; }
+      .pantry-toolbar { align-items: flex-start; flex-direction: column; }
+      .pantry-search { width: 100%; }
+      .pantry-item { grid-template-columns: 1fr auto; gap: 12px; }
+      .pantry-item .ratings { grid-row: 2; }
+      .pantry-item .date { grid-row: 2; }
+      .detail-overlay { padding: 0; }
+      .detail-layout { display: block; padding: 74px 26px 70px; }
+      .detail-nav { display: flex; flex-wrap: wrap; gap: 4px 14px; position: static; border-bottom: 1px solid var(--line); padding-bottom: 12px; margin-bottom: 35px; }
+      .detail-nav p { width: 100%; margin-bottom: 4px; }
+      .detail-nav a { padding: 3px 0; }
+    }
+    @media (max-width: 480px) {
+      .site-shell { width: calc(100% - 28px); }
+      .metrics { gap: 8px; }
+      .metric-value { font-size: 17px; }
+      .metric-label { font-size: 8px; letter-spacing: 0; }
+      .selection-note { display: block; }
+      .selection-note .reserve { display: block; margin-top: 7px; }
+      .lesson-title { font-size: 27px; }
+      .footer-note { display: block; }
+      .footer-note .prototype-label { margin-top: 14px; }
+    }
+    @media print {
+      body::before, .site-header, .brew-panel, .detail-overlay, .search-drawer { display: none !important; }
+      .site-shell { width: 100%; }
+      .view { display: block !important; padding: 0; }
+      #pantry-view, #archive-view { page-break-before: always; }
+      .lesson-row { break-inside: avoid; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="site-shell">
+    <header class="site-header">
+      <div class="brand-lockup" aria-label="Vibe Coding Daily Brew home">
+        <div class="brand-mark" aria-hidden="true"></div>
+        <div><div class="brand-name">Vibe Coding Daily Brew</div><span class="brand-sub">freshly brewed · built to last</span></div>
+      </div>
+      <nav class="top-nav" aria-label="Primary navigation">
+        <button class="nav-button is-active" data-view="today-view">Today’s Brew</button>
+        <button class="nav-button" data-view="pantry-view">The Pantry</button>
+        <button class="nav-button" data-view="archive-view">Past Brews</button>
+      </nav>
+      <div class="header-actions">
+        <button class="search-trigger" id="search-trigger" aria-label="Open search" aria-expanded="false"><span class="search-glyph" aria-hidden="true"></span></button>
+        <button class="circle-trigger" aria-label="Open quiet settings">•••</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="view is-visible" id="today-view" aria-labelledby="today-title">
+        <div class="hero">
+          <div>
+            <div class="eyebrow">Good morning</div>
+            <h1 id="today-title">Today’s Brew</h1>
+            <p class="hero-dek">Ten ideas worth learning before you start building.</p>
+            <div class="edition-line"><span>AUG 20, 2026</span> · 10 LESSONS · 42 SOURCES · 18 MIN</div>
+          </div>
+          <aside class="coffee-note" aria-label="Edition note"><p>Someone already did the noisy searching.<br><em>What remains deserves your attention.</em></p></aside>
+        </div>
+        <div class="metrics" aria-label="Today's edition summary">
+          <div class="metric"><span class="metric-value">10</span><span class="metric-label">lessons</span></div>
+          <div class="metric"><span class="metric-value">42</span><span class="metric-label">sources scanned</span></div>
+          <div class="metric"><span class="metric-value">18m</span><span class="metric-label">reading time</span></div>
+          <div class="metric"><span class="metric-value">4.4</span><span class="metric-label">avg. timeless</span></div>
+        </div>
+        <div class="section-heading"><h2>Today’s selection</h2><p>RECENCY IS A SIGNAL. USEFULNESS IS THE TEST.</p></div>
+        <div class="selection-note"><p><strong>Daily composition</strong> · 5 fresh discoveries / 3 durable ideas / 1 high-value older lesson / 1 classic</p><p class="reserve">● 01 classic reserve</p></div>
+        <div class="lesson-list" id="lesson-list" aria-live="polite"></div>
+        <section class="brew-panel" aria-labelledby="brew-title">
+          <div><h3 id="brew-title">Brew another batch</h3><p>Ask for a smaller, focused pour from the same editorial kitchen.</p></div>
+          <form class="brew-form" id="brew-form"><label for="brew-count" class="sr-only">Number of lessons</label><input class="brew-input" id="brew-count" type="number" value="5" min="1" max="10" aria-label="Number of lessons"><button class="brew-submit" type="submit">Brew →</button></form>
+          <div class="brew-status" id="brew-status" role="status"><span id="brew-message">Brewing 5 lessons…</span><span class="stage" id="brew-stage">Discovering</span></div>
+        </section>
+        <div class="footer-note"><em>Freshly brewed every morning. Built to stay useful for years.</em><span class="prototype-label">prototype edition · sample content</span></div>
+      </section>
+
+      <section class="view" id="pantry-view" aria-labelledby="pantry-title">
+        <div class="pantry-intro"><div class="eyebrow">A permanent knowledge library</div><h1 id="pantry-title">The Pantry</h1><p>Distilled lessons accumulate here. Older does not mean obsolete; a good principle keeps its flavour.</p></div>
+        <div class="pantry-toolbar"><div class="filter-list" id="filter-list" aria-label="Filter lessons by category"></div><label><span class="sr-only">Search the pantry</span><input class="pantry-search" id="pantry-search" type="search" placeholder="Search the pantry…"></label></div>
+        <div class="pantry-list" id="pantry-list"></div>
+      </section>
+
+      <section class="view" id="archive-view" aria-labelledby="archive-title">
+        <div class="archive-intro"><div class="eyebrow">A small history of attention</div><h1 id="archive-title">Past Brews</h1><p>Revisit what was worth keeping. Every edition is a compact trail of ideas, not a feed to catch up on.</p></div>
+        <div class="archive-heading">DATE <span style="float:right">LESSONS / TIME</span></div>
+        <div class="archive-list">
+          <div class="archive-row"><div class="archive-date">Aug 20</div><div class="archive-edition">Tools change. Methods remain.</div><div class="archive-count">10 lessons</div><div class="archive-time">18 min</div></div>
+          <div class="archive-row"><div class="archive-date">Aug 19</div><div class="archive-edition">Make the next step visible.</div><div class="archive-count">10 lessons</div><div class="archive-time">24 min</div></div>
+          <div class="archive-row"><div class="archive-date">Aug 18</div><div class="archive-edition">A smaller world is easier to verify.</div><div class="archive-count">10 lessons</div><div class="archive-time">21 min</div></div>
+          <div class="archive-row"><div class="archive-date">Aug 17</div><div class="archive-edition">Good constraints make room for craft.</div><div class="archive-count">10 lessons</div><div class="archive-time">16 min</div></div>
+          <div class="archive-row"><div class="archive-date">Aug 16</div><div class="archive-edition">Ask for evidence before confidence.</div><div class="archive-count">10 lessons</div><div class="archive-time">20 min</div></div>
+          <div class="archive-row"><div class="archive-date">Aug 15</div><div class="archive-edition">The loop is the product.</div><div class="archive-count">10 lessons</div><div class="archive-time">22 min</div></div>
+        </div>
+        <div class="footer-note"><em>There is no backlog here. Only invitations to return.</em><span class="prototype-label">archive preview</span></div>
+      </section>
+    </main>
+  </div>
+
+  <div class="search-drawer" id="search-drawer" aria-label="Search lessons">
+    <label for="global-search">Find a useful idea</label>
+    <input class="global-search" id="global-search" type="search" placeholder="Try “verification” or “context”…">
+    <div class="global-results" id="global-results"></div>
+  </div>
+
+  <div class="detail-overlay" id="detail-overlay" role="dialog" aria-modal="true" aria-labelledby="detail-title">
+    <article class="detail-sheet">
+      <button class="detail-close" id="detail-close" aria-label="Close lesson">×</button>
+      <div class="detail-layout">
+        <nav class="detail-nav" aria-label="Lesson sections">
+          <p>In this lesson</p>
+          <a href="#idea">The idea</a><a href="#why">Why it works</a><a href="#mental-model">Mental model</a><a href="#example">Example</a><a href="#try-it">Try it</a><a href="#limits">When not to use it</a><a href="#evidence">Community evidence</a><a href="#sources">Sources</a>
+        </nav>
+        <div class="detail-content" id="detail-content"></div>
+      </div>
+    </article>
+  </div>
+
+  <style>
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+  </style>
+  <script>
+    const lessons = [
+      { n:'01', category:'Context Engineering', tag:'fresh practice', title:'Stop Making Your Agent Guess', takeaway:'Give the agent decisions you have already made, not problems you have already solved.', timeless:5, importance:5, heat:3.2, time:'8 min', source:'GitHub Discussions · sample evidence', date:'2026-08-19', classic:false, problem:'Agents lose time when the repository, constraints, and definition of done are left implicit. The resulting code can look plausible while quietly violating the project’s shape.', principle:'A useful context packet narrows the decision surface: orient the agent, name the invariants, and make the next observable check explicit.', tryIt:'Before asking for code, write a short brief with the current flow, files in scope, constraints, and one testable acceptance check.', tradeoffs:'More context is not always better. Keep the packet small enough to update when the plan changes.', prompt:'Choose one open task and write a five-line context packet. Ask: what did the agent no longer need to guess?', evidence:'The source discussion is used here as a prototype evidence slot; verify the original post and engagement signal before publishing.', url:'https://github.com/orgs/community/discussions', sourceType:'GitHub discussion' },
+      { n:'02', category:'Verification', tag:'fresh practice', title:'Ask for the Check Before the Change', takeaway:'A coding loop gets calmer when every proposed edit arrives with a way to observe whether it helped.', timeless:5, importance:5, heat:4.1, time:'6 min', source:'Reddit · sample evidence', date:'2026-08-18', classic:false, problem:'Without a check, an agent can optimize for a convincing diff rather than a working outcome.', principle:'Pair each change with an observable verification step: a test, a type check, a reproducible command, or a narrow manual inspection.', tryIt:'Turn “fix the parser” into “fix the parser, then run the fixture that previously failed and report the before/after result.”', tradeoffs:'Not every change deserves a full suite. Match verification cost to blast radius.', prompt:'Take the last change you made and name the smallest check that would have caught a wrong-but-plausible result.', evidence:'This is a prototype evidence slot. Replace with a verified source excerpt and date in the production feed.', url:'https://www.reddit.com/r/ExperiencedDevs/', sourceType:'Reddit thread' },
+      { n:'03', category:'Workflow', tag:'fresh practice', title:'Keep the Loop Small Enough to Hold', takeaway:'Short cycles make it possible to notice drift before it becomes a rewrite.', timeless:5, importance:5, heat:3.7, time:'7 min', source:'Hacker News · sample evidence', date:'2026-08-17', classic:false, problem:'Large requests hide too many assumptions inside one handoff. When the result misses, it is hard to tell which assumption failed.', principle:'Use a sequence of bounded loops: orient → change one slice → verify → record what changed.', tryIt:'Set a “one coherent slice” boundary before you begin. Do not broaden the slice until its local proof is green.', tradeoffs:'Tiny loops can become ceremony. Combine adjacent edits when they share the same proof.', prompt:'Draw the last task as three smaller loops. Which boundary would have made a failure easier to localize?', evidence:'Prototype sample only; use a canonical thread URL and inspectable discussion before publishing.', url:'https://news.ycombinator.com/', sourceType:'Hacker News thread' },
+      { n:'04', category:'Agent Management', tag:'recent durable', title:'Give Agents Smaller Worlds', takeaway:'Reducing the decision surface can produce better results than writing increasingly elaborate prompts.', timeless:5, importance:4.8, heat:3.2, time:'8 min', source:'Developer forum · sample evidence', date:'2026-08-15', classic:false, problem:'An agent asked to understand an entire codebase may spend its budget exploring irrelevant paths and then improvise across too many files.', principle:'Scope is a quality control. Name the allowed surface, the excluded surface, and the handoff point where you will review.', tryIt:'Start with one route, one component, or one data contract. Ask the agent to list the files it intends to touch before editing.', tradeoffs:'Some architectural changes genuinely cross boundaries. Expand the world deliberately, in stages.', prompt:'Give a current task an explicit file allowlist. Compare the diff and the explanation with your normal workflow.', evidence:'Prototype sample only; verify source, author, date, and engagement before treating this as community evidence.', url:'https://dev.to/', sourceType:'Developer forum' },
+      { n:'05', category:'Code Understanding', tag:'fresh practice', title:'Read the Shape Before You Read the Lines', takeaway:'A quick map of a repository often prevents a long conversation with the wrong file.', timeless:4.8, importance:4.6, heat:3.4, time:'5 min', source:'GitHub Discussions · sample evidence', date:'2026-08-16', classic:false, problem:'Jumping straight into implementation encourages the first plausible file to become the assumed source of truth.', principle:'Orient by structure first: entrypoint, data flow, tests, and configuration. Then zoom into the smallest relevant path.', tryIt:'Ask for a compact repository map with “authoritative”, “derived”, and “test coverage” labels before asking for a patch.', tradeoffs:'Maps go stale. Treat them as a starting hypothesis, not permanent documentation.', prompt:'Make a three-minute map for a repository you know. What did the shape reveal that a file search did not?', evidence:'Prototype sample only; source trail is a placeholder for a verified community discussion.', url:'https://github.com/orgs/community/discussions', sourceType:'GitHub discussion' },
+      { n:'06', category:'Craft & Mindset', tag:'recent durable', title:'Treat Confidence as a Claim', takeaway:'A polished explanation is not proof; it is a claim about what should be checked next.', timeless:5, importance:4.7, heat:2.8, time:'6 min', source:'Independent blog · sample evidence', date:'2026-08-12', classic:false, problem:'AI-generated work often arrives with a confident summary even when the relevant path was not executed.', principle:'Separate “what changed” from “what was verified.” Require the second sentence before you accept the first.', tryIt:'Add a tiny handoff template: changed / checked / not checked / next uncertainty.', tradeoffs:'This can feel slower for low-risk edits. Keep it lightweight, not bureaucratic.', prompt:'Rewrite the last code handoff you received using the four-line template. Where did uncertainty become visible?', evidence:'Prototype sample only; link a real, inspectable article before production use.', url:'https://martinfowler.com/', sourceType:'Independent blog' },
+      { n:'07', category:'Thinking', tag:'recent durable', title:'Name the Uncertainty You Are Buying', takeaway:'Every shortcut moves uncertainty somewhere; naming the destination makes the trade-off deliberate.', timeless:4.9, importance:4.4, heat:2.5, time:'5 min', source:'Developer forum · sample evidence', date:'2026-08-10', classic:false, problem:'Speed feels free until the hidden uncertainty returns as debugging, review, or recovery work.', principle:'When choosing a shortcut, say which uncertainty remains and who will pay to resolve it.', tryIt:'Write one sentence after a fast implementation: “This is fast because ___; the remaining risk is ___; we will inspect it by ___.”', tradeoffs:'Some uncertainty is acceptable in prototypes. The key is that it is visible and bounded.', prompt:'Look at a recent shortcut and name the uncertainty it moved downstream.', evidence:'Prototype sample only; verify the source trail before publishing.', url:'https://dev.to/', sourceType:'Developer forum' },
+      { n:'08', category:'Collaboration', tag:'classic reserve', title:'Make the Handoff Legible to a Human', takeaway:'The best AI-assisted work leaves behind enough context for the next person to continue without re-interviewing the author.', timeless:5, importance:4.5, heat:2.1, time:'7 min', source:'GitHub Discussions · sample evidence', date:'2025-11-06', classic:true, problem:'A fast agent session can produce a diff with no record of the chosen path, rejected alternatives, or remaining uncertainty.', principle:'A handoff is part of the implementation: record the decision, the proof, and the next safe move.', tryIt:'End each meaningful session with a short note: intent / changed surface / evidence / open question.', tradeoffs:'Do not narrate every keystroke. Preserve decisions that would otherwise be expensive to reconstruct.', prompt:'Create a four-line handoff for an in-progress task and ask another person to resume from it.', evidence:'Prototype classic slot. Verify the original post is at least 90 days old and meets the curator confidence gate.', url:'https://github.com/orgs/community/discussions', sourceType:'GitHub discussion' },
+      { n:'09', category:'Safety', tag:'fresh practice', title:'Keep the Fast Path Reversible', takeaway:'The safest acceleration is the kind you can undo without an archaeology project.', timeless:5, importance:4.8, heat:3.8, time:'6 min', source:'GitHub Discussions · sample evidence', date:'2026-08-14', classic:false, problem:'Broad permissions and bundled edits make it hard to recover when the agent touches the wrong surface.', principle:'Bound the change, preserve a checkpoint, and prefer operations with a clear rollback path.', tryIt:'Before a risky agent action, name the restore point and the exact files or records it may affect.', tradeoffs:'Reversibility has a cost. Spend it where the blast radius or data sensitivity is meaningful.', prompt:'For a current task, identify the rollback boundary before asking for implementation.', evidence:'Prototype sample only; replace with a verified security or workflow discussion.', url:'https://github.com/orgs/community/discussions', sourceType:'GitHub discussion' },
+      { n:'10', category:'Learning System', tag:'older high-value', title:'Turn a Fix into a Reusable Question', takeaway:'The durable lesson is usually not the patch; it is the question that would have found the failure sooner.', timeless:5, importance:4.6, heat:2.0, time:'6 min', source:'Independent blog · sample evidence', date:'2025-03-19', classic:false, problem:'One-off fixes disappear when they are not converted into a prompt, checklist, test, or decision rule.', principle:'After a failure, extract the smallest reusable question that changes the next attempt.', tryIt:'Ask: what should I inspect before I touch code next time? Capture the answer in the project’s working notes.', tradeoffs:'Not every incident deserves a framework. Reuse the smallest artifact that prevents recurrence.', prompt:'Convert one recent bug into a preflight question and place it where the next session will see it.', evidence:'Prototype sample only; source and date require production verification.', url:'https://martinfowler.com/', sourceType:'Independent blog' }
+    ];
+
+    const categoryFilters = ['All lessons', 'Thinking', 'Prompting', 'Agent Management', 'Context Engineering', 'Code Understanding', 'Verification', 'Workflow', 'Craft & Mindset'];
+    const lessonList = document.getElementById('lesson-list');
+    const pantryList = document.getElementById('pantry-list');
+    const detailOverlay = document.getElementById('detail-overlay');
+    const detailContent = document.getElementById('detail-content');
+    const stages = ['Discovering', 'Filtering', 'Distilling', 'Preparing lessons'];
+
+    function dots(value, label, important = false) {
+      const count = Math.max(1, Math.min(5, Math.round(value)));
+      return `<div class="rating-line ${important ? 'timeless' : ''}"><span>${label}</span><span class="rating-dots" aria-label="${label} ${value} out of 5">${[1,2,3,4,5].map(i => `<i class="rating-dot ${i <= count ? 'filled' : ''}" aria-hidden="true"></i>`).join('')}</span><span class="rating-value">${value.toFixed(1)}</span></div>`;
+    }
+
+    function renderLessons(items = lessons) {
+      lessonList.innerHTML = items.map((lesson, index) => `<article class="lesson-row" data-index="${lessons.indexOf(lesson)}"><div class="lesson-number">${lesson.n}</div><div class="lesson-main"><div class="lesson-meta"><span>${lesson.category}</span><span class="tag">${lesson.tag}</span><span>${lesson.time}</span></div><h3 class="lesson-title">${lesson.title}</h3><p class="lesson-takeaway">${lesson.takeaway}</p><span class="lesson-source">${lesson.source}</span></div><div class="lesson-rating">${dots(lesson.timeless, 'Timeless', true)}${dots(lesson.importance, 'Importance')}${dots(lesson.heat, 'Heat')}</div><button class="start-link" data-lesson="${lessons.indexOf(lesson)}">Start lesson</button></article>`).join('');
+      lessonList.querySelectorAll('[data-lesson]').forEach(button => button.addEventListener('click', () => openLesson(Number(button.dataset.lesson))));
+    }
+
+    function renderFilters() {
+      document.getElementById('filter-list').innerHTML = categoryFilters.map((filter, i) => `<button class="filter-button ${i === 0 ? 'is-active' : ''}" data-filter="${filter}">${filter}</button>`).join('');
+      document.querySelectorAll('[data-filter]').forEach(button => button.addEventListener('click', () => {
+        document.querySelectorAll('[data-filter]').forEach(b => b.classList.remove('is-active'));
+        button.classList.add('is-active');
+        renderPantry(button.dataset.filter, document.getElementById('pantry-search').value);
+      }));
+    }
+
+    function renderPantry(filter = 'All lessons', query = '') {
+      const normalized = query.trim().toLowerCase();
+      const matches = lessons.filter(item => (filter === 'All lessons' || item.category === filter) && (!normalized || `${item.title} ${item.takeaway} ${item.category}`.toLowerCase().includes(normalized)));
+      pantryList.innerHTML = matches.length ? matches.map(item => `<button class="pantry-item" data-lesson="${lessons.indexOf(item)}"><div><h3>${item.title}</h3><p>${item.category} · ${item.time} · ${item.sourceType}</p></div><div class="ratings">TIMELESS ${item.timeless.toFixed(1)} · IMPORTANCE ${item.importance.toFixed(1)}</div><div class="date">${new Date(item.date).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' })}</div></button>`).join('') : '<p class="empty-state">No lesson found. Try a wider search.</p>';
+      pantryList.querySelectorAll('[data-lesson]').forEach(button => button.addEventListener('click', () => openLesson(Number(button.dataset.lesson))));
+    }
+
+    function openLesson(index) {
+      const item = lessons[index];
+      detailContent.innerHTML = `<div class="eyebrow">Lesson ${item.n} · ${item.category} · ${item.time}</div><h2 id="detail-title">${item.title}</h2><p class="detail-lead">${item.takeaway}</p><div class="detail-scoreboard"><span>TIMELESS <strong>${item.timeless.toFixed(1)} / 5</strong></span><span>IMPORTANCE <strong>${item.importance.toFixed(1)} / 5</strong></span><span>HEAT <strong>${item.heat.toFixed(1)} / 5</strong></span></div><section class="reading-section" id="idea"><h3>The idea</h3><p>${item.principle}</p><div class="callout"><strong>Key idea</strong><p>The aim is not to make the agent sound certain. It is to make the next useful decision easier to see.</p></div></section><section class="reading-section" id="why"><h3>Why it works</h3><p>${item.problem}</p></section><section class="reading-section" id="mental-model"><h3>Mental model</h3><div class="flow"><span>Problem</span><i>→</i><span>Context</span><i>→</i><span>Agent</span><i>→</i><span>Verification</span><i>→</i><span>Revision</span></div><p>Each arrow is a place where a human can inspect the state of the work. When the state is visible, speed becomes easier to trust.</p></section><section class="reading-section" id="example"><h3>Example</h3><p>${item.tryIt}</p></section><section class="reading-section" id="try-it"><h3>Try it</h3><ul class="checklist"><li>Write the smallest version of the practice for one current task.</li><li>Run one observable check and keep the result beside the change.</li><li>Record what became easier to decide, verify, or hand off.</li><li>Keep the artifact only if it saves attention next time.</li></ul><p class="detail-lead" style="font-size:16px;margin:22px 0 0;color:var(--ink)"><em>Practice prompt: ${item.prompt}</em></p></section><section class="reading-section" id="limits"><h3>When not to use it</h3><p>${item.tradeoffs}</p></section><section class="reading-section" id="evidence"><h3>Community evidence</h3><p>${item.evidence}</p></section><section class="reading-section" id="sources"><h3>Sources</h3><div class="source-box"><a href="${item.url}" target="_blank" rel="noreferrer">${item.source}</a><br>Published ${item.date} · ${item.sourceType}<br><span>Prototype status: source completeness, engagement, and canonical evidence still require verification before this edition is published.</span></div></section>`;
+      detailOverlay.classList.add('is-open');
+      document.body.style.overflow = 'hidden';
+      document.getElementById('detail-close').focus();
+    }
+
+    function closeLesson() { detailOverlay.classList.remove('is-open'); document.body.style.overflow = ''; }
+
+    document.querySelectorAll('[data-view]').forEach(button => button.addEventListener('click', () => {
+      document.querySelectorAll('.view').forEach(view => view.classList.remove('is-visible'));
+      document.getElementById(button.dataset.view).classList.add('is-visible');
+      document.querySelectorAll('[data-view]').forEach(nav => nav.classList.remove('is-active'));
+      button.classList.add('is-active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }));
+    document.getElementById('detail-close').addEventListener('click', closeLesson);
+    detailOverlay.addEventListener('click', event => { if (event.target === detailOverlay) closeLesson(); });
+    document.addEventListener('keydown', event => { if (event.key === 'Escape') { closeLesson(); document.getElementById('search-drawer').classList.remove('is-open'); } });
+
+    const searchDrawer = document.getElementById('search-drawer');
+    const globalSearch = document.getElementById('global-search');
+    document.getElementById('search-trigger').addEventListener('click', event => { const open = searchDrawer.classList.toggle('is-open'); event.currentTarget.setAttribute('aria-expanded', open); if (open) globalSearch.focus(); });
+    globalSearch.addEventListener('input', () => {
+      const q = globalSearch.value.trim().toLowerCase();
+      const results = lessons.filter(item => `${item.title} ${item.category} ${item.takeaway}`.toLowerCase().includes(q)).slice(0, 5);
+      document.getElementById('global-results').innerHTML = q ? (results.length ? results.map(item => `<button class="global-result" data-lesson="${lessons.indexOf(item)}"><strong>${item.title}</strong><small>${item.category} · ${item.time}</small></button>`).join('') : '<small>No useful idea found yet.</small>') : '<small>Search the ten ideas in today’s brew.</small>';
+      document.querySelectorAll('.global-result').forEach(button => button.addEventListener('click', () => { searchDrawer.classList.remove('is-open'); openLesson(Number(button.dataset.lesson)); }));
+    });
+
+    document.getElementById('pantry-search').addEventListener('input', event => { const active = document.querySelector('.filter-button.is-active'); renderPantry(active ? active.dataset.filter : 'All lessons', event.target.value); });
+    document.getElementById('brew-form').addEventListener('submit', event => {
+      event.preventDefault();
+      const count = Math.max(1, Math.min(10, Number(document.getElementById('brew-count').value) || 5));
+      const status = document.getElementById('brew-status');
+      const message = document.getElementById('brew-message');
+      const stage = document.getElementById('brew-stage');
+      status.classList.add('is-active'); message.textContent = `Brewing ${count} lessons…`; let i = 0;
+      const timer = setInterval(() => { stage.textContent = stages[i]; i += 1; if (i === stages.length) { clearInterval(timer); stage.textContent = 'Your next pour is ready · prototype only'; } }, 650);
+    });
+
+    renderLessons();
+    renderFilters();
+    renderPantry();
+  </script>
+</body>
+</html>
