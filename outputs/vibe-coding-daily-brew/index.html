@@ -83,6 +83,10 @@
     .search-glyph { width: 13px; height: 13px; border: 1.5px solid var(--ink); border-radius: 50%; display: block; position: relative; }
     .search-glyph::after { content: ''; position: absolute; width: 6px; height: 1.5px; background: var(--ink); right: -5px; bottom: -2px; transform: rotate(45deg); }
     .circle-trigger { font: 11px var(--mono); }
+    .quiet-menu { position: fixed; top: 78px; right: max(28px, calc((100vw - 1240px) / 2)); display: none; z-index: 16; background: var(--paper-bright); border: 1px solid var(--line); box-shadow: 0 14px 34px var(--shadow); padding: 6px; }
+    .quiet-menu.is-open { display: block; }
+    .quiet-menu-button { border: 0; background: transparent; color: var(--ink); cursor: pointer; min-width: 120px; padding: 10px 12px; text-align: left; font: 11px var(--mono); }
+    .quiet-menu-button:hover { background: var(--paper-deep); color: var(--espresso); }
 
     .view { display: none; padding: 64px 0 100px; }
     .view.is-visible { display: block; }
@@ -226,6 +230,45 @@
     .global-result strong { display: block; font: 15px var(--serif); }
     .global-result small { color: var(--muted); font: 9px var(--mono); }
 
+    .preferences-overlay { position: fixed; inset: 0; display: none; z-index: 18; background: rgba(41,35,31,.3); }
+    .preferences-overlay.is-open { display: flex; justify-content: flex-end; }
+    .preferences-sheet { width: min(570px, 100%); height: 100%; overflow: auto; background: var(--paper-bright); box-shadow: -18px 0 60px var(--shadow); padding: 42px 42px 56px; }
+    .preferences-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; border-bottom: 1px solid var(--line); padding-bottom: 22px; margin-bottom: 28px; }
+    .preferences-header h2 { font: 400 44px/.95 var(--serif); letter-spacing: -.05em; margin: 10px 0 8px; }
+    .preferences-header p { color: var(--muted); font: 12px/1.5 var(--mono); margin: 0; max-width: 355px; }
+    .preferences-close { border: 1px solid var(--line); background: var(--paper); width: 35px; height: 35px; border-radius: 50%; cursor: pointer; font: 18px var(--serif); }
+    .preferences-section { border-bottom: 1px solid var(--line); padding: 0 0 25px; margin-bottom: 25px; }
+    .preferences-section h3 { color: var(--espresso); font: 10px var(--mono); letter-spacing: .13em; text-transform: uppercase; margin: 0 0 8px; }
+    .preferences-section > p { color: var(--muted); font: 12px/1.55 var(--serif); margin: 0 0 16px; }
+    .source-weight-legend { display: flex; flex-wrap: wrap; gap: 9px 15px; color: var(--faint); font: 10px var(--mono); margin-bottom: 14px; }
+    .source-weight-legend strong { color: var(--espresso); font-weight: 500; }
+    .source-weight-row { display: grid; grid-template-columns: 120px 1fr; gap: 14px; align-items: center; padding: 12px 0; border-top: 1px solid var(--line); }
+    .source-weight-row:first-of-type { border-top: 0; }
+    .source-weight-name { font: 14px var(--serif); }
+    .source-weight-scale { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; }
+    .source-weight-scale label { position: relative; }
+    .source-weight-scale input { position: absolute; opacity: 0; pointer-events: none; }
+    .source-weight-scale span { display: block; border: 1px solid var(--line); color: var(--muted); cursor: pointer; padding: 7px 3px; text-align: center; font: 10px var(--mono); }
+    .source-weight-scale label:hover span, .source-weight-scale input:checked + span { color: var(--paper-bright); background: var(--espresso); border-color: var(--espresso); }
+    .preference-field { display: block; margin-top: 13px; }
+    .preference-field span { display: block; color: var(--muted); font: 10px var(--mono); letter-spacing: .08em; margin-bottom: 6px; }
+    .preference-input, .preference-textarea { width: 100%; border: 1px solid var(--line); background: var(--paper); color: var(--ink); padding: 10px 11px; font: 13px/1.5 var(--sans); }
+    .preference-textarea { min-height: 88px; resize: vertical; font-family: var(--mono); font-size: 11px; }
+    .preference-input:focus, .preference-textarea:focus { border-color: var(--espresso); outline: 2px solid rgba(194,145,75,.25); outline-offset: 1px; }
+    .language-options { display: flex; gap: 8px; }
+    .language-option { position: relative; }
+    .language-option input { position: absolute; opacity: 0; pointer-events: none; }
+    .language-option span { display: block; border: 1px solid var(--line); color: var(--muted); cursor: pointer; padding: 9px 14px; font: 11px var(--mono); }
+    .language-option input:checked + span, .language-option:hover span { background: var(--espresso); color: var(--paper-bright); border-color: var(--espresso); }
+    .preference-hard-rule { border-left: 2px solid var(--terracotta); padding-left: 14px; }
+    .preferences-actions { display: flex; align-items: center; gap: 14px; }
+    .preferences-save, .preferences-reset { border: 1px solid var(--espresso); cursor: pointer; padding: 11px 17px; font: 11px var(--mono); }
+    .preferences-save { background: var(--espresso); color: var(--paper-bright); }
+    .preferences-save:hover { background: var(--ink); }
+    .preferences-reset { background: transparent; color: var(--muted); border-color: var(--line); }
+    .preferences-reset:hover { color: var(--ink); border-color: var(--espresso); }
+    .preferences-status { color: var(--olive); font: 10px var(--mono); min-height: 1.4em; }
+
     @media (max-width: 850px) {
       .site-shell { width: min(100% - 36px, 680px); }
       .site-header { align-items: flex-start; flex-wrap: wrap; gap: 16px; }
@@ -257,6 +300,8 @@
       .detail-nav { display: flex; flex-wrap: wrap; gap: 4px 14px; position: static; border-bottom: 1px solid var(--line); padding-bottom: 12px; margin-bottom: 35px; }
       .detail-nav p { width: 100%; margin-bottom: 4px; }
       .detail-nav a { padding: 3px 0; }
+      .preferences-sheet { padding: 28px 22px 42px; }
+      .source-weight-row { grid-template-columns: 1fr; gap: 8px; }
     }
     @media (max-width: 480px) {
       .site-shell { width: calc(100% - 28px); }
@@ -295,7 +340,7 @@
       </nav>
       <div class="header-actions">
         <button class="search-trigger" id="search-trigger" aria-label="開啟搜尋" aria-expanded="false"><span class="search-glyph" aria-hidden="true"></span></button>
-        <button class="circle-trigger" aria-label="開啟安靜設定">•••</button>
+        <button class="circle-trigger" id="quiet-trigger" aria-label="開啟設定選單" aria-expanded="false" aria-controls="quiet-menu">•••</button>
       </div>
     </header>
 
@@ -349,10 +394,59 @@
     </main>
   </div>
 
+  <div class="quiet-menu" id="quiet-menu" role="menu"><button class="quiet-menu-button" id="preferences-trigger" type="button" role="menuitem">偏好</button></div>
+
   <div class="search-drawer" id="search-drawer" aria-label="搜尋學習">
     <label for="global-search">找一個有用的想法</label>
     <input class="global-search" id="global-search" type="search" placeholder="試試「驗證」或「上下文」…">
     <div class="global-results" id="global-results"></div>
+  </div>
+
+  <div class="preferences-overlay" id="preferences-overlay" role="dialog" aria-modal="true" aria-labelledby="preferences-title">
+    <aside class="preferences-sheet">
+      <div class="preferences-header">
+        <div><div class="eyebrow">來源與語言設定</div><h2 id="preferences-title">偏好</h2><p>每次手沖前，會把這些偏好放進編輯 prompt；它們只影響下一次找什麼、怎麼找。</p></div>
+        <button class="preferences-close" id="preferences-close" aria-label="關閉偏好">×</button>
+      </div>
+
+      <section class="preferences-section" aria-labelledby="source-weight-title">
+        <h3 id="source-weight-title">來源偏好權重</h3>
+        <p>數字越高，越希望看到這類來源；它是機率偏好，不是硬性保證。</p>
+        <div class="source-weight-legend"><span><strong>1</strong> 盡量不要出現</span><span><strong>3</strong> 正常</span><span><strong>5</strong> 請給我更多</span></div>
+        <div class="source-weight-row"><div class="source-weight-name">Facebook</div><div class="source-weight-scale" role="radiogroup" aria-label="Facebook 來源權重"><label><input type="radio" name="weight-facebook" value="1"><span>1</span></label><label><input type="radio" name="weight-facebook" value="2"><span>2</span></label><label><input type="radio" name="weight-facebook" value="3" checked><span>3</span></label><label><input type="radio" name="weight-facebook" value="4"><span>4</span></label><label><input type="radio" name="weight-facebook" value="5"><span>5</span></label></div></div>
+        <div class="source-weight-row"><div class="source-weight-name">Reddit</div><div class="source-weight-scale" role="radiogroup" aria-label="Reddit 來源權重"><label><input type="radio" name="weight-reddit" value="1"><span>1</span></label><label><input type="radio" name="weight-reddit" value="2"><span>2</span></label><label><input type="radio" name="weight-reddit" value="3" checked><span>3</span></label><label><input type="radio" name="weight-reddit" value="4"><span>4</span></label><label><input type="radio" name="weight-reddit" value="5"><span>5</span></label></div></div>
+        <div class="source-weight-row"><div class="source-weight-name">GitHub</div><div class="source-weight-scale" role="radiogroup" aria-label="GitHub 來源權重"><label><input type="radio" name="weight-github" value="1"><span>1</span></label><label><input type="radio" name="weight-github" value="2"><span>2</span></label><label><input type="radio" name="weight-github" value="3" checked><span>3</span></label><label><input type="radio" name="weight-github" value="4"><span>4</span></label><label><input type="radio" name="weight-github" value="5"><span>5</span></label></div></div>
+      </section>
+
+      <section class="preferences-section" aria-labelledby="specific-source-title">
+        <h3 id="specific-source-title">特定社群偏好</h3>
+        <p>這些會成為 prompt 裡的偏好提示；不是網址白名單，模型仍會先確認內容是否真的有用。</p>
+        <label class="preference-field"><span>Facebook 社團</span><input class="preference-input" id="specific-facebook" type="text" maxlength="160" placeholder="例如：Vibe Coding Taiwan"></label>
+        <label class="preference-field"><span>Reddit 討論區</span><input class="preference-input" id="specific-reddit" type="text" maxlength="160" placeholder="例如：r/vibecoding"></label>
+        <label class="preference-field"><span>GitHub 專案／討論</span><input class="preference-input" id="specific-github" type="text" maxlength="160" placeholder="例如：某個 repository 或 Discussions"></label>
+      </section>
+
+      <section class="preferences-section" aria-labelledby="prompt-preference-title">
+        <h3 id="prompt-preference-title">額外 prompt 偏好</h3>
+        <p>每次呼叫時都會重新讀取這段話，適合描述你最近想追的主題或排除條件。</p>
+        <label class="preference-field"><span>我想看到／不要看到</span><textarea class="preference-textarea" id="preference-prompt" maxlength="1000" placeholder="例如：多找實際 coding agent workflow，少找產品宣傳；優先有測試、失敗分析與可重現步驟的討論。"></textarea></label>
+      </section>
+
+      <section class="preferences-section preference-hard-rule" aria-labelledby="direct-source-title">
+        <h3 id="direct-source-title">直接資訊來源網址</h3>
+        <p>這裡是硬性規定。填入後，該次手沖只從這些網址或其頁面翻找；一行一個網址。</p>
+        <label class="preference-field"><span>網址白名單</span><textarea class="preference-textarea" id="preference-direct-urls" maxlength="2000" placeholder="https://example.com/community
+https://www.reddit.com/r/vibecoding/"></textarea></label>
+      </section>
+
+      <section class="preferences-section" aria-labelledby="language-title">
+        <h3 id="language-title">資訊源頭語言</h3>
+        <p>目前支援中文或英文；這會影響來源搜尋時優先尋找哪種語言，不會改變這個中文介面的閱讀語言。</p>
+        <div class="language-options" role="radiogroup" aria-label="資訊源頭語言偏好"><label class="language-option"><input type="radio" name="preference-language" value="zh-Hant" checked><span>繁體中文</span></label><label class="language-option"><input type="radio" name="preference-language" value="en"><span>English</span></label></div>
+      </section>
+
+      <div class="preferences-actions"><button class="preferences-save" id="preferences-save" type="button">儲存偏好</button><button class="preferences-reset" id="preferences-reset" type="button">恢復正常設定</button><span class="preferences-status" id="preferences-status" role="status"></span></div>
+    </aside>
   </div>
 
   <div class="detail-overlay" id="detail-overlay" role="dialog" aria-modal="true" aria-labelledby="detail-title">
@@ -386,6 +480,15 @@
     ];
 
     const categoryFilters = ['全部學習', '思考', '提示設計', 'Agent 管理', '上下文工程', '程式碼理解', '驗證', '工作流程', '工藝與心態'];
+    const preferenceStorageKey = 'vibe-coding-daily-brew:source-preferences';
+    const defaultPreferences = { sourceWeights: { facebook: 3, reddit: 3, github: 3 }, specificSources: { facebook: '', reddit: '', github: '' }, prompt: '', directUrls: [], language: 'zh-Hant' };
+    function loadPreferences() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(preferenceStorageKey) || '{}');
+        return { ...defaultPreferences, ...saved, sourceWeights: { ...defaultPreferences.sourceWeights, ...(saved.sourceWeights || {}) }, specificSources: { ...defaultPreferences.specificSources, ...(saved.specificSources || {}) }, directUrls: Array.isArray(saved.directUrls) ? saved.directUrls : [] };
+      } catch { return { ...defaultPreferences, sourceWeights: { ...defaultPreferences.sourceWeights }, specificSources: { ...defaultPreferences.specificSources }, directUrls: [] }; }
+    }
+    let brewPreferences = loadPreferences();
     const favoriteFilters = ['全部內容', 'Starred 以上', '僅 Super Starred'];
     const favoriteStorageKey = 'vibe-coding-daily-brew:favorites';
     let pantryMode = 'favorites';
@@ -409,6 +512,49 @@
         const url = new URL(value);
         return /^https?:$/.test(url.protocol) ? escapeHtml(url.href) : '#';
       } catch { return '#'; }
+    }
+
+    function populatePreferences() {
+      ['facebook', 'reddit', 'github'].forEach(source => {
+        const weight = String(brewPreferences.sourceWeights[source] || 3);
+        const radio = document.querySelector(`input[name="weight-${source}"][value="${weight}"]`);
+        if (radio) radio.checked = true;
+        const field = document.getElementById(`specific-${source}`);
+        if (field) field.value = brewPreferences.specificSources[source] || '';
+      });
+      document.getElementById('preference-prompt').value = brewPreferences.prompt || '';
+      document.getElementById('preference-direct-urls').value = (brewPreferences.directUrls || []).join('\n');
+      const language = document.querySelector(`input[name="preference-language"][value="${brewPreferences.language === 'en' ? 'en' : 'zh-Hant'}"]`);
+      if (language) language.checked = true;
+    }
+
+    function collectPreferences() {
+      const sourceWeights = {};
+      const specificSources = {};
+      ['facebook', 'reddit', 'github'].forEach(source => {
+        sourceWeights[source] = Number(document.querySelector(`input[name="weight-${source}"]:checked`)?.value || 3);
+        specificSources[source] = document.getElementById(`specific-${source}`).value.trim();
+      });
+      return { sourceWeights, specificSources, prompt: document.getElementById('preference-prompt').value.trim(), directUrls: document.getElementById('preference-direct-urls').value.split(/\r?\n/).map(url => url.trim()).filter(Boolean), language: document.querySelector('input[name="preference-language"]:checked')?.value === 'en' ? 'en' : 'zh-Hant' };
+    }
+
+    function savePreferences(showStatus = true) {
+      brewPreferences = collectPreferences();
+      try { localStorage.setItem(preferenceStorageKey, JSON.stringify(brewPreferences)); } catch {}
+      if (showStatus) document.getElementById('preferences-status').textContent = '已儲存，下一次手沖會套用。';
+    }
+
+    function closePreferences() {
+      document.getElementById('preferences-overlay').classList.remove('is-open');
+      document.body.style.overflow = '';
+    }
+
+    function openPreferences() {
+      populatePreferences();
+      document.getElementById('preferences-status').textContent = '';
+      document.getElementById('preferences-overlay').classList.add('is-open');
+      document.body.style.overflow = 'hidden';
+      document.getElementById('preferences-close').focus();
     }
 
     function favoriteKey(item) { return `${item.title}::${item.date || ''}`; }
@@ -522,7 +668,21 @@
     }));
     document.getElementById('detail-close').addEventListener('click', closeLesson);
     detailOverlay.addEventListener('click', event => { if (event.target === detailOverlay) closeLesson(); });
-    document.addEventListener('keydown', event => { if (event.key === 'Escape') { closeLesson(); document.getElementById('search-drawer').classList.remove('is-open'); } });
+    const quietMenu = document.getElementById('quiet-menu');
+    const quietTrigger = document.getElementById('quiet-trigger');
+    quietTrigger.addEventListener('click', event => { event.stopPropagation(); const open = quietMenu.classList.toggle('is-open'); quietTrigger.setAttribute('aria-expanded', String(open)); });
+    document.getElementById('preferences-trigger').addEventListener('click', () => { quietMenu.classList.remove('is-open'); quietTrigger.setAttribute('aria-expanded', 'false'); openPreferences(); });
+    document.getElementById('preferences-close').addEventListener('click', closePreferences);
+    document.getElementById('preferences-overlay').addEventListener('click', event => { if (event.target.id === 'preferences-overlay') closePreferences(); });
+    document.getElementById('preferences-save').addEventListener('click', () => savePreferences());
+    document.getElementById('preferences-reset').addEventListener('click', () => {
+      brewPreferences = { ...defaultPreferences, sourceWeights: { ...defaultPreferences.sourceWeights }, specificSources: { ...defaultPreferences.specificSources }, directUrls: [] };
+      savePreferences(false);
+      populatePreferences();
+      document.getElementById('preferences-status').textContent = '已恢復正常設定。';
+    });
+    document.addEventListener('click', event => { if (!quietMenu.contains(event.target) && event.target !== quietTrigger) { quietMenu.classList.remove('is-open'); quietTrigger.setAttribute('aria-expanded', 'false'); } });
+    document.addEventListener('keydown', event => { if (event.key === 'Escape') { closeLesson(); closePreferences(); quietMenu.classList.remove('is-open'); quietTrigger.setAttribute('aria-expanded', 'false'); document.getElementById('search-drawer').classList.remove('is-open'); } });
 
     const searchDrawer = document.getElementById('search-drawer');
     const globalSearch = document.getElementById('global-search');
@@ -535,6 +695,33 @@
     });
 
     document.getElementById('pantry-search').addEventListener('input', event => { renderPantry(undefined, event.target.value); });
+    async function loadDailyEdition() {
+      if (location.protocol === 'file:') return;
+      try {
+        const response = await fetch('/outputs/vibe-coding-daily-brew/daily/latest.json', { cache: 'no-store' });
+        if (!response.ok) return;
+        const edition = await response.json();
+        if (!Array.isArray(edition.items) || edition.items.length !== 10) return;
+        lessons.splice(0, lessons.length, ...edition.items.map(item => ({
+          ...item,
+          source: item.source_display || item.source || '社群來源',
+          sourceType: item.sourceType || item.source?.platform || '社群討論',
+          date: item.date || item.source?.published_at || edition.run_date,
+          url: item.url || item.source?.url || '',
+          timeless: Number(item.timeless ?? item.scores?.timeless ?? 3),
+          importance: Number(item.importance ?? item.scores?.importance ?? 3),
+          heat: Number(item.heat ?? item.scores?.popularity ?? 2),
+          time: item.time || '6 分鐘',
+          n: item.n || '00'
+        })));
+        const editionDate = document.querySelector('.hero .eyebrow');
+        if (editionDate) editionDate.textContent = `每日選集 · ${edition.run_date} · ${edition.items.length} 個發現`;
+        renderLessons();
+        renderFilters();
+        renderPantry();
+      } catch {}
+    }
+
     document.getElementById('brew-form').addEventListener('submit', async event => {
       event.preventDefault();
       const count = Math.max(1, Math.min(10, Number(document.getElementById('brew-count').value) || 5));
@@ -553,7 +740,7 @@
       let i = 0;
       const timer = setInterval(() => { stage.textContent = stages[Math.min(i, stages.length - 1)]; i += 1; }, 650);
       try {
-        const response = await fetch('/api/brew', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ count }) });
+        const response = await fetch('/api/brew', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ count, preferences: brewPreferences }) });
         const payload = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(payload.error || '手沖服務暫時無法使用。');
         const incoming = Array.isArray(payload.items) ? payload.items : [];
@@ -575,6 +762,7 @@
     renderLessons();
     renderFilters();
     renderPantry();
+    loadDailyEdition();
   </script>
 </body>
 </html>
