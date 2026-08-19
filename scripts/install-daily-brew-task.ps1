@@ -20,9 +20,9 @@ $action = New-ScheduledTaskAction -Execute $powershellCommand.Source -Argument $
 $dailyTrigger = New-ScheduledTaskTrigger -Daily -At '06:00'
 $logonTrigger = New-ScheduledTaskTrigger -AtLogOn
 $settings = New-ScheduledTaskSettingsSet -StartWhenAvailable -MultipleInstances IgnoreNew -ExecutionTimeLimit (New-TimeSpan -Hours 2)
-$principal = New-ScheduledTaskPrincipal -UserId "$env:USERDOMAIN\$env:USERNAME" -LogonType Interactive -RunLevel Limited
+$principal = New-ScheduledTaskPrincipal -UserId $env:USERNAME -LogonType InteractiveToken -RunLevel Limited
 
-Register-ScheduledTask -TaskName $taskName -Action $action -Trigger @($dailyTrigger, $logonTrigger) -Settings $settings -Principal $principal -Description 'Generate exactly 10 evidence-backed Vibe Coding discoveries once per local day.' -Force | Out-Null
+Register-ScheduledTask -TaskName $taskName -Action $action -Trigger @($dailyTrigger, $logonTrigger) -Settings $settings -Principal $principal -Description 'Generate exactly 10 evidence-backed Vibe Coding discoveries once per local day.' -Force -ErrorAction Stop | Out-Null
 Write-Output "Registered: $taskName"
 Write-Output "Triggers: daily 06:00 and interactive logon"
 Write-Output "Project: $projectRoot"
