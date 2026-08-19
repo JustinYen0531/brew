@@ -16,7 +16,7 @@ node server.mjs
 
 ## Windows 自動排程
 
-以目前使用者在 PowerShell 執行一次：
+以「系統管理員身分執行」的 PowerShell 執行一次：
 
 ```powershell
 .\scripts\install-daily-brew-task.ps1
