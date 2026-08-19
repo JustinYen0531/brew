@@ -1,0 +1,7 @@
+{
+  "version": 2,
+  "rewrites": [
+    { "source": "/", "destination": "/outputs/vibe-coding-daily-brew/index.html" },
+    { "source": "/index.html", "destination": "/outputs/vibe-coding-daily-brew/index.html" }
+  ]
+}
