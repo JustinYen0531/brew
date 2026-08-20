@@ -33,6 +33,7 @@ const RETRY_TIMEOUT_MS = 30_000;
 const CODEX_TIMEOUT_MS = 120_000;
 const MAX_BREW_ATTEMPTS = 2;
 const MAX_PARALLEL_BREWS = 2;
+const DIFFICULTY_LEVELS = ['初學者', '普通', '困難'];
 const BREW_RESPONSE_SCHEMA = {
   type: 'object',
   properties: {
@@ -46,6 +47,7 @@ const BREW_RESPONSE_SCHEMA = {
           title: { type: 'string' },
           category: { type: 'string' },
           tag: { type: 'string' },
+          difficulty: { type: 'string', enum: DIFFICULTY_LEVELS },
           takeaway: { type: 'string' },
           problem: { type: 'string' },
           principle: { type: 'string' },
@@ -67,7 +69,7 @@ const BREW_RESPONSE_SCHEMA = {
             additionalProperties: false
           }
         },
-        required: ['title', 'category', 'tag', 'takeaway', 'problem', 'principle', 'try_it', 'tradeoffs', 'practice_prompt', 'source_says', 'editorial_synthesis', 'source', 'scores'],
+        required: ['title', 'category', 'tag', 'difficulty', 'takeaway', 'problem', 'principle', 'try_it', 'tradeoffs', 'practice_prompt', 'source_says', 'editorial_synthesis', 'source', 'scores'],
         additionalProperties: false
       }
     }
@@ -107,6 +109,10 @@ function dateOnly(value) {
   if (typeof value !== 'string' || !value.trim()) return '';
   const parsed = new Date(value);
   return Number.isNaN(parsed.getTime()) ? '' : parsed.toISOString().slice(0, 10);
+}
+
+function normalizeDifficulty(value) {
+  return DIFFICULTY_LEVELS.includes(value) ? value : '普通';
 }
 
 function normalizeTargetDate(value) {
@@ -258,6 +264,7 @@ function normalizeItems(payload, count, asOfDate) {
       n: String(index + 1).padStart(2, '0'),
       category: item.category.trim(),
       tag: item.tag || '即時選集',
+      difficulty: normalizeDifficulty(item.difficulty),
       title: item.title.trim(),
       takeaway: item.takeaway.trim(),
       timeless: clamp(item.scores?.timeless, 1, 5, 3),
@@ -282,7 +289,7 @@ function normalizeItems(payload, count, asOfDate) {
 }
 
 function buildPrompt(count, preferences, asOfDate) {
-  return `資料截點是 ${asOfDate}。請使用可用的 web search，找出在 ${asOfDate} 當天或之前已經存在的、與 Vibe Coding 相關、具體且可重複的實作方法，並整理成 ${count} 篇繁體中文學習內容。嚴格禁止使用 ${asOfDate} 之後發布、更新或發生的發現，所有 source.published_at 必須小於或等於 ${asOfDate}。不要做產品新聞、模型發布摘要或空泛金句。每篇都必須說明問題、可轉移原則、可操作範例、限制、練習題與來源證據。${preferenceBrief(preferences)}\n\n請只回傳 JSON object，不要 Markdown，不要前言，格式必須是：\n{"items":[{"title":"...","category":"思考|提示設計|Agent 管理|上下文工程|程式碼理解|驗證|工作流程|工藝與心態|安全|協作|學習系統","tag":"新鮮實作|近期耐用|舊作高價值","takeaway":"...","problem":"...","principle":"...","try_it":"...","tradeoffs":"...","practice_prompt":"...","source_says":"...","editorial_synthesis":"...","source":{"url":"https://...","platform":"...","author":"...","published_at":"YYYY-MM-DD","evidence_excerpt":"...","popularity_basis":"..."},"scores":{"timeless":1,"importance":1,"popularity":1}}]}\n\n評分必須是 1 到 5 的數字。來源 URL、作者、日期與證據不確定時，請如實降低評分或排除，不要捏造。`;
+  return `資料截點是 ${asOfDate}。請使用可用的 web search，找出在 ${asOfDate} 當天或之前已經存在的、與 Vibe Coding 相關、具體且可重複的實作方法，並整理成 ${count} 篇繁體中文學習內容。嚴格禁止使用 ${asOfDate} 之後發布、更新或發生的發現，所有 source.published_at 必須小於或等於 ${asOfDate}。不要做產品新聞、模型發布摘要或空泛金句。每篇都必須說明問題、可轉移原則、可操作範例、限制、練習題與來源證據。${preferenceBrief(preferences)}\n\n難度請依先備知識與實作風險判定：初學者＝具備基本閱讀與提問能力即可嘗試；普通＝需要基本程式碼、repository 或測試經驗；困難＝需要多步驟整合、架構／權限／部署判斷，或實際操作後才能安全掌握。請只回傳 JSON object，不要 Markdown，不要前言，格式必須是：\n{"items":[{"title":"...","category":"思考|提示設計|Agent 管理|上下文工程|程式碼理解|驗證|工作流程|工藝與心態|安全|協作|學習系統","tag":"新鮮實作|近期耐用|舊作高價值","difficulty":"初學者|普通|困難","takeaway":"...","problem":"...","principle":"...","try_it":"...","tradeoffs":"...","practice_prompt":"...","source_says":"...","editorial_synthesis":"...","source":{"url":"https://...","platform":"...","author":"...","published_at":"YYYY-MM-DD","evidence_excerpt":"...","popularity_basis":"..."},"scores":{"timeless":1,"importance":1,"popularity":1}}]}\n\n評分必須是 1 到 5 的數字。來源 URL、作者、日期與證據不確定時，請如實降低評分或排除，不要捏造。`;
 }
 
 function buildRequestPrompt(count, preferences, asOfDate, compact = false, slot = 0) {
