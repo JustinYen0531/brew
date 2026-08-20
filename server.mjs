@@ -201,8 +201,13 @@ function readRequestBody(req, maxBytes = 100_000) {
 
 function extractText(content) {
   if (typeof content === 'string') return content;
-  if (Array.isArray(content)) return content.map(part => typeof part === 'string' ? part : part?.text || '').join('');
+  if (Array.isArray(content)) return content.map(part => extractText(part)).join('');
   if (content && typeof content.text === 'string') return content.text;
+  if (content && typeof content.output_text === 'string') return content.output_text;
+  if (content && typeof content.content === 'string') return content.content;
+  if (content && typeof content.json === 'string') return content.json;
+  if (content?.json && typeof content.json === 'object') return JSON.stringify(content.json);
+  if (content && typeof content === 'object') return JSON.stringify(content);
   return '';
 }
 
@@ -289,6 +294,9 @@ function buildRequestPrompt(count, preferences, asOfDate, compact = false, slot 
 
 async function requestOpenRouter(key, count, preferences, asOfDate, attempt, slot = 0) {
   const compact = attempt > 0;
+  const responseFormat = compact
+    ? { type: 'json_object' }
+    : { type: 'json_schema', json_schema: { name: 'vibe_coding_brew', strict: true, schema: BREW_RESPONSE_SCHEMA } };
   const upstream = await fetch(OPENROUTER_API_URL, {
     method: 'POST',
     headers: {
@@ -305,8 +313,10 @@ async function requestOpenRouter(key, count, preferences, asOfDate, attempt, slo
       ],
       temperature: compact ? 0.15 : 0.25,
       max_tokens: compact ? 2200 : 2400,
+      reasoning: { effort: 'none', exclude: true },
+      provider: { allow_fallbacks: true },
       plugins: [buildSearchPlugin(preferences, compact), { id: 'response-healing' }],
-      response_format: { type: 'json_schema', json_schema: { name: 'vibe_coding_brew', strict: true, schema: BREW_RESPONSE_SCHEMA } }
+      ...(responseFormat ? { response_format: responseFormat } : {})
     }),
     signal: AbortSignal.timeout(compact ? RETRY_TIMEOUT_MS : REQUEST_TIMEOUT_MS)
   });
@@ -316,8 +326,9 @@ async function requestOpenRouter(key, count, preferences, asOfDate, attempt, slo
     throw Object.assign(new Error('upstream_failed'), { status: 502, upstreamStatus: upstream.status });
   }
   const choice = data.choices?.[0] || {};
-  if (choice.error) {
-    console.error(`OpenRouter model response failed: ${choice.error.code || 'unknown'}`);
+  const modelError = data.error || choice.error;
+  if (modelError) {
+    console.error(`OpenRouter model response failed: ${modelError.code || modelError.message || 'unknown'}`);
     throw Object.assign(new Error('model_response_error'), { status: 502 });
   }
   const answer = extractText(choice.message?.content);
