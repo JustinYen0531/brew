@@ -1,5 +1,10 @@
 {
   "version": 2,
+  "functions": {
+    "api/brew.mjs": {
+      "maxDuration": 90
+    }
+  },
   "rewrites": [
     { "source": "/", "destination": "/outputs/vibe-coding-daily-brew/index.html" },
     { "source": "/index.html", "destination": "/outputs/vibe-coding-daily-brew/index.html" }
