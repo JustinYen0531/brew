@@ -131,6 +131,10 @@
     .lesson-main { min-width: 0; }
     .lesson-meta { display: flex; flex-wrap: wrap; gap: 10px; color: var(--espresso); font: 10px var(--mono); letter-spacing: .12em; text-transform: uppercase; margin-bottom: 8px; }
     .lesson-meta .tag { color: var(--olive); }
+    .difficulty-chip { display: inline-block; border: 1px solid currentColor; padding: 2px 5px; letter-spacing: .08em; line-height: 1.1; white-space: nowrap; }
+    .difficulty-chip.beginner { color: var(--olive); }
+    .difficulty-chip.normal { color: var(--espresso); }
+    .difficulty-chip.hard { color: var(--terracotta); }
     .lesson-title { font: 400 clamp(23px, 3vw, 34px)/1.06 var(--serif); letter-spacing: -.035em; margin: 0 0 8px; }
     .lesson-takeaway { color: var(--muted); font: 15px/1.45 var(--serif); margin: 0; max-width: 610px; }
     .lesson-rating { display: grid; gap: 6px; }
@@ -221,6 +225,7 @@
     .pantry-item p { color: var(--muted); font: 11px var(--mono); margin: 0; }
     .pantry-item .ratings { color: var(--espresso); font: 10px var(--mono); }
     .pantry-item .date { color: var(--muted); font: 10px var(--mono); text-align: right; }
+    .pantry-item .difficulty-chip { margin-left: 8px; vertical-align: middle; font: 9px var(--mono); }
     .pantry-favorite { color: var(--terracotta); font: 10px var(--mono); margin-left: 8px; }
     .pantry-favorite.super { color: var(--amber); }
     .empty-state { color: var(--muted); padding: 30px 0; font: 12px var(--mono); }
@@ -441,7 +446,7 @@
 
       <section class="view" id="pantry-view" aria-labelledby="pantry-title">
         <div class="pantry-intro"><div class="eyebrow">永久累積的知識收藏</div><h1 id="pantry-title">知識儲藏室</h1><p>把提煉過的學習留在這裡。舊，不代表過時；好的原則會一直保有味道。</p></div>
-        <div class="pantry-toolbar"><div class="pantry-browser"><div class="pantry-browser-caption">瀏覽方式</div><div class="pantry-mode-switch" role="tablist" aria-label="知識儲藏室瀏覽方式"><button class="pantry-mode-button is-active" type="button" data-pantry-mode="favorites" role="tab" aria-selected="true">按收藏</button><button class="pantry-mode-button" type="button" data-pantry-mode="category" role="tab" aria-selected="false">按類別</button></div><div class="filter-list" id="favorite-filter-list" aria-label="依收藏篩選學習"></div><div class="filter-list is-hidden" id="category-filter-list" aria-label="依類別篩選學習"></div></div><label><span class="sr-only">搜尋知識儲藏室</span><input class="pantry-search" id="pantry-search" type="search" placeholder="搜尋知識儲藏室…"></label></div>
+        <div class="pantry-toolbar"><div class="pantry-browser"><div class="pantry-browser-caption">瀏覽方式</div><div class="pantry-mode-switch" role="tablist" aria-label="知識儲藏室瀏覽方式"><button class="pantry-mode-button is-active" type="button" data-pantry-mode="favorites" role="tab" aria-selected="true">按收藏</button><button class="pantry-mode-button" type="button" data-pantry-mode="category" role="tab" aria-selected="false">按類別</button><button class="pantry-mode-button" type="button" data-pantry-mode="difficulty" role="tab" aria-selected="false">按難度</button></div><div class="filter-list" id="favorite-filter-list" aria-label="依收藏篩選學習"></div><div class="filter-list is-hidden" id="category-filter-list" aria-label="依類別篩選學習"></div><div class="filter-list is-hidden" id="difficulty-filter-list" aria-label="依難度篩選學習"></div></div><label><span class="sr-only">搜尋知識儲藏室</span><input class="pantry-search" id="pantry-search" type="search" placeholder="搜尋知識儲藏室…"></label></div>
         <div class="pantry-list" id="pantry-list"></div>
       </section>
 
@@ -539,20 +544,21 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
   </style>
   <script>
     const lessons = [
-      { n:'01', category:'上下文工程', tag:'新鮮實作', title:'別再讓 Agent 猜測', takeaway:'把你已經做好的決定交給 Agent，而不是把你已經解完的問題再丟回去。', timeless:5, importance:5, heat:3.2, time:'8 分鐘', source:'GitHub Discussions · 示範證據', date:'2026-08-19', classic:false, problem:'當 repository、限制條件與完成定義都沒有說清楚時，Agent 會浪費時間。最後產出的程式碼可能看似合理，卻悄悄違反專案原本的形狀。', principle:'有用的上下文資料包，會縮小決策範圍：先讓 Agent 定位、說明不可變的條件，再明確指出下一個可觀察的檢查。', tryIt:'在要求寫程式之前，先寫一份短 brief，包含目前流程、範圍內的檔案、限制條件，以及一個可測試的驗收檢查。', tradeoffs:'上下文不是越多越好。讓資料包小到可以隨著計畫變更而更新。', prompt:'選一個待辦任務，寫出五行上下文資料包。問自己：Agent 因此不必再猜什麼？', evidence:'這裡是原型的證據欄位；正式發布前，請驗證原始貼文與互動訊號。', url:'https://github.com/orgs/community/discussions', sourceType:'GitHub 討論' },
-      { n:'02', category:'驗證', tag:'新鮮實作', title:'先要檢查，再要修改', takeaway:'每一次提案修改都附上一個能觀察成效的方法，coding loop 就會安定許多。', timeless:5, importance:5, heat:4.1, time:'6 分鐘', source:'Reddit · 示範證據', date:'2026-08-18', classic:false, problem:'沒有檢查時，Agent 可能只追求一份看起來有說服力的 diff，而不是一個真的能工作的結果。', principle:'每個變更都配一個可觀察的驗證步驟：測試、型別檢查、可重現的指令，或狹窄的人工檢查。', tryIt:'把「修好 parser」改成「修好 parser，接著執行先前失敗的 fixture，並回報前後結果」。', tradeoffs:'不是每個變更都值得跑完整測試套件。讓驗證成本匹配影響範圍。', prompt:'回看你最近做的一個變更，找出最小的檢查：它本來可以抓到哪個「看似合理但其實錯了」的結果？', evidence:'這是原型證據欄位；正式 feed 請換成已驗證的來源摘錄與日期。', url:'https://www.reddit.com/r/ExperiencedDevs/', sourceType:'Reddit 討論' },
-      { n:'03', category:'工作流程', tag:'新鮮實作', title:'讓循環小到你能掌握', takeaway:'短循環讓你能在偏移變成重寫之前，就先注意到它。', timeless:5, importance:5, heat:3.7, time:'7 分鐘', source:'Hacker News · 示範證據', date:'2026-08-17', classic:false, problem:'大型要求會把太多假設藏在一次交接裡。結果偏掉時，很難知道是哪一個假設失效。', principle:'使用一連串有邊界的循環：定位 → 修改一個切片 → 驗證 → 記錄改了什麼。', tryIt:'開始前先畫出「一個連貫切片」的邊界。在局部證據變綠之前，不要擴大範圍。', tradeoffs:'太小的循環可能變成儀式。若相鄰編輯共享同一個證據，就把它們放在一起。', prompt:'把你上一個任務畫成三個更小的循環。哪個邊界會讓失敗更容易定位？', evidence:'僅供原型示範；正式發布前，請使用可檢查的 canonical thread URL。', url:'https://news.ycombinator.com/', sourceType:'Hacker News 討論' },
-      { n:'04', category:'Agent 管理', tag:'近期耐用', title:'給 Agent 更小的世界', takeaway:'縮小決策範圍，往往比寫出越來越複雜的 prompt 更能帶來好結果。', timeless:5, importance:4.8, heat:3.2, time:'8 分鐘', source:'開發者論壇 · 示範證據', date:'2026-08-15', classic:false, problem:'如果要求 Agent 理解整個 codebase，它可能把預算花在無關路徑，接著在太多檔案之間自行臆測。', principle:'範圍本身就是品質控制。說清楚允許的表面、排除的表面，以及你要檢查的交接點。', tryIt:'先從一條 route、一個 component 或一份資料契約開始。修改前，請 Agent 列出它打算碰哪些檔案。', tradeoffs:'有些架構變更確實會跨越邊界。分階段、有意識地擴大世界。', prompt:'替目前任務指定一份檔案 allowlist，再把 diff 與說明和你平常的流程比較。', evidence:'僅供原型示範；正式視為社群證據前，請驗證來源、作者、日期與互動。', url:'https://dev.to/', sourceType:'開發者論壇' },
-      { n:'05', category:'程式碼理解', tag:'新鮮實作', title:'先讀形狀，再讀行數', takeaway:'先快速畫出 repository 的地圖，常常能避免你和錯誤的檔案對話太久。', timeless:4.8, importance:4.6, heat:3.4, time:'5 分鐘', source:'GitHub Discussions · 示範證據', date:'2026-08-16', classic:false, problem:'直接跳進實作，會讓第一個看似合理的檔案被誤認為真實來源。', principle:'先從結構定位：entrypoint、資料流、測試與設定。接著才縮放到最相關的路徑。', tryIt:'要求一份簡短的 repository map，標出「權威」、「衍生」與「測試覆蓋」後，再要求 patch。', tradeoffs:'地圖會過時。把它當成起點假設，不要當成永久文件。', prompt:'替你熟悉的 repository 做一張三分鐘地圖。形狀揭露了什麼，是檔案搜尋沒有揭露的？', evidence:'僅供原型示範；source trail 是待驗證社群討論的 placeholder。', url:'https://github.com/orgs/community/discussions', sourceType:'GitHub 討論' },
-      { n:'06', category:'工藝與心態', tag:'近期耐用', title:'把自信當成一個主張', takeaway:'漂亮的說明不是證明，而是對「下一步應該檢查什麼」的主張。', timeless:5, importance:4.7, heat:2.8, time:'6 分鐘', source:'獨立部落格 · 示範證據', date:'2026-08-12', classic:false, problem:'AI 產出的工作常常附帶自信的摘要，即使相關路徑根本沒有被執行。', principle:'把「改了什麼」與「驗證了什麼」分開。沒有第二句，就不要接受第一句。', tryIt:'加上一個小型交接模板：已修改／已檢查／未檢查／下一個不確定性。', tradeoffs:'低風險編輯可能會覺得慢。保持輕量，不要把它做成官僚流程。', prompt:'用四行模板重寫你最近收到的 code handoff。不確定性在哪裡變得看得見？', evidence:'僅供原型示範；正式使用前請連結真實、可檢查的文章。', url:'https://martinfowler.com/', sourceType:'獨立部落格' },
-      { n:'07', category:'思考', tag:'近期耐用', title:'說出你正在購買的不確定性', takeaway:'每一個捷徑都會把不確定性移到別的地方；說出它的去處，才能有意識地取捨。', timeless:4.9, importance:4.4, heat:2.5, time:'5 分鐘', source:'開發者論壇 · 示範證據', date:'2026-08-10', classic:false, problem:'速度看似免費，直到隱藏的不確定性以除錯、審查或復原工作的形式回來。', principle:'選擇捷徑時，說清楚還剩下哪個不確定性，以及誰會負責解決它。', tryIt:'快速實作後寫一句話：「它之所以快，是因為 ___；剩下的風險是 ___；我們會用 ___ 檢查。」', tradeoffs:'原型可以接受一些不確定性。重點是它可見且有邊界。', prompt:'看看你最近採用的一個捷徑，說出它把不確定性往下游移到了哪裡。', evidence:'僅供原型示範；正式發布前請驗證 source trail。', url:'https://dev.to/', sourceType:'開發者論壇' },
-      { n:'08', category:'協作', tag:'經典保留', title:'讓交接對人類清楚可讀', takeaway:'最好的 AI 輔助工作，會留下足夠上下文，讓下一個人不必重新訪談作者就能繼續。', timeless:5, importance:4.5, heat:2.1, time:'7 分鐘', source:'GitHub Discussions · 示範證據', date:'2025-11-06', classic:true, problem:'快速的 Agent session 可能只留下 diff，沒有選擇路徑、被捨棄的替代方案或剩餘不確定性的紀錄。', principle:'交接是實作的一部分：記錄決定、證據，以及下一個安全動作。', tryIt:'每次有意義的 session 結束時，留下短筆記：意圖／修改範圍／證據／開放問題。', tradeoffs:'不必描述每一次按鍵。保留那些否則會很難重建的決策。', prompt:'替一個進行中的任務建立四行 handoff，請另一個人只靠它接續工作。', evidence:'原型經典欄位。正式發布前請驗證原始貼文至少早於 90 天，並符合 curator 信心門檻。', url:'https://github.com/orgs/community/discussions', sourceType:'GitHub 討論' },
-      { n:'09', category:'安全', tag:'新鮮實作', title:'讓快速路徑可以復原', takeaway:'最安全的加速，是那種不需要考古工程就能撤銷的加速。', timeless:5, importance:4.8, heat:3.8, time:'6 分鐘', source:'GitHub Discussions · 示範證據', date:'2026-08-14', classic:false, problem:'過寬的權限與綁在一起的編輯，會讓 Agent 碰錯範圍時很難復原。', principle:'限制變更、保留 checkpoint，並優先使用有清楚 rollback 路徑的操作。', tryIt:'在執行有風險的 Agent 動作前，先說出 restore point，以及它可以影響的確切檔案或紀錄。', tradeoffs:'可復原性有成本。在影響範圍或資料敏感度高的地方，才花這個成本。', prompt:'針對目前任務，在要求實作前先找出 rollback 邊界。', evidence:'僅供原型示範；請換成已驗證的安全或工作流程討論。', url:'https://github.com/orgs/community/discussions', sourceType:'GitHub 討論' },
-      { n:'10', category:'學習系統', tag:'舊作高價值', title:'把一次修正變成可重用的問題', takeaway:'真正耐用的 lesson 往往不是 patch，而是那個能更早找到失敗的問題。', timeless:5, importance:4.6, heat:2.0, time:'6 分鐘', source:'獨立部落格 · 示範證據', date:'2025-03-19', classic:false, problem:'如果一次性修正沒有轉成 prompt、checklist、測試或決策規則，它很快就會消失。', principle:'失敗之後，提煉出一個能改變下一次嘗試的最小可重用問題。', tryIt:'問自己：下次碰程式碼之前，我應該先檢查什麼？把答案放進專案工作筆記。', tradeoffs:'不是每個事件都值得建立框架。重用能避免重犯的最小 artifact。', prompt:'把一個最近的 bug 轉成 preflight 問題，放到下一個 session 看得到的地方。', evidence:'僅供原型示範；正式使用前需要驗證來源與日期。', url:'https://martinfowler.com/', sourceType:'獨立部落格' }
+      { n:'01', category:'上下文工程', tag:'新鮮實作', difficulty:'初學者', title:'別再讓 Agent 猜測', takeaway:'把你已經做好的決定交給 Agent，而不是把你已經解完的問題再丟回去。', timeless:5, importance:5, heat:3.2, time:'8 分鐘', source:'GitHub Discussions · 示範證據', date:'2026-08-19', classic:false, problem:'當 repository、限制條件與完成定義都沒有說清楚時，Agent 會浪費時間。最後產出的程式碼可能看似合理，卻悄悄違反專案原本的形狀。', principle:'有用的上下文資料包，會縮小決策範圍：先讓 Agent 定位、說明不可變的條件，再明確指出下一個可觀察的檢查。', tryIt:'在要求寫程式之前，先寫一份短 brief，包含目前流程、範圍內的檔案、限制條件，以及一個可測試的驗收檢查。', tradeoffs:'上下文不是越多越好。讓資料包小到可以隨著計畫變更而更新。', prompt:'選一個待辦任務，寫出五行上下文資料包。問自己：Agent 因此不必再猜什麼？', evidence:'這裡是原型的證據欄位；正式發布前，請驗證原始貼文與互動訊號。', url:'https://github.com/orgs/community/discussions', sourceType:'GitHub 討論' },
+      { n:'02', category:'驗證', tag:'新鮮實作', difficulty:'初學者', title:'先要檢查，再要修改', takeaway:'每一次提案修改都附上一個能觀察成效的方法，coding loop 就會安定許多。', timeless:5, importance:5, heat:4.1, time:'6 分鐘', source:'Reddit · 示範證據', date:'2026-08-18', classic:false, problem:'沒有檢查時，Agent 可能只追求一份看起來有說服力的 diff，而不是一個真的能工作的結果。', principle:'每個變更都配一個可觀察的驗證步驟：測試、型別檢查、可重現的指令，或狹窄的人工檢查。', tryIt:'把「修好 parser」改成「修好 parser，接著執行先前失敗的 fixture，並回報前後結果」。', tradeoffs:'不是每個變更都值得跑完整測試套件。讓驗證成本匹配影響範圍。', prompt:'回看你最近做的一個變更，找出最小的檢查：它本來可以抓到哪個「看似合理但其實錯了」的結果？', evidence:'這是原型證據欄位；正式 feed 請換成已驗證的來源摘錄與日期。', url:'https://www.reddit.com/r/ExperiencedDevs/', sourceType:'Reddit 討論' },
+      { n:'03', category:'工作流程', tag:'新鮮實作', difficulty:'普通', title:'讓循環小到你能掌握', takeaway:'短循環讓你能在偏移變成重寫之前，就先注意到它。', timeless:5, importance:5, heat:3.7, time:'7 分鐘', source:'Hacker News · 示範證據', date:'2026-08-17', classic:false, problem:'大型要求會把太多假設藏在一次交接裡。結果偏掉時，很難知道是哪一個假設失效。', principle:'使用一連串有邊界的循環：定位 → 修改一個切片 → 驗證 → 記錄改了什麼。', tryIt:'開始前先畫出「一個連貫切片」的邊界。在局部證據變綠之前，不要擴大範圍。', tradeoffs:'太小的循環可能變成儀式。若相鄰編輯共享同一個證據，就把它們放在一起。', prompt:'把你上一個任務畫成三個更小的循環。哪個邊界會讓失敗更容易定位？', evidence:'僅供原型示範；正式發布前，請使用可檢查的 canonical thread URL。', url:'https://news.ycombinator.com/', sourceType:'Hacker News 討論' },
+      { n:'04', category:'Agent 管理', tag:'近期耐用', difficulty:'普通', title:'給 Agent 更小的世界', takeaway:'縮小決策範圍，往往比寫出越來越複雜的 prompt 更能帶來好結果。', timeless:5, importance:4.8, heat:3.2, time:'8 分鐘', source:'開發者論壇 · 示範證據', date:'2026-08-15', classic:false, problem:'如果要求 Agent 理解整個 codebase，它可能把預算花在無關路徑，接著在太多檔案之間自行臆測。', principle:'範圍本身就是品質控制。說清楚允許的表面、排除的表面，以及你要檢查的交接點。', tryIt:'先從一條 route、一個 component 或一份資料契約開始。修改前，請 Agent 列出它打算碰哪些檔案。', tradeoffs:'有些架構變更確實會跨越邊界。分階段、有意識地擴大世界。', prompt:'替目前任務指定一份檔案 allowlist，再把 diff 與說明和你平常的流程比較。', evidence:'僅供原型示範；正式視為社群證據前，請驗證來源、作者、日期與互動。', url:'https://dev.to/', sourceType:'開發者論壇' },
+      { n:'05', category:'程式碼理解', tag:'新鮮實作', difficulty:'普通', title:'先讀形狀，再讀行數', takeaway:'先快速畫出 repository 的地圖，常常能避免你和錯誤的檔案對話太久。', timeless:4.8, importance:4.6, heat:3.4, time:'5 分鐘', source:'GitHub Discussions · 示範證據', date:'2026-08-16', classic:false, problem:'直接跳進實作，會讓第一個看似合理的檔案被誤認為真實來源。', principle:'先從結構定位：entrypoint、資料流、測試與設定。接著才縮放到最相關的路徑。', tryIt:'要求一份簡短的 repository map，標出「權威」、「衍生」與「測試覆蓋」後，再要求 patch。', tradeoffs:'地圖會過時。把它當成起點假設，不要當成永久文件。', prompt:'替你熟悉的 repository 做一張三分鐘地圖。形狀揭露了什麼，是檔案搜尋沒有揭露的？', evidence:'僅供原型示範；source trail 是待驗證社群討論的 placeholder。', url:'https://github.com/orgs/community/discussions', sourceType:'GitHub 討論' },
+      { n:'06', category:'工藝與心態', tag:'近期耐用', difficulty:'初學者', title:'把自信當成一個主張', takeaway:'漂亮的說明不是證明，而是對「下一步應該檢查什麼」的主張。', timeless:5, importance:4.7, heat:2.8, time:'6 分鐘', source:'獨立部落格 · 示範證據', date:'2026-08-12', classic:false, problem:'AI 產出的工作常常附帶自信的摘要，即使相關路徑根本沒有被執行。', principle:'把「改了什麼」與「驗證了什麼」分開。沒有第二句，就不要接受第一句。', tryIt:'加上一個小型交接模板：已修改／已檢查／未檢查／下一個不確定性。', tradeoffs:'低風險編輯可能會覺得慢。保持輕量，不要把它做成官僚流程。', prompt:'用四行模板重寫你最近收到的 code handoff。不確定性在哪裡變得看得見？', evidence:'僅供原型示範；正式使用前請連結真實、可檢查的文章。', url:'https://martinfowler.com/', sourceType:'獨立部落格' },
+      { n:'07', category:'思考', tag:'近期耐用', difficulty:'普通', title:'說出你正在購買的不確定性', takeaway:'每一個捷徑都會把不確定性移到別的地方；說出它的去處，才能有意識地取捨。', timeless:4.9, importance:4.4, heat:2.5, time:'5 分鐘', source:'開發者論壇 · 示範證據', date:'2026-08-10', classic:false, problem:'速度看似免費，直到隱藏的不確定性以除錯、審查或復原工作的形式回來。', principle:'選擇捷徑時，說清楚還剩下哪個不確定性，以及誰會負責解決它。', tryIt:'快速實作後寫一句話：「它之所以快，是因為 ___；剩下的風險是 ___；我們會用 ___ 檢查。」', tradeoffs:'原型可以接受一些不確定性。重點是它可見且有邊界。', prompt:'看看你最近採用的一個捷徑，說出它把不確定性往下游移到了哪裡。', evidence:'僅供原型示範；正式發布前請驗證 source trail。', url:'https://dev.to/', sourceType:'開發者論壇' },
+      { n:'08', category:'協作', tag:'經典保留', difficulty:'普通', title:'讓交接對人類清楚可讀', takeaway:'最好的 AI 輔助工作，會留下足夠上下文，讓下一個人不必重新訪談作者就能繼續。', timeless:5, importance:4.5, heat:2.1, time:'7 分鐘', source:'GitHub Discussions · 示範證據', date:'2025-11-06', classic:true, problem:'快速的 Agent session 可能只留下 diff，沒有選擇路徑、被捨棄的替代方案或剩餘不確定性的紀錄。', principle:'交接是實作的一部分：記錄決定、證據，以及下一個安全動作。', tryIt:'每次有意義的 session 結束時，留下短筆記：意圖／修改範圍／證據／開放問題。', tradeoffs:'不必描述每一次按鍵。保留那些否則會很難重建的決策。', prompt:'替一個進行中的任務建立四行 handoff，請另一個人只靠它接續工作。', evidence:'原型經典欄位。正式發布前請驗證原始貼文至少早於 90 天，並符合 curator 信心門檻。', url:'https://github.com/orgs/community/discussions', sourceType:'GitHub 討論' },
+      { n:'09', category:'安全', tag:'新鮮實作', difficulty:'困難', title:'讓快速路徑可以復原', takeaway:'最安全的加速，是那種不需要考古工程就能撤銷的加速。', timeless:5, importance:4.8, heat:3.8, time:'6 分鐘', source:'GitHub Discussions · 示範證據', date:'2026-08-14', classic:false, problem:'過寬的權限與綁在一起的編輯，會讓 Agent 碰錯範圍時很難復原。', principle:'限制變更、保留 checkpoint，並優先使用有清楚 rollback 路徑的操作。', tryIt:'在執行有風險的 Agent 動作前，先說出 restore point，以及它可以影響的確切檔案或紀錄。', tradeoffs:'可復原性有成本。在影響範圍或資料敏感度高的地方，才花這個成本。', prompt:'針對目前任務，在要求實作前先找出 rollback 邊界。', evidence:'僅供原型示範；請換成已驗證的安全或工作流程討論。', url:'https://github.com/orgs/community/discussions', sourceType:'GitHub 討論' },
+      { n:'10', category:'學習系統', tag:'舊作高價值', difficulty:'初學者', title:'把一次修正變成可重用的問題', takeaway:'真正耐用的 lesson 往往不是 patch，而是那個能更早找到失敗的問題。', timeless:5, importance:4.6, heat:2.0, time:'6 分鐘', source:'獨立部落格 · 示範證據', date:'2025-03-19', classic:false, problem:'如果一次性修正沒有轉成 prompt、checklist、測試或決策規則，它很快就會消失。', principle:'失敗之後，提煉出一個能改變下一次嘗試的最小可重用問題。', tryIt:'問自己：下次碰程式碼之前，我應該先檢查什麼？把答案放進專案工作筆記。', tradeoffs:'不是每個事件都值得建立框架。重用能避免重犯的最小 artifact。', prompt:'把一個最近的 bug 轉成 preflight 問題，放到下一個 session 看得到的地方。', evidence:'僅供原型示範；正式使用前需要驗證來源與日期。', url:'https://martinfowler.com/', sourceType:'獨立部落格' }
     ];
     const initialEditionItems = lessons.map(item => ({ ...item }));
 
-    const categoryFilters = ['全部學習', '思考', '提示設計', 'Agent 管理', '上下文工程', '程式碼理解', '驗證', '工作流程', '工藝與心態'];
+    const categoryFilters = ['全部學習'];
+    const difficultyFilters = ['全部難度', '初學者', '普通', '困難'];
     const preferenceStorageKey = 'vibe-coding-daily-brew:source-preferences';
     const defaultSourceIds = ['vibecoding-tw', 'github-community', 'hacker-news', 'dev-community', 'openai-community'];
     const defaultPreferences = { selectedSourceIds: [...defaultSourceIds], selectedSources: [], customSources: [], sourceWeights: {}, specificSources: {}, prompt: '', directUrls: [], language: 'zh-Hant', provider: 'openrouter' };
@@ -569,12 +575,16 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
     let sourceRecommendations = [];
     let sourceSearchTimer = null;
     let sourceRequestSerial = 0;
-    const favoriteFilters = ['全部內容', 'Starred 以上', '僅 Super Starred'];
+    const favoriteFilters = ['全部內容', '未收藏', 'Starred 以上', '僅 Super Starred'];
     const favoriteStorageKey = 'vibe-coding-daily-brew:favorites';
     let pantryMode = 'favorites';
-    try { pantryMode = localStorage.getItem('vibe-coding-daily-brew:pantry-mode') === 'category' ? 'category' : 'favorites'; } catch {}
+    try {
+      const storedPantryMode = localStorage.getItem('vibe-coding-daily-brew:pantry-mode');
+      pantryMode = ['favorites', 'category', 'difficulty'].includes(storedPantryMode) ? storedPantryMode : 'favorites';
+    } catch {}
     let activeFavoriteFilter = '全部內容';
     let activeCategoryFilter = '全部學習';
+    let activeDifficultyFilter = '全部難度';
     let favoriteStates = {};
     try { favoriteStates = JSON.parse(localStorage.getItem(favoriteStorageKey) || '{}') || {}; } catch { favoriteStates = {}; }
     const lessonList = document.getElementById('lesson-list');
@@ -609,6 +619,21 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
         const url = new URL(value);
         return /^https?:$/.test(url.protocol) ? escapeHtml(url.href) : '#';
       } catch { return '#'; }
+    }
+
+    const difficultyLevels = ['初學者', '普通', '困難'];
+
+    function normalizeDifficulty(value) {
+      return difficultyLevels.includes(value) ? value : '普通';
+    }
+
+    function difficultyClass(value) {
+      return ({ 初學者:'beginner', 普通:'normal', 困難:'hard' })[normalizeDifficulty(value)];
+    }
+
+    function difficultyBadge(item) {
+      const difficulty = normalizeDifficulty(item.difficulty);
+      return `<span class="difficulty-chip ${difficultyClass(difficulty)}">${escapeHtml(difficulty)}</span>`;
     }
 
     function localDateKey() {
@@ -662,6 +687,7 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
         sourceType: item.sourceType || item.source?.platform || '社群討論',
         date: item.date || item.source?.published_at || edition.run_date,
         url: item.url || item.source?.url || '',
+        difficulty: normalizeDifficulty(item.difficulty),
         timeless: Number(item.timeless ?? item.scores?.timeless ?? 3),
         importance: Number(item.importance ?? item.scores?.importance ?? 3),
         heat: Number(item.heat ?? item.scores?.popularity ?? 2),
@@ -875,14 +901,16 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
     }
 
     function renderLessons(items = lessons) {
-      lessonList.innerHTML = items.map((lesson, index) => `<article class="lesson-row" data-index="${lessons.indexOf(lesson)}"><div class="lesson-number">${escapeHtml(lesson.n)}</div><div class="lesson-main"><div class="lesson-meta"><span>${escapeHtml(lesson.category)}</span><span class="tag">${escapeHtml(lesson.tag)}</span><span>${escapeHtml(lesson.time)}</span></div><h3 class="lesson-title">${escapeHtml(lesson.title)}</h3><p class="lesson-takeaway">${escapeHtml(lesson.takeaway)}</p><span class="lesson-source">${escapeHtml(lesson.source)}</span></div><div class="lesson-rating">${dots(lesson.timeless, '長久度', true)}${dots(lesson.importance, '重要性')}${dots(lesson.heat, '熱度')}</div><div class="lesson-actions">${favoriteButton(lesson, lessons.indexOf(lesson))}<button class="start-link" data-open-lesson="${lessons.indexOf(lesson)}">開始閱讀</button></div></article>`).join('');
+      lessonList.innerHTML = items.map((lesson, index) => `<article class="lesson-row" data-index="${lessons.indexOf(lesson)}"><div class="lesson-number">${escapeHtml(lesson.n)}</div><div class="lesson-main"><div class="lesson-meta"><span>${escapeHtml(lesson.category)}</span><span class="tag">${escapeHtml(lesson.tag)}</span>${difficultyBadge(lesson)}<span>${escapeHtml(lesson.time)}</span></div><h3 class="lesson-title">${escapeHtml(lesson.title)}</h3><p class="lesson-takeaway">${escapeHtml(lesson.takeaway)}</p><span class="lesson-source">${escapeHtml(lesson.source)}</span></div><div class="lesson-rating">${dots(lesson.timeless, '長久度', true)}${dots(lesson.importance, '重要性')}${dots(lesson.heat, '熱度')}</div><div class="lesson-actions">${favoriteButton(lesson, lessons.indexOf(lesson))}<button class="start-link" data-open-lesson="${lessons.indexOf(lesson)}">開始閱讀</button></div></article>`).join('');
       lessonList.querySelectorAll('[data-open-lesson]').forEach(button => button.addEventListener('click', () => openLesson(Number(button.dataset.openLesson))));
       bindFavoriteButtons();
     }
 
     function renderFilters() {
       document.getElementById('favorite-filter-list').innerHTML = favoriteFilters.map((filter, i) => `<button class="filter-button ${i === 0 ? 'is-active' : ''}" data-favorite-filter="${escapeHtml(filter)}">${escapeHtml(filter)}</button>`).join('');
-      document.getElementById('category-filter-list').innerHTML = categoryFilters.map((filter, i) => `<button class="filter-button ${i === 0 ? 'is-active' : ''}" data-category-filter="${escapeHtml(filter)}">${escapeHtml(filter)}</button>`).join('');
+      const categoryOptions = [...categoryFilters, ...new Set(lessons.map(item => item.category).filter(Boolean))];
+      document.getElementById('category-filter-list').innerHTML = categoryOptions.map((filter, i) => `<button class="filter-button ${i === 0 ? 'is-active' : ''}" data-category-filter="${escapeHtml(filter)}">${escapeHtml(filter)}</button>`).join('');
+      document.getElementById('difficulty-filter-list').innerHTML = difficultyFilters.map((filter, i) => `<button class="filter-button ${i === 0 ? 'is-active' : ''}" data-difficulty-filter="${escapeHtml(filter)}">${escapeHtml(filter)}</button>`).join('');
       document.querySelectorAll('[data-pantry-mode]').forEach(button => button.addEventListener('click', () => {
         pantryMode = button.dataset.pantryMode;
         try { localStorage.setItem('vibe-coding-daily-brew:pantry-mode', pantryMode); } catch {}
@@ -898,6 +926,11 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
         document.querySelectorAll('[data-category-filter]').forEach(b => b.classList.toggle('is-active', b === button));
         renderPantry();
       }));
+      document.querySelectorAll('[data-difficulty-filter]').forEach(button => button.addEventListener('click', () => {
+        activeDifficultyFilter = button.dataset.difficultyFilter;
+        document.querySelectorAll('[data-difficulty-filter]').forEach(b => b.classList.toggle('is-active', b === button));
+        renderPantry();
+      }));
       updatePantryMode();
     }
 
@@ -909,20 +942,23 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
       });
       document.getElementById('favorite-filter-list').classList.toggle('is-hidden', pantryMode !== 'favorites');
       document.getElementById('category-filter-list').classList.toggle('is-hidden', pantryMode !== 'category');
+      document.getElementById('difficulty-filter-list').classList.toggle('is-hidden', pantryMode !== 'difficulty');
       renderPantry();
     }
 
     function renderPantry(filter, query = '') {
-      const currentFilter = filter || (pantryMode === 'favorites' ? activeFavoriteFilter : activeCategoryFilter);
+      const currentFilter = filter || (pantryMode === 'favorites' ? activeFavoriteFilter : pantryMode === 'category' ? activeCategoryFilter : activeDifficultyFilter);
       const normalized = (query || document.getElementById('pantry-search').value).trim().toLowerCase();
       const matches = lessons.filter(item => {
         const state = getFavoriteState(item);
-        const favoriteMatch = currentFilter === '全部內容' || (currentFilter === 'Starred 以上' && state >= 1) || (currentFilter === '僅 Super Starred' && state === 2);
+        const favoriteMatch = currentFilter === '全部內容' || (currentFilter === '未收藏' && state === 0) || (currentFilter === 'Starred 以上' && state >= 1) || (currentFilter === '僅 Super Starred' && state === 2);
         const categoryMatch = currentFilter === '全部學習' || item.category === currentFilter;
-        const textMatch = !normalized || `${item.title} ${item.takeaway} ${item.category}`.toLowerCase().includes(normalized);
-        return pantryMode === 'favorites' ? favoriteMatch && textMatch : categoryMatch && textMatch;
+        const difficultyMatch = currentFilter === '全部難度' || normalizeDifficulty(item.difficulty) === currentFilter;
+        const textMatch = !normalized || `${item.title} ${item.takeaway} ${item.category} ${normalizeDifficulty(item.difficulty)}`.toLowerCase().includes(normalized);
+        return pantryMode === 'favorites' ? favoriteMatch && textMatch : pantryMode === 'category' ? categoryMatch && textMatch : difficultyMatch && textMatch;
       });
-      pantryList.innerHTML = matches.length ? matches.map(item => { const state = getFavoriteState(item); const marker = state ? `<span class="pantry-favorite ${state === 2 ? 'super' : ''}">${favoriteSymbol(state)} ${favoriteLabel(state)}</span>` : ''; return `<button class="pantry-item" data-open-lesson="${lessons.indexOf(item)}"><div><h3>${escapeHtml(item.title)}${marker}</h3><p>${escapeHtml(item.category)} · ${escapeHtml(item.time)} · ${escapeHtml(item.sourceType)}</p></div><div class="ratings">長久度 ${item.timeless.toFixed(1)} · 重要性 ${item.importance.toFixed(1)}</div><div class="date">${escapeHtml(new Date(item.date).toLocaleDateString('zh-TW', { month:'short', day:'numeric', year:'numeric' }))}</div></button>`; }).join('') : `<p class="empty-state">${pantryMode === 'favorites' ? '目前沒有符合這個收藏條件的內容。' : '找不到學習內容，試試更寬的搜尋範圍。'}</p>`;
+      const emptyMessage = pantryMode === 'favorites' ? '目前沒有符合這個收藏條件的內容。' : pantryMode === 'category' ? '找不到學習內容，試試更寬的搜尋範圍。' : '目前沒有符合這個難度的內容。';
+      pantryList.innerHTML = matches.length ? matches.map(item => { const state = getFavoriteState(item); const marker = state ? `<span class="pantry-favorite ${state === 2 ? 'super' : ''}">${favoriteSymbol(state)} ${favoriteLabel(state)}</span>` : ''; return `<button class="pantry-item" data-open-lesson="${lessons.indexOf(item)}"><div><h3>${escapeHtml(item.title)}${difficultyBadge(item)}${marker}</h3><p>${escapeHtml(item.category)} · ${escapeHtml(item.time)} · ${escapeHtml(item.sourceType)}</p></div><div class="ratings">長久度 ${item.timeless.toFixed(1)} · 重要性 ${item.importance.toFixed(1)}</div><div class="date">${escapeHtml(new Date(item.date).toLocaleDateString('zh-TW', { month:'short', day:'numeric', year:'numeric' }))}</div></button>`; }).join('') : `<p class="empty-state">${emptyMessage}</p>`;
       pantryList.querySelectorAll('[data-open-lesson]').forEach(button => button.addEventListener('click', () => openLesson(Number(button.dataset.openLesson))));
     }
 
@@ -1051,7 +1087,7 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
 
     function openLesson(index) {
       const item = lessons[index];
-      detailContent.innerHTML = `<div class="eyebrow">第 ${escapeHtml(item.n)} 篇 · ${escapeHtml(item.category)} · ${escapeHtml(item.time)}</div><h2 id="detail-title">${escapeHtml(item.title)}</h2><p class="detail-lead">${escapeHtml(item.takeaway)}</p><div class="detail-scoreboard"><span>長久度 <strong>${item.timeless.toFixed(1)} / 5</strong></span><span>重要性 <strong>${item.importance.toFixed(1)} / 5</strong></span><span>熱度 <strong>${item.heat.toFixed(1)} / 5</strong></span></div>${favoriteButton(item, index, 'detail-favorite')}<section class="reading-section" id="idea"><h3>核心想法</h3><p>${escapeHtml(item.principle)}</p><div class="callout"><strong>關鍵想法</strong><p>目的不是讓 Agent 聽起來很確定，而是讓下一個有用的決定更容易被看見。</p></div></section><section class="reading-section" id="why"><h3>為什麼有效</h3><p>${escapeHtml(item.problem)}</p></section><section class="reading-section" id="mental-model"><h3>心智模型</h3><div class="flow"><span>問題</span><i>→</i><span>上下文</span><i>→</i><span>Agent</span><i>→</i><span>驗證</span><i>→</i><span>修訂</span></div><p>每一個箭頭都是人類可以檢查工作狀態的地方。當狀態可見，速度就更容易被信任。</p></section><section class="reading-section" id="example"><h3>範例</h3><p>${escapeHtml(item.tryIt)}</p></section><section class="reading-section" id="try-it"><h3>試試看</h3><ul class="checklist"><li>替目前的一個任務寫出這個做法的最小版本。</li><li>執行一次可觀察的檢查，並把結果放在變更旁邊。</li><li>記錄什麼變得更容易決定、驗證或交接。</li><li>只有在它能替下次省下注意力時，才留下這個 artifact。</li></ul><p class="detail-lead" style="font-size:16px;margin:22px 0 0;color:var(--ink)"><em>練習題：${escapeHtml(item.prompt)}</em></p></section><section class="reading-section" id="limits"><h3>何時不要用</h3><p>${escapeHtml(item.tradeoffs)}</p></section><section class="reading-section" id="evidence"><h3>社群證據</h3><p>${escapeHtml(item.evidence)}</p></section><section class="reading-section" id="sources"><h3>來源</h3><div class="source-box"><a href="${safeUrl(item.url)}" target="_blank" rel="noreferrer">${escapeHtml(item.source)}</a><br>發布日期：${escapeHtml(item.date)} · ${escapeHtml(item.sourceType)}<br><span>原型狀態：來源完整性、互動數據與 canonical evidence 仍需在正式發布前驗證。</span></div></section>`;
+      detailContent.innerHTML = `<div class="eyebrow">第 ${escapeHtml(item.n)} 篇 · ${escapeHtml(item.category)} · ${escapeHtml(normalizeDifficulty(item.difficulty))} · ${escapeHtml(item.time)}</div><h2 id="detail-title">${escapeHtml(item.title)}</h2><p class="detail-lead">${escapeHtml(item.takeaway)}</p><div class="detail-scoreboard"><span>長久度 <strong>${item.timeless.toFixed(1)} / 5</strong></span><span>重要性 <strong>${item.importance.toFixed(1)} / 5</strong></span><span>熱度 <strong>${item.heat.toFixed(1)} / 5</strong></span></div>${favoriteButton(item, index, 'detail-favorite')}<section class="reading-section" id="idea"><h3>核心想法</h3><p>${escapeHtml(item.principle)}</p><div class="callout"><strong>關鍵想法</strong><p>目的不是讓 Agent 聽起來很確定，而是讓下一個有用的決定更容易被看見。</p></div></section><section class="reading-section" id="why"><h3>為什麼有效</h3><p>${escapeHtml(item.problem)}</p></section><section class="reading-section" id="mental-model"><h3>心智模型</h3><div class="flow"><span>問題</span><i>→</i><span>上下文</span><i>→</i><span>Agent</span><i>→</i><span>驗證</span><i>→</i><span>修訂</span></div><p>每一個箭頭都是人類可以檢查工作狀態的地方。當狀態可見，速度就更容易被信任。</p></section><section class="reading-section" id="example"><h3>範例</h3><p>${escapeHtml(item.tryIt)}</p></section><section class="reading-section" id="try-it"><h3>試試看</h3><ul class="checklist"><li>替目前的一個任務寫出這個做法的最小版本。</li><li>執行一次可觀察的檢查，並把結果放在變更旁邊。</li><li>記錄什麼變得更容易決定、驗證或交接。</li><li>只有在它能替下次省下注意力時，才留下這個 artifact。</li></ul><p class="detail-lead" style="font-size:16px;margin:22px 0 0;color:var(--ink)"><em>練習題：${escapeHtml(item.prompt)}</em></p></section><section class="reading-section" id="limits"><h3>何時不要用</h3><p>${escapeHtml(item.tradeoffs)}</p></section><section class="reading-section" id="evidence"><h3>社群證據</h3><p>${escapeHtml(item.evidence)}</p></section><section class="reading-section" id="sources"><h3>來源</h3><div class="source-box"><a href="${safeUrl(item.url)}" target="_blank" rel="noreferrer">${escapeHtml(item.source)}</a><br>發布日期：${escapeHtml(item.date)} · ${escapeHtml(item.sourceType)}<br><span>原型狀態：來源完整性、互動數據與 canonical evidence 仍需在正式發布前驗證。</span></div></section>`;
       bindFavoriteButtons();
       detailOverlay.classList.add('is-open');
       document.body.style.overflow = 'hidden';
@@ -1107,8 +1143,8 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
     document.getElementById('search-trigger').addEventListener('click', event => { const open = searchDrawer.classList.toggle('is-open'); event.currentTarget.setAttribute('aria-expanded', open); if (open) globalSearch.focus(); });
     globalSearch.addEventListener('input', () => {
       const q = globalSearch.value.trim().toLowerCase();
-      const results = lessons.filter(item => `${item.title} ${item.category} ${item.takeaway}`.toLowerCase().includes(q)).slice(0, 5);
-      document.getElementById('global-results').innerHTML = q ? (results.length ? results.map(item => `<button class="global-result" data-open-lesson="${lessons.indexOf(item)}"><strong>${escapeHtml(item.title)}</strong><small>${escapeHtml(item.category)} · ${escapeHtml(item.time)}</small></button>`).join('') : '<small>暫時找不到有用的想法。</small>') : '<small>搜尋今日手沖裡的十個想法。</small>';
+      const results = lessons.filter(item => `${item.title} ${item.category} ${item.difficulty} ${item.takeaway}`.toLowerCase().includes(q)).slice(0, 5);
+      document.getElementById('global-results').innerHTML = q ? (results.length ? results.map(item => `<button class="global-result" data-open-lesson="${lessons.indexOf(item)}"><strong>${escapeHtml(item.title)}</strong><small>${escapeHtml(item.category)} · ${escapeHtml(normalizeDifficulty(item.difficulty))} · ${escapeHtml(item.time)}</small></button>`).join('') : '<small>暫時找不到有用的想法。</small>') : '<small>搜尋今日手沖裡的十個想法。</small>';
       document.querySelectorAll('.global-result').forEach(button => button.addEventListener('click', () => { searchDrawer.classList.remove('is-open'); openLesson(Number(button.dataset.openLesson)); }));
     });
 
@@ -1150,7 +1186,7 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
         if (!response.ok) throw new Error(payload.error || '手沖服務暫時無法使用。');
         const incoming = Array.isArray(payload.items) ? payload.items : [];
         const startNumber = lessons.length + 1;
-        lessons.push(...incoming.map((item, index) => ({ ...item, n: String(startNumber + index).padStart(2, '0'), timeless: Number(item.timeless) || 3, importance: Number(item.importance) || 3, heat: Number(item.heat) || 2 })));
+        lessons.push(...incoming.map((item, index) => ({ ...item, n: String(startNumber + index).padStart(2, '0'), difficulty: normalizeDifficulty(item.difficulty), timeless: Number(item.timeless) || 3, importance: Number(item.importance) || 3, heat: Number(item.heat) || 2 })));
         renderLessons();
         renderPantry();
         message.textContent = `已完成：新增 ${incoming.length} 篇即時學習`;
