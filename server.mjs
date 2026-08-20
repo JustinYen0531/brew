@@ -26,6 +26,7 @@ const API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 const REQUEST_TIMEOUT_MS = 45_000;
 const RETRY_TIMEOUT_MS = 30_000;
 const MAX_BREW_ATTEMPTS = 2;
+const MAX_PARALLEL_BREWS = 5;
 
 const jsonHeaders = { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' };
 
@@ -102,17 +103,17 @@ function allowedSearchDomains(preferences) {
   return [...domains].slice(0, 10);
 }
 
-function buildSearchTool(preferences, compact) {
-  const parameters = {
+function buildSearchPlugin(preferences, compact) {
+  const plugin = {
+    id: 'web',
     engine: 'exa',
-    max_results: compact ? 2 : 3,
-    max_total_results: compact ? 4 : 6,
-    max_uses: compact ? 1 : 2,
-    search_context_size: 'low'
+    mode: 'instant',
+    max_results: 1,
+    search_prompt: '請把搜尋結果當作證據使用；不要輸出 Markdown 連結或額外說明，只回傳使用者要求的 JSON object。'
   };
   const domains = allowedSearchDomains(preferences);
-  if (domains.length) parameters.allowed_domains = domains;
-  return { type: 'openrouter:web_search', parameters };
+  if (domains.length) plugin.include_domains = domains;
+  return plugin;
 }
 
 function readRequestBody(req, maxBytes = 100_000) {
@@ -206,12 +207,14 @@ function buildPrompt(count, preferences, asOfDate) {
   return `資料截點是 ${asOfDate}。請使用可用的 web search，找出在 ${asOfDate} 當天或之前已經存在的、與 Vibe Coding 相關、具體且可重複的實作方法，並整理成 ${count} 篇繁體中文學習內容。嚴格禁止使用 ${asOfDate} 之後發布、更新或發生的發現，所有 source.published_at 必須小於或等於 ${asOfDate}。不要做產品新聞、模型發布摘要或空泛金句。每篇都必須說明問題、可轉移原則、可操作範例、限制、練習題與來源證據。${preferenceBrief(preferences)}\n\n請只回傳 JSON object，不要 Markdown，不要前言，格式必須是：\n{"items":[{"title":"...","category":"思考|提示設計|Agent 管理|上下文工程|程式碼理解|驗證|工作流程|工藝與心態|安全|協作|學習系統","tag":"新鮮實作|近期耐用|舊作高價值","takeaway":"...","problem":"...","principle":"...","try_it":"...","tradeoffs":"...","practice_prompt":"...","source_says":"...","editorial_synthesis":"...","source":{"url":"https://...","platform":"...","author":"...","published_at":"YYYY-MM-DD","evidence_excerpt":"...","popularity_basis":"..."},"scores":{"timeless":1,"importance":1,"popularity":1}}]}\n\n評分必須是 1 到 5 的數字。來源 URL、作者、日期與證據不確定時，請如實降低評分或排除，不要捏造。`;
 }
 
-function buildRequestPrompt(count, preferences, asOfDate, compact = false) {
+function buildRequestPrompt(count, preferences, asOfDate, compact = false, slot = 0) {
   const prompt = buildPrompt(count, preferences, asOfDate);
-  return compact ? `${prompt}\n\n這是重試版本：每篇各欄位只寫 1 到 2 句，整篇控制在約 350 個中文字內，務必在一次回覆中完成全部 ${count} 篇。` : prompt;
+  const diversity = count === 1 ? `\n\n這是同一批中的第 ${slot + 1} 個獨立發現，請選擇與其他發現不同的實作主題，不要重複常見金句。` : '';
+  const retry = compact ? `\n\n這是重試版本：每個欄位只寫 1 到 2 句，整篇控制在約 350 個中文字內，務必只完成這 1 篇。` : '';
+  return `${prompt}${diversity}${retry}`;
 }
 
-async function requestUpstream(key, count, preferences, asOfDate, attempt) {
+async function requestUpstream(key, count, preferences, asOfDate, attempt, slot = 0) {
   const compact = attempt > 0;
   const upstream = await fetch(API_URL, {
     method: 'POST',
@@ -225,12 +228,11 @@ async function requestUpstream(key, count, preferences, asOfDate, attempt) {
       model: MODEL,
       messages: [
         { role: 'system', content: '你是 Vibe Coding Daily Brew 的嚴謹中文編輯。只保留有證據、可轉移、可實作的做法。' },
-        { role: 'user', content: buildRequestPrompt(count, preferences, asOfDate, compact) }
+        { role: 'user', content: buildRequestPrompt(count, preferences, asOfDate, compact, slot) }
       ],
       temperature: compact ? 0.15 : 0.25,
-      max_tokens: compact ? 5600 : 7000,
-      tools: [buildSearchTool(preferences, compact)],
-      plugins: [{ id: 'response-healing' }],
+      max_tokens: compact ? 2200 : 2400,
+      plugins: [buildSearchPlugin(preferences, compact), { id: 'response-healing' }],
       response_format: { type: 'json_object' }
     }),
     signal: AbortSignal.timeout(compact ? RETRY_TIMEOUT_MS : REQUEST_TIMEOUT_MS)
@@ -265,13 +267,11 @@ function publicErrorMessage(error) {
   return '手沖服務暫時無法使用。';
 }
 
-async function brew(count, preferences, asOfDate) {
-  const key = config.OPENROUTER_API_KEY?.trim();
-  if (!key) throw Object.assign(new Error('api_key_missing'), { status: 503 });
+async function requestWithRetry(key, preferences, asOfDate, slot) {
   let lastError;
   for (let attempt = 0; attempt < MAX_BREW_ATTEMPTS; attempt += 1) {
     try {
-      return await requestUpstream(key, count, preferences, asOfDate, attempt);
+      return await requestUpstream(key, 1, preferences, asOfDate, attempt, slot);
     } catch (error) {
       lastError = error;
       if (attempt + 1 >= MAX_BREW_ATTEMPTS || !isRetryableModelError(error)) throw error;
@@ -279,6 +279,28 @@ async function brew(count, preferences, asOfDate) {
     }
   }
   throw lastError;
+}
+
+async function mapConcurrent(count, task, concurrency = MAX_PARALLEL_BREWS) {
+  const results = Array(count);
+  let cursor = 0;
+  async function worker() {
+    while (true) {
+      const index = cursor;
+      cursor += 1;
+      if (index >= count) return;
+      results[index] = await task(index);
+    }
+  }
+  await Promise.all(Array.from({ length: Math.min(count, concurrency) }, () => worker()));
+  return results.flat();
+}
+
+async function brew(count, preferences, asOfDate) {
+  const key = config.OPENROUTER_API_KEY?.trim();
+  if (!key) throw Object.assign(new Error('api_key_missing'), { status: 503 });
+  const items = await mapConcurrent(count, slot => requestWithRetry(key, preferences, asOfDate, slot));
+  return items.map((item, index) => ({ ...item, n: String(index + 1).padStart(2, '0') }));
 }
 
 async function serveSite(res) {
@@ -360,9 +382,10 @@ const server = createServer(async (req, res) => {
       const query = (requestUrl.searchParams.get('query') || '').trim().slice(0, 160);
       const limit = Math.max(1, Math.min(10, Number(requestUrl.searchParams.get('limit')) || 10));
       const catalog = await readSourceCatalog();
-      let sources = [...catalog.sources];
+      const localSources = query.length >= 2 ? catalog.sources.filter(source => sourceMatchesQuery(source, query)) : [...catalog.sources];
+      let sources = localSources;
       let live = false;
-      const localMatches = query.length >= 2 ? sources.filter(source => sourceMatchesQuery(source, query)).length : sources.length;
+      const localMatches = localSources.length;
       if (query.length >= 2 && localMatches < 3) {
         const discovered = await discoverSources(query, { apiKey: config.OPENROUTER_API_KEY?.trim(), model: MODEL, limit: 5 });
         const knownUrls = new Set(sources.map(source => source.url.replace(/\/$/, '').toLowerCase()));
@@ -371,7 +394,7 @@ const server = createServer(async (req, res) => {
           if (!knownUrls.has(key)) { sources.push(source); knownUrls.add(key); live = true; }
         }
       }
-      return sendJson(res, 200, { query, sources: rankSources(sources, query, limit), live, ranking_version: SOURCE_RANKING_VERSION, catalog_version: catalog.catalogVersion, updated_at: catalog.updatedAt });
+      return sendJson(res, 200, { query, sources: rankSources(sources, query, limit), catalog_sources: catalog.sources, live, ranking_version: SOURCE_RANKING_VERSION, catalog_version: catalog.catalogVersion, updated_at: catalog.updatedAt });
     }
     if (requestUrl.pathname === '/api/brew' && req.method === 'POST') {
       const body = JSON.parse(await readRequestBody(req) || '{}');

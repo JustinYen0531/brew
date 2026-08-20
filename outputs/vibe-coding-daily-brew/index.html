@@ -644,28 +644,123 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
+    function sourceById(id) {
+      return [...sourceCatalog, ...sourceRecommendations, ...(brewPreferences.customSources || []), ...(brewPreferences.selectedSources || [])].find(source => source.id === id);
+    }
+
+    function sourceIsSelected(id) {
+      return (brewPreferences.selectedSourceIds || []).includes(id);
+    }
+
+    function persistPreferences() {
+      try { localStorage.setItem(preferenceStorageKey, JSON.stringify(brewPreferences)); } catch {}
+    }
+
+    function renderSelectedSources() {
+      const selected = (brewPreferences.selectedSourceIds || []).map(sourceById).filter(Boolean);
+      const container = document.getElementById('selected-source-list');
+      if (!selected.length) {
+        container.innerHTML = '<span class="source-catalog-note">尚未選取來源；先從上面的推薦開始。</span>';
+        return;
+      }
+      container.innerHTML = selected.map(source => `<span class="selected-source-chip">${escapeHtml(source.name)}<button type="button" data-remove-source="${escapeHtml(source.id)}" aria-label="移除 ${escapeHtml(source.name)}">×</button></span>`).join('');
+      container.querySelectorAll('[data-remove-source]').forEach(button => button.addEventListener('click', () => toggleSource(button.dataset.removeSource)));
+    }
+
+    function toggleSource(id) {
+      const selected = new Set(brewPreferences.selectedSourceIds || []);
+      if (selected.has(id)) selected.delete(id); else selected.add(id);
+      brewPreferences.selectedSourceIds = [...selected].slice(0, 20);
+      brewPreferences.selectedSources = brewPreferences.selectedSourceIds.map(sourceById).filter(Boolean);
+      persistPreferences();
+      renderSourceRecommendations(sourceRecommendations);
+      renderSelectedSources();
+    }
+
+    function renderSourceRecommendations(sources = []) {
+      sourceRecommendations = sources;
+      const list = document.getElementById('source-recommendation-list');
+      list.innerHTML = sources.length ? sources.map(source => {
+        const selected = sourceIsSelected(source.id);
+        const evidence = source.evidence || source.description || '尚無可見證據，請開啟來源確認。';
+        return `<article class="source-recommendation ${selected ? 'is-selected' : ''}"><div><h4>${escapeHtml(source.name)}</h4><p>${escapeHtml(source.description || '')}</p><div class="source-recommendation-meta"><strong>${escapeHtml(source.kind || source.platform || '來源')}</strong> · 品質 ${Number(source.qualityScore || 0).toFixed(1)} · 影響力 ${Number(source.influenceScore || 0).toFixed(1)} · ${escapeHtml(evidence)}</div><div class="source-recommendation-actions"><a href="${safeUrl(source.url)}" target="_blank" rel="noreferrer">查看來源 ↗</a><button type="button" class="source-select-button ${selected ? 'is-selected' : ''}" data-select-source="${escapeHtml(source.id)}">${selected ? '已加入偏好' : '加入我的偏好'}</button></div></div></article>`;
+      }).join('') : '<p class="empty-state">目前找不到符合的來源；可以用下面的 URL 新增。</p>';
+      list.querySelectorAll('[data-select-source]').forEach(button => button.addEventListener('click', () => toggleSource(button.dataset.selectSource)));
+      renderSelectedSources();
+    }
+
+    async function loadSourceRecommendations(query = '') {
+      const requestId = ++sourceRequestSerial;
+      const status = document.getElementById('source-discovery-status');
+      status.textContent = query ? `正在猜測「${query}」可能想找的來源…` : '正在載入 10 個推薦來源…';
+      try {
+        const response = await fetch(`/api/source-recommendations?query=${encodeURIComponent(query)}&limit=10`, { cache: 'no-store' });
+        const payload = await response.json().catch(() => ({}));
+        if (requestId !== sourceRequestSerial) return;
+        if (!response.ok) throw new Error(payload.error || '來源推薦暫時無法使用。');
+        if (Array.isArray(payload.catalog_sources)) sourceCatalog = payload.catalog_sources;
+        else if (!query) sourceCatalog = payload.sources || [];
+        renderSourceRecommendations(payload.sources || []);
+        status.textContent = payload.live ? `已加入即時搜尋候選 · ${payload.sources?.length || 0} 個來源` : `資料庫推薦 · ${payload.sources?.length || 0} 個來源 · 你可以輸入字詞縮小範圍`;
+        document.getElementById('source-catalog-note').textContent = `排序版本 ${payload.ranking_version || 'source-v1'} · 資料庫更新 ${payload.updated_at || 'unknown'} · 推薦是排序訊號，不是永遠不變的排名。`;
+      } catch (error) {
+        if (requestId !== sourceRequestSerial) return;
+        status.textContent = error.message || '來源推薦暫時無法使用。';
+        if (!sourceRecommendations.length) renderSourceRecommendations(sourceCatalog.slice(0, 10));
+      }
+    }
+
+    function canonicalSourceUrl(value) {
+      try {
+        const url = new URL(String(value || '').trim());
+        if (!/^https?:$/.test(url.protocol)) return '';
+        url.hash = '';
+        return url.href.replace(/\/$/, '');
+      } catch { return ''; }
+    }
+
+    function addCustomSource() {
+      const nameField = document.getElementById('custom-source-name');
+      const urlField = document.getElementById('custom-source-url');
+      const status = document.getElementById('source-discovery-status');
+      const url = canonicalSourceUrl(urlField.value);
+      if (!url) {
+        status.textContent = '請輸入 http:// 或 https:// 開頭的有效來源網址。';
+        urlField.focus();
+        return;
+      }
+      let hostname = '';
+      try { hostname = new URL(url).hostname; } catch {}
+      const name = nameField.value.trim() || hostname || '自訂來源';
+      const id = `custom-${url.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 72)}`;
+      const source = { id, name: name.slice(0, 160), platform: hostname, kind: '使用者新增來源', url, aliases: [], topics: [], description: '你新增的來源偏好；每日手沖仍需逐篇驗證內容、日期與證據。', evidence: '使用者自訂來源，尚未由來源資料庫評分。', evidenceUrl: url, qualityScore: 3, influenceScore: 3, signalScore: 3, accessibilityScore: 3, confidence: 0.5, defaultSelected: false, custom: true };
+      const sameUrl = candidate => candidate.url?.replace(/\/$/, '').toLowerCase() === url.toLowerCase();
+      const existing = [...sourceCatalog, ...sourceRecommendations, ...(brewPreferences.customSources || []), ...(brewPreferences.selectedSources || [])].find(sameUrl);
+      const selectedId = existing?.id || id;
+      const selectedSource = existing || source;
+      brewPreferences.customSources = [selectedSource, ...(brewPreferences.customSources || []).filter(item => item.id !== selectedId && !sameUrl(item))].slice(0, 10);
+      brewPreferences.selectedSourceIds = [...new Set([...(brewPreferences.selectedSourceIds || []), selectedId])].slice(0, 20);
+      brewPreferences.selectedSources = brewPreferences.selectedSourceIds.map(sourceById).filter(Boolean);
+      sourceCatalog = [selectedSource, ...sourceCatalog.filter(item => item.id !== selectedId && !sameUrl(item))];
+      sourceRecommendations = [selectedSource, ...sourceRecommendations.filter(item => item.id !== selectedId && !sameUrl(item))];
+      persistPreferences();
+      nameField.value = '';
+      urlField.value = '';
+      renderSourceRecommendations(sourceRecommendations);
+      status.textContent = `${selectedSource.name} 已加入你的來源偏好。`;
+    }
+
     function populatePreferences() {
-      ['facebook', 'reddit', 'github'].forEach(source => {
-        const weight = String(brewPreferences.sourceWeights[source] || 3);
-        const radio = document.querySelector(`input[name="weight-${source}"][value="${weight}"]`);
-        if (radio) radio.checked = true;
-        const field = document.getElementById(`specific-${source}`);
-        if (field) field.value = brewPreferences.specificSources[source] || '';
-      });
       document.getElementById('preference-prompt').value = brewPreferences.prompt || '';
       document.getElementById('preference-direct-urls').value = (brewPreferences.directUrls || []).join('\n');
       const language = document.querySelector(`input[name="preference-language"][value="${brewPreferences.language === 'en' ? 'en' : 'zh-Hant'}"]`);
       if (language) language.checked = true;
+      renderSelectedSources();
     }
 
     function collectPreferences() {
-      const sourceWeights = {};
-      const specificSources = {};
-      ['facebook', 'reddit', 'github'].forEach(source => {
-        sourceWeights[source] = Number(document.querySelector(`input[name="weight-${source}"]:checked`)?.value || 3);
-        specificSources[source] = document.getElementById(`specific-${source}`).value.trim();
-      });
-      return { sourceWeights, specificSources, prompt: document.getElementById('preference-prompt').value.trim(), directUrls: document.getElementById('preference-direct-urls').value.split(/\r?\n/).map(url => url.trim()).filter(Boolean), language: document.querySelector('input[name="preference-language"]:checked')?.value === 'en' ? 'en' : 'zh-Hant' };
+      const selectedSourceIds = [...new Set(brewPreferences.selectedSourceIds || [])].slice(0, 20);
+      return { ...brewPreferences, selectedSourceIds, selectedSources: selectedSourceIds.map(sourceById).filter(Boolean), prompt: document.getElementById('preference-prompt').value.trim(), directUrls: document.getElementById('preference-direct-urls').value.split(/\r?\n/).map(url => url.trim()).filter(Boolean), language: document.querySelector('input[name="preference-language"]:checked')?.value === 'en' ? 'en' : 'zh-Hant' };
     }
 
     function savePreferences(showStatus = true) {
@@ -681,6 +776,7 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
 
     function openPreferences() {
       populatePreferences();
+      loadSourceRecommendations(document.getElementById('source-discovery-query').value.trim());
       document.getElementById('preferences-status').textContent = '';
       document.getElementById('preferences-overlay').classList.add('is-open');
       document.body.style.overflow = 'hidden';
@@ -920,10 +1016,20 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
     document.getElementById('preferences-close').addEventListener('click', closePreferences);
     document.getElementById('preferences-overlay').addEventListener('click', event => { if (event.target.id === 'preferences-overlay') closePreferences(); });
     document.getElementById('preferences-save').addEventListener('click', () => savePreferences());
+    const sourceDiscoveryQuery = document.getElementById('source-discovery-query');
+    sourceDiscoveryQuery.addEventListener('input', event => {
+      clearTimeout(sourceSearchTimer);
+      const query = event.target.value.trim();
+      sourceSearchTimer = setTimeout(() => loadSourceRecommendations(query), 320);
+    });
+    document.getElementById('custom-source-add').addEventListener('click', addCustomSource);
     document.getElementById('preferences-reset').addEventListener('click', () => {
-      brewPreferences = { ...defaultPreferences, sourceWeights: { ...defaultPreferences.sourceWeights }, specificSources: { ...defaultPreferences.specificSources }, directUrls: [] };
+      brewPreferences = { ...defaultPreferences, selectedSourceIds: [...defaultSourceIds], selectedSources: [], customSources: [], sourceWeights: {}, specificSources: {}, prompt: '', directUrls: [], language: 'zh-Hant' };
       savePreferences(false);
+      sourceDiscoveryQuery.value = '';
+      sourceRecommendations = [];
       populatePreferences();
+      loadSourceRecommendations('');
       document.getElementById('preferences-status').textContent = '已恢復正常設定。';
     });
     document.addEventListener('click', event => { if (!quietMenu.contains(event.target) && event.target !== quietTrigger) { quietMenu.classList.remove('is-open'); quietTrigger.setAttribute('aria-expanded', 'false'); } });
