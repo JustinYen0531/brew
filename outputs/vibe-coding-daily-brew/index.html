@@ -91,6 +91,14 @@
     .view { display: none; padding: 64px 0 100px; }
     .view.is-visible { display: block; }
     .eyebrow { color: var(--espresso); font: 11px var(--mono); letter-spacing: .16em; text-transform: uppercase; }
+    .simulation-banner { display: flex; align-items: center; justify-content: space-between; gap: 24px; border: 1px solid var(--espresso); background: var(--espresso); color: var(--paper-bright); padding: 16px 18px; margin-bottom: 32px; }
+    .simulation-banner[hidden] { display: none; }
+    .simulation-banner-label { color: var(--amber); font: 10px var(--mono); letter-spacing: .15em; text-transform: uppercase; margin-bottom: 5px; }
+    .simulation-banner-title { display: block; font: 22px/1.1 var(--serif); }
+    .simulation-banner-copy { color: rgba(255,248,239,.76); font: 12px/1.45 var(--mono); margin: 6px 0 0; }
+    .simulation-banner-button { flex: 0 0 auto; border: 1px solid var(--paper-bright); background: transparent; color: var(--paper-bright); cursor: pointer; padding: 10px 13px; font: 10px var(--mono); white-space: nowrap; }
+    .simulation-banner-button:hover { background: var(--paper-bright); color: var(--espresso); }
+    .simulation-banner-button:disabled { opacity: .6; cursor: wait; }
     .hero { display: grid; grid-template-columns: minmax(0, 1fr) 270px; gap: 70px; align-items: end; padding-bottom: 48px; border-bottom: 1px solid var(--line); }
     h1, h2, h3, p { margin-top: 0; }
     .hero h1 { font: 400 clamp(56px, 8vw, 106px)/.9 var(--serif); letter-spacing: -.055em; margin: 14px 0 22px; }
@@ -321,6 +329,7 @@
       .top-nav { order: 3; width: 100%; justify-content: space-between; gap: 8px; border-top: 1px solid var(--line); padding-top: 12px; }
       .header-actions { margin-left: auto; }
       .view { padding-top: 46px; }
+      .simulation-banner { align-items: flex-start; flex-direction: column; gap: 14px; }
       .hero { grid-template-columns: 1fr; gap: 25px; }
       .coffee-note { border-left: 0; border-top: 1px solid var(--line); padding: 20px 0 0; min-height: auto; }
       .coffee-note::before { left: 0; top: 18px; }
@@ -396,6 +405,14 @@
 
     <main>
       <section class="view is-visible" id="today-view" aria-labelledby="today-title">
+        <div class="simulation-banner" id="simulation-banner" hidden role="status" aria-live="polite">
+          <div>
+            <div class="simulation-banner-label">歷史模擬</div>
+            <strong class="simulation-banner-title" id="simulation-banner-title">正在重播歷史手沖</strong>
+            <p class="simulation-banner-copy" id="simulation-banner-copy"></p>
+          </div>
+          <button class="simulation-banner-button" id="simulation-banner-return" type="button">回到今日手沖</button>
+        </div>
         <div class="hero">
           <div>
             <div class="eyebrow">早安</div>
@@ -429,11 +446,11 @@
       </section>
 
       <section class="view" id="archive-view" aria-labelledby="archive-title">
-        <div class="archive-intro"><div class="eyebrow">把網站出現以前的好想法補回來</div><h1 id="archive-title">過往手沖</h1><p>選一個日期，看看當天是否已經有一批手沖。沒有的日期，就用當天作為公示日期，模擬網站當時自動沖出的十份發現。</p></div>
+        <div class="archive-intro"><div class="eyebrow">把網站出現以前的好想法補回來</div><h1 id="archive-title">過往手沖</h1><p>選一個日期，看看當天是否已經留下完整批次。點進去後，會在今日閱讀頁重播那一天的十個發現，並清楚標示目前是歷史模擬。</p></div>
         <div class="archive-controls" aria-label="切換過往手沖月份"><button class="archive-month-button" id="archive-prev" type="button" aria-label="上一個月">←</button><div class="archive-month-label" id="archive-month-label">載入日曆中…</div><button class="archive-month-button" id="archive-next" type="button" aria-label="下一個月">→</button></div>
         <div class="archive-calendar-layout">
           <section class="archive-calendar" aria-label="過往手沖日曆"><div class="archive-weekdays" aria-hidden="true"><span class="archive-weekday">日</span><span class="archive-weekday">一</span><span class="archive-weekday">二</span><span class="archive-weekday">三</span><span class="archive-weekday">四</span><span class="archive-weekday">五</span><span class="archive-weekday">六</span></div><div class="archive-calendar-grid" id="archive-calendar"></div></section>
-          <aside class="archive-selection" id="archive-selection" aria-live="polite"><div class="eyebrow">選擇一個日期</div><h2 id="archive-selection-title">尚未選擇</h2><p class="archive-selection-copy" id="archive-selection-copy">日曆會標出已經生成過的批次；沒有的日期可以在這裡補上一批歷史模擬手沖。</p><button class="archive-selection-button" id="archive-open-button" type="button" hidden>查看這一批 →</button><button class="archive-selection-button is-secondary" id="archive-generate-button" type="button" hidden>生成一批（10 份）→</button><div class="archive-selection-status" id="archive-selection-status" role="status"></div></aside>
+          <aside class="archive-selection" id="archive-selection" aria-live="polite"><div class="eyebrow">選擇一個日期</div><h2 id="archive-selection-title">尚未選擇</h2><p class="archive-selection-copy" id="archive-selection-copy">日曆會標出已經生成過的批次；沒有的日期可以在這裡補上一批歷史模擬手沖。</p><button class="archive-selection-button" id="archive-open-button" type="button" hidden>進入模擬閱讀 →</button><button class="archive-selection-button is-secondary" id="archive-generate-button" type="button" hidden>生成一批（10 份）→</button><div class="archive-selection-status" id="archive-selection-status" role="status"></div></aside>
         </div>
         <div class="footer-note"><em>這裡不是追進度，是把錯過的日期補回來。</em><span class="prototype-label">歷史模擬手沖</span></div>
       </section>
@@ -570,12 +587,17 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
     const archiveSelectionStatus = document.getElementById('archive-selection-status');
     const archiveOpenButton = document.getElementById('archive-open-button');
     const archiveGenerateButton = document.getElementById('archive-generate-button');
+    const simulationBanner = document.getElementById('simulation-banner');
+    const simulationBannerTitle = document.getElementById('simulation-banner-title');
+    const simulationBannerCopy = document.getElementById('simulation-banner-copy');
+    const simulationBannerReturn = document.getElementById('simulation-banner-return');
     const stages = ['發現中', '篩選中', '提煉中', '準備學習內容'];
     const archiveStorageKey = 'vibe-coding-daily-brew:historical-editions';
     let archiveMonthDate = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
     let archiveSelectedDate = '';
     let archiveRecords = {};
     let archiveEditions = {};
+    let simulatedEditionDate = '';
 
     function escapeHtml(value) {
       return String(value ?? '').replace(/[&<>"']/g, character => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[character]);
@@ -596,6 +618,19 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
 
     function archiveDateLabel(date) {
       return new Intl.DateTimeFormat('zh-TW', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' }).format(new Date(`${date}T00:00:00`));
+    }
+
+    function setSimulationMode(date) {
+      simulatedEditionDate = date;
+      simulationBannerTitle.textContent = '歷史手沖重播中';
+      simulationBannerCopy.textContent = `目前閱讀的是 ${archiveDateLabel(date)} 的完整批次；這是歷史模擬，不是今天新生成的內容。`;
+      simulationBanner.hidden = false;
+    }
+
+    function clearSimulationMode() {
+      simulatedEditionDate = '';
+      simulationBanner.hidden = true;
+      simulationBannerCopy.textContent = '';
     }
 
     function archiveMonthKey(date) {
@@ -920,7 +955,7 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
       }
       const record = archiveRecords[date] || archiveEditions[date];
       if (record) {
-        archiveSelectionCopy.textContent = `這一天已經有一批 ${record.count || 10} 份手沖。按下查看，就會把它模擬成「今日手沖」的閱讀畫面。`;
+        archiveSelectionCopy.textContent = `這一天已經有一批 ${record.count || 10} 份手沖。進入後會在「今日手沖」頁重播，頁首會標示這是歷史模擬。`;
         archiveOpenButton.hidden = false;
       } else {
         archiveSelectionCopy.textContent = '這一天目前沒有生成過手沖。下面的按鈕會以這個日期作為公示日期，固定補上一批 10 份發現。';
@@ -955,6 +990,7 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
       archiveEditions[date] = edition;
       archiveRecords[date] = { date, count: edition.items.length, generated_at: edition.generated_at || '', mode: edition.mode || 'historical' };
       saveArchiveCache();
+      setSimulationMode(date);
       showView('today-view');
       archiveSelectionStatus.textContent = `已載入 ${date} 的 ${edition.items.length} 份手沖。`;
     }
@@ -1018,6 +1054,12 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
     document.getElementById('archive-next').addEventListener('click', () => { archiveMonthDate = new Date(archiveMonthDate.getFullYear(), archiveMonthDate.getMonth() + 1, 1); renderArchiveCalendar(); });
     archiveOpenButton.addEventListener('click', () => { if (archiveSelectedDate) openArchiveEdition(archiveSelectedDate); });
     archiveGenerateButton.addEventListener('click', () => { if (archiveSelectedDate) generateArchiveEdition(archiveSelectedDate); });
+    simulationBannerReturn.addEventListener('click', async () => {
+      simulationBannerReturn.disabled = true;
+      const loaded = await loadDailyEdition();
+      simulationBannerReturn.disabled = false;
+      if (!loaded) simulationBannerCopy.textContent = '今天的批次目前讀不到，先保留這次歷史模擬。';
+    });
     document.getElementById('detail-close').addEventListener('click', closeLesson);
     detailOverlay.addEventListener('click', event => { if (event.target === detailOverlay) closeLesson(); });
     const quietMenu = document.getElementById('quiet-menu');
@@ -1059,7 +1101,9 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
     document.getElementById('pantry-search').addEventListener('input', event => { renderPantry(undefined, event.target.value); });
     async function loadDailyEdition() {
       const edition = await fetchEdition('latest');
-      if (edition) applyEdition(edition);
+      if (!edition || !applyEdition(edition)) return false;
+      clearSimulationMode();
+      return true;
     }
 
     document.getElementById('brew-form').addEventListener('submit', async event => {
