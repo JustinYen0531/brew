@@ -550,6 +550,7 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
       { n:'09', category:'安全', tag:'新鮮實作', title:'讓快速路徑可以復原', takeaway:'最安全的加速，是那種不需要考古工程就能撤銷的加速。', timeless:5, importance:4.8, heat:3.8, time:'6 分鐘', source:'GitHub Discussions · 示範證據', date:'2026-08-14', classic:false, problem:'過寬的權限與綁在一起的編輯，會讓 Agent 碰錯範圍時很難復原。', principle:'限制變更、保留 checkpoint，並優先使用有清楚 rollback 路徑的操作。', tryIt:'在執行有風險的 Agent 動作前，先說出 restore point，以及它可以影響的確切檔案或紀錄。', tradeoffs:'可復原性有成本。在影響範圍或資料敏感度高的地方，才花這個成本。', prompt:'針對目前任務，在要求實作前先找出 rollback 邊界。', evidence:'僅供原型示範；請換成已驗證的安全或工作流程討論。', url:'https://github.com/orgs/community/discussions', sourceType:'GitHub 討論' },
       { n:'10', category:'學習系統', tag:'舊作高價值', title:'把一次修正變成可重用的問題', takeaway:'真正耐用的 lesson 往往不是 patch，而是那個能更早找到失敗的問題。', timeless:5, importance:4.6, heat:2.0, time:'6 分鐘', source:'獨立部落格 · 示範證據', date:'2025-03-19', classic:false, problem:'如果一次性修正沒有轉成 prompt、checklist、測試或決策規則，它很快就會消失。', principle:'失敗之後，提煉出一個能改變下一次嘗試的最小可重用問題。', tryIt:'問自己：下次碰程式碼之前，我應該先檢查什麼？把答案放進專案工作筆記。', tradeoffs:'不是每個事件都值得建立框架。重用能避免重犯的最小 artifact。', prompt:'把一個最近的 bug 轉成 preflight 問題，放到下一個 session 看得到的地方。', evidence:'僅供原型示範；正式使用前需要驗證來源與日期。', url:'https://martinfowler.com/', sourceType:'獨立部落格' }
     ];
+    const initialEditionItems = lessons.map(item => ({ ...item }));
 
     const categoryFilters = ['全部學習', '思考', '提示設計', 'Agent 管理', '上下文工程', '程式碼理解', '驗證', '工作流程', '工藝與心態'];
     const preferenceStorageKey = 'vibe-coding-daily-brew:source-preferences';
@@ -618,6 +619,11 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
 
     function archiveDateLabel(date) {
       return new Intl.DateTimeFormat('zh-TW', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' }).format(new Date(`${date}T00:00:00`));
+    }
+
+    function initialDailyEdition(date = localDateKey()) {
+      if (initialEditionItems.length !== 10) return null;
+      return { run_date: date, mode: 'daily', provider: 'demo', model: '頁面初始批次', requested_count: 10, title: 'Vibe Coding 每日手沖', generated_at: '', items: initialEditionItems.map(item => ({ ...item })) };
     }
 
     function setSimulationMode(date) {
@@ -1031,6 +1037,14 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
           (payload.dates || []).forEach(record => { archiveRecords[record.date] = record; });
         }
       } catch {}
+      const today = localDateKey();
+      if (!archiveRecords[today] && !archiveEditions[today]) {
+        const edition = initialDailyEdition(today);
+        if (edition) {
+          archiveEditions[today] = edition;
+          archiveRecords[today] = { date: today, count: edition.items.length, generated_at: '', mode: edition.mode };
+        }
+      }
       renderArchiveCalendar();
       selectArchiveDate(localDateKey());
     }
@@ -1101,9 +1115,16 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
     document.getElementById('pantry-search').addEventListener('input', event => { renderPantry(undefined, event.target.value); });
     async function loadDailyEdition() {
       const edition = await fetchEdition('latest');
-      if (!edition || !applyEdition(edition)) return false;
-      clearSimulationMode();
-      return true;
+      if (edition && applyEdition(edition)) {
+        clearSimulationMode();
+        return true;
+      }
+      const fallback = initialDailyEdition();
+      if (fallback && applyEdition(fallback)) {
+        clearSimulationMode();
+        return true;
+      }
+      return false;
     }
 
     document.getElementById('brew-form').addEventListener('submit', async event => {
