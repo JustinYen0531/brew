@@ -1,9 +1,64 @@
-const MODEL = process.env.OPENROUTER_MODEL || 'deepseek/deepseek-v4-flash-0731';
-const API_URL = 'https://openrouter.ai/api/v1/chat/completions';
+const OPENROUTER_MODEL = process.env.OPENROUTER_MODEL || 'deepseek/deepseek-v4-flash-0731';
+const OPENAI_MODEL = process.env.OPENAI_MODEL || 'gpt-5.4';
+const DEFAULT_PROVIDER = process.env.BREW_PROVIDER || 'openrouter';
+const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
+const OPENAI_API_URL = 'https://api.openai.com/v1/responses';
 const REQUEST_TIMEOUT_MS = 45_000;
 const RETRY_TIMEOUT_MS = 30_000;
 const MAX_BREW_ATTEMPTS = 2;
-const MAX_PARALLEL_BREWS = 5;
+const MAX_PARALLEL_BREWS = 2;
+const BREW_RESPONSE_SCHEMA = {
+  type: 'object',
+  properties: {
+    items: {
+      type: 'array',
+      minItems: 1,
+      maxItems: 1,
+      items: {
+        type: 'object',
+        properties: {
+          title: { type: 'string' },
+          category: { type: 'string' },
+          tag: { type: 'string' },
+          takeaway: { type: 'string' },
+          problem: { type: 'string' },
+          principle: { type: 'string' },
+          try_it: { type: 'string' },
+          tradeoffs: { type: 'string' },
+          practice_prompt: { type: 'string' },
+          source_says: { type: 'string' },
+          editorial_synthesis: { type: 'string' },
+          source: {
+            type: 'object',
+            properties: { url: { type: 'string' }, platform: { type: 'string' }, published_at: { type: 'string' } },
+            required: ['url', 'platform', 'published_at'],
+            additionalProperties: false
+          },
+          scores: {
+            type: 'object',
+            properties: { timeless: { type: 'number' }, importance: { type: 'number' }, popularity: { type: 'number' } },
+            required: ['timeless', 'importance', 'popularity'],
+            additionalProperties: false
+          }
+        },
+        required: ['title', 'category', 'tag', 'takeaway', 'problem', 'principle', 'try_it', 'tradeoffs', 'practice_prompt', 'source_says', 'editorial_synthesis', 'source', 'scores'],
+        additionalProperties: false
+      }
+    }
+  },
+  required: ['items'],
+  additionalProperties: false
+};
+
+function normalizeProvider(value = DEFAULT_PROVIDER) {
+  return ['openrouter', 'openai', 'codex'].includes(value) ? value : 'openrouter';
+}
+
+function modelForProvider(provider) {
+  if (provider === 'openai') return OPENAI_MODEL;
+  if (provider === 'codex') return 'Codex · ChatGPT 訂閱（本機）';
+  return OPENROUTER_MODEL;
+}
 
 function localDate() {
   const now = new Date();
@@ -90,6 +145,12 @@ function extractText(content) {
   return '';
 }
 
+function extractOpenAIText(payload) {
+  if (typeof payload?.output_text === 'string') return payload.output_text;
+  const parts = (payload?.output || []).flatMap(item => Array.isArray(item?.content) ? item.content : []);
+  return parts.filter(part => part?.type === 'output_text').map(part => part.text || '').join('');
+}
+
 function parseJsonAnswer(text) {
   const cleaned = String(text || '').replace(/```json\s*/gi, '').replace(/```/g, '').trim();
   if (!cleaned) throw new Error('model_response_empty');
@@ -162,7 +223,7 @@ function buildRequestPrompt(count, preferences, asOfDate, compact = false, slot 
   const prompt = buildPrompt(count, preferences, asOfDate);
   const diversity = count === 1 ? `\n\n這是同一批中的第 ${slot + 1} 個獨立發現，請選擇與其他發現不同的實作主題，不要重複常見金句。` : '';
   const retry = compact ? `\n\n這是重試版本：每個欄位只寫 1 到 2 句，整篇控制在約 350 個中文字內，務必只完成這 1 篇。` : '';
-  return `${prompt}${diversity}${retry}`;
+  return `${prompt}${diversity}${retry}\n\n輸出欄位以 API 的 JSON Schema 為最高優先；source 只保留 url、platform、published_at，items 必須恰好包含 1 篇。`;
 }
 
 function isTimeoutError(error) {
@@ -174,15 +235,17 @@ function isRetryableModelError(error) {
 }
 
 function publicErrorMessage(error) {
+  if (error.message === 'openai_api_key_missing') return 'Vercel 尚未設定 OPENAI_API_KEY。';
+  if (error.message === 'codex_local_only') return '本機 Codex 只能由本機 server.mjs 執行，不能由 Vercel 代跑。';
   if (isTimeoutError(error)) return '即時搜尋逾時，請稍後再試；若一次篇數較多，可先改成 3 篇。';
   if (['model_response_empty', 'model_response_error', 'model_json_missing', 'model_json_incomplete', 'model_items_missing', 'model_items_incomplete'].includes(error.message)) return '模型回覆格式不完整，請稍後再試。';
   if (error.message === 'upstream_failed') return '即時來源暫時無法回應，請稍後再試。';
   return '手沖服務暫時無法使用，請稍後再試。';
 }
 
-async function requestUpstream(key, count, preferences, asOfDate, attempt, slot = 0) {
+async function requestOpenRouter(key, count, preferences, asOfDate, attempt, slot = 0) {
   const compact = attempt > 0;
-  const upstream = await fetch(API_URL, {
+  const upstream = await fetch(OPENROUTER_API_URL, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${key}`,
@@ -190,7 +253,7 @@ async function requestUpstream(key, count, preferences, asOfDate, attempt, slot 
       'X-Title': 'Vibe Coding Daily Brew'
     },
     body: JSON.stringify({
-      model: MODEL,
+      model: OPENROUTER_MODEL,
       messages: [
         { role: 'system', content: '你是 Vibe Coding Daily Brew 的嚴謹中文編輯。只保留有證據、可轉移、可實作的做法。' },
         { role: 'user', content: buildRequestPrompt(count, preferences, asOfDate, compact, slot) }
@@ -198,7 +261,7 @@ async function requestUpstream(key, count, preferences, asOfDate, attempt, slot 
       temperature: compact ? 0.15 : 0.25,
       max_tokens: compact ? 2200 : 2400,
       plugins: [buildSearchPlugin(preferences, compact), { id: 'response-healing' }],
-      response_format: { type: 'json_object' }
+      response_format: { type: 'json_schema', json_schema: { name: 'vibe_coding_brew', strict: true, schema: BREW_RESPONSE_SCHEMA } }
     }),
     signal: AbortSignal.timeout(compact ? RETRY_TIMEOUT_MS : REQUEST_TIMEOUT_MS)
   });
@@ -216,10 +279,42 @@ async function requestUpstream(key, count, preferences, asOfDate, attempt, slot 
   return normalizeItems(parseJsonAnswer(answer), count, asOfDate);
 }
 
+async function requestOpenAI(key, count, preferences, asOfDate, attempt, slot = 0) {
+  const compact = attempt > 0;
+  const domains = allowedSearchDomains(preferences);
+  const upstream = await fetch(OPENAI_API_URL, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: OPENAI_MODEL,
+      instructions: '你是 Vibe Coding Daily Brew 的嚴謹中文編輯。只保留有證據、可轉移、可實作的做法。',
+      input: buildRequestPrompt(count, preferences, asOfDate, compact, slot),
+      tools: [{ type: 'web_search_preview', ...(domains.length ? { filters: { allowed_domains: domains } } : {}) }],
+      max_output_tokens: compact ? 2200 : 2400,
+      text: { format: { type: 'json_schema', name: 'vibe_coding_brew', strict: true, schema: BREW_RESPONSE_SCHEMA } }
+    }),
+    signal: AbortSignal.timeout(compact ? RETRY_TIMEOUT_MS : REQUEST_TIMEOUT_MS)
+  });
+  const data = await upstream.json().catch(() => ({}));
+  if (!upstream.ok || data.error) {
+    console.error(`OpenAI request failed: HTTP ${upstream.status || 502}`);
+    throw Object.assign(new Error('upstream_failed'), { status: 502, upstreamStatus: upstream.status });
+  }
+  return normalizeItems(parseJsonAnswer(extractOpenAIText(data)), count, asOfDate);
+}
+
+async function requestUpstream(key, count, preferences, asOfDate, attempt, slot = 0, provider = DEFAULT_PROVIDER) {
+  if (provider === 'openai') return requestOpenAI(key, count, preferences, asOfDate, attempt, slot);
+  if (provider === 'codex') throw Object.assign(new Error('codex_local_only'), { status: 503 });
+  return requestOpenRouter(key, count, preferences, asOfDate, attempt, slot);
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: '只接受 POST 請求。' });
-  const key = process.env.OPENROUTER_API_KEY?.trim();
-  if (!key) return res.status(503).json({ error: 'Vercel 尚未設定 OPENROUTER_API_KEY。' });
+  const provider = normalizeProvider(req.body?.provider || req.body?.preferences?.provider || DEFAULT_PROVIDER);
+  if (provider === 'codex') return res.status(503).json({ error: '本機 Codex 只能由本機 server.mjs 執行，不能由 Vercel 代跑。' });
+  const key = provider === 'openai' ? process.env.OPENAI_API_KEY?.trim() : process.env.OPENROUTER_API_KEY?.trim();
+  if (!key) return res.status(503).json({ error: provider === 'openai' ? 'Vercel 尚未設定 OPENAI_API_KEY。' : 'Vercel 尚未設定 OPENROUTER_API_KEY。' });
 
   let historicalDate = '';
   try { historicalDate = req.body?.date ? normalizeTargetDate(req.body.date) : ''; }
@@ -237,7 +332,7 @@ export default async function handler(req, res) {
       let lastError;
       for (let attempt = 0; attempt < MAX_BREW_ATTEMPTS; attempt += 1) {
         try {
-          return await requestUpstream(key, 1, preferences, asOfDate, attempt, slot);
+          return await requestUpstream(key, 1, preferences, asOfDate, attempt, slot, provider);
         } catch (error) {
           lastError = error;
           if (attempt + 1 >= MAX_BREW_ATTEMPTS || !isRetryableModelError(error)) throw error;
@@ -258,8 +353,8 @@ export default async function handler(req, res) {
     }
     await Promise.all(Array.from({ length: Math.min(count, MAX_PARALLEL_BREWS) }, () => worker()));
     const items = results.flat().map((item, index) => ({ ...item, n: String(index + 1).padStart(2, '0') }));
-    const edition = historicalDate ? { run_date: historicalDate, mode: 'historical', requested_count: 10, title: 'Vibe Coding 每日手沖', generated_at: new Date().toISOString(), items } : null;
-    return res.status(200).json({ items, model: MODEL, ...(edition ? { edition, persisted: false } : {}) });
+    const edition = historicalDate ? { run_date: historicalDate, mode: 'historical', provider, model: modelForProvider(provider), requested_count: 10, title: 'Vibe Coding 每日手沖', generated_at: new Date().toISOString(), items } : null;
+    return res.status(200).json({ items, model: modelForProvider(provider), provider, ...(edition ? { edition, persisted: false } : {}) });
   } catch (error) {
     console.error(`Vercel brew failed: ${error.message}`);
     const status = error.status || (isTimeoutError(error) ? 504 : error.message === 'source_after_as_of_date' ? 502 : 502);

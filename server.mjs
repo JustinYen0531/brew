@@ -1,4 +1,5 @@
 import { createServer } from 'node:http';
+import { spawn } from 'node:child_process';
 import { mkdir, readFile, readdir, rename, stat, writeFile } from 'node:fs/promises';
 import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
@@ -21,14 +22,80 @@ function loadDotEnv(filePath) {
 
 const config = { ...loadDotEnv(ENV_FILE), ...process.env };
 const PORT = Number(config.PORT || 4173);
-const MODEL = config.OPENROUTER_MODEL || 'deepseek/deepseek-v4-flash-0731';
-const API_URL = 'https://openrouter.ai/api/v1/chat/completions';
+const OPENROUTER_MODEL = config.OPENROUTER_MODEL || 'deepseek/deepseek-v4-flash-0731';
+const OPENAI_MODEL = config.OPENAI_MODEL || 'gpt-5.4';
+const DEFAULT_PROVIDER = config.BREW_PROVIDER || 'openrouter';
+const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
+const OPENAI_API_URL = 'https://api.openai.com/v1/responses';
+const CODEX_COMMAND = config.CODEX_COMMAND || 'codex';
 const REQUEST_TIMEOUT_MS = 45_000;
 const RETRY_TIMEOUT_MS = 30_000;
+const CODEX_TIMEOUT_MS = 120_000;
 const MAX_BREW_ATTEMPTS = 2;
-const MAX_PARALLEL_BREWS = 5;
+const MAX_PARALLEL_BREWS = 2;
+const BREW_RESPONSE_SCHEMA = {
+  type: 'object',
+  properties: {
+    items: {
+      type: 'array',
+      minItems: 1,
+      maxItems: 1,
+      items: {
+        type: 'object',
+        properties: {
+          title: { type: 'string' },
+          category: { type: 'string' },
+          tag: { type: 'string' },
+          takeaway: { type: 'string' },
+          problem: { type: 'string' },
+          principle: { type: 'string' },
+          try_it: { type: 'string' },
+          tradeoffs: { type: 'string' },
+          practice_prompt: { type: 'string' },
+          source_says: { type: 'string' },
+          editorial_synthesis: { type: 'string' },
+          source: {
+            type: 'object',
+            properties: { url: { type: 'string' }, platform: { type: 'string' }, published_at: { type: 'string' } },
+            required: ['url', 'platform', 'published_at'],
+            additionalProperties: false
+          },
+          scores: {
+            type: 'object',
+            properties: { timeless: { type: 'number' }, importance: { type: 'number' }, popularity: { type: 'number' } },
+            required: ['timeless', 'importance', 'popularity'],
+            additionalProperties: false
+          }
+        },
+        required: ['title', 'category', 'tag', 'takeaway', 'problem', 'principle', 'try_it', 'tradeoffs', 'practice_prompt', 'source_says', 'editorial_synthesis', 'source', 'scores'],
+        additionalProperties: false
+      }
+    }
+  },
+  required: ['items'],
+  additionalProperties: false
+};
 
 const jsonHeaders = { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' };
+
+function normalizeProvider(value = DEFAULT_PROVIDER) {
+  return ['openrouter', 'openai', 'codex'].includes(value) ? value : 'openrouter';
+}
+
+function modelForProvider(provider) {
+  if (provider === 'openai') return OPENAI_MODEL;
+  if (provider === 'codex') return 'Codex · ChatGPT 訂閱（本機）';
+  return OPENROUTER_MODEL;
+}
+
+function providerStatus() {
+  return {
+    default: normalizeProvider(DEFAULT_PROVIDER),
+    openrouter: { configured: Boolean(config.OPENROUTER_API_KEY?.trim()), model: OPENROUTER_MODEL },
+    openai: { configured: Boolean(config.OPENAI_API_KEY?.trim()), model: OPENAI_MODEL },
+    codex: { enabled: config.CODEX_ENABLED !== 'false', command: CODEX_COMMAND, localOnly: true }
+  };
+}
 
 function localDate() {
   const now = new Date();
@@ -139,6 +206,12 @@ function extractText(content) {
   return '';
 }
 
+function extractOpenAIText(payload) {
+  if (typeof payload?.output_text === 'string') return payload.output_text;
+  const parts = (payload?.output || []).flatMap(item => Array.isArray(item?.content) ? item.content : []);
+  return parts.filter(part => part?.type === 'output_text').map(part => part.text || '').join('');
+}
+
 function parseJsonAnswer(text) {
   const cleaned = String(text || '').replace(/```json\s*/gi, '').replace(/```/g, '').trim();
   if (!cleaned) throw new Error('model_response_empty');
@@ -211,12 +284,12 @@ function buildRequestPrompt(count, preferences, asOfDate, compact = false, slot 
   const prompt = buildPrompt(count, preferences, asOfDate);
   const diversity = count === 1 ? `\n\n這是同一批中的第 ${slot + 1} 個獨立發現，請選擇與其他發現不同的實作主題，不要重複常見金句。` : '';
   const retry = compact ? `\n\n這是重試版本：每個欄位只寫 1 到 2 句，整篇控制在約 350 個中文字內，務必只完成這 1 篇。` : '';
-  return `${prompt}${diversity}${retry}`;
+  return `${prompt}${diversity}${retry}\n\n輸出欄位以 API 的 JSON Schema 為最高優先；source 只保留 url、platform、published_at，items 必須恰好包含 1 篇。`;
 }
 
-async function requestUpstream(key, count, preferences, asOfDate, attempt, slot = 0) {
+async function requestOpenRouter(key, count, preferences, asOfDate, attempt, slot = 0) {
   const compact = attempt > 0;
-  const upstream = await fetch(API_URL, {
+  const upstream = await fetch(OPENROUTER_API_URL, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${key}`,
@@ -225,7 +298,7 @@ async function requestUpstream(key, count, preferences, asOfDate, attempt, slot 
       'X-Title': 'Vibe Coding Daily Brew'
     },
     body: JSON.stringify({
-      model: MODEL,
+      model: OPENROUTER_MODEL,
       messages: [
         { role: 'system', content: '你是 Vibe Coding Daily Brew 的嚴謹中文編輯。只保留有證據、可轉移、可實作的做法。' },
         { role: 'user', content: buildRequestPrompt(count, preferences, asOfDate, compact, slot) }
@@ -233,7 +306,7 @@ async function requestUpstream(key, count, preferences, asOfDate, attempt, slot 
       temperature: compact ? 0.15 : 0.25,
       max_tokens: compact ? 2200 : 2400,
       plugins: [buildSearchPlugin(preferences, compact), { id: 'response-healing' }],
-      response_format: { type: 'json_object' }
+      response_format: { type: 'json_schema', json_schema: { name: 'vibe_coding_brew', strict: true, schema: BREW_RESPONSE_SCHEMA } }
     }),
     signal: AbortSignal.timeout(compact ? RETRY_TIMEOUT_MS : REQUEST_TIMEOUT_MS)
   });
@@ -251,6 +324,74 @@ async function requestUpstream(key, count, preferences, asOfDate, attempt, slot 
   return normalizeItems(parseJsonAnswer(answer), count, asOfDate);
 }
 
+async function requestOpenAI(key, count, preferences, asOfDate, attempt, slot = 0) {
+  const compact = attempt > 0;
+  const domains = allowedSearchDomains(preferences);
+  const upstream = await fetch(OPENAI_API_URL, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: OPENAI_MODEL,
+      instructions: '你是 Vibe Coding Daily Brew 的嚴謹中文編輯。只保留有證據、可轉移、可實作的做法。',
+      input: buildRequestPrompt(count, preferences, asOfDate, compact, slot),
+      tools: [{ type: 'web_search_preview', ...(domains.length ? { filters: { allowed_domains: domains } } : {}) }],
+      max_output_tokens: compact ? 2200 : 2400,
+      text: { format: { type: 'json_schema', name: 'vibe_coding_brew', strict: true, schema: BREW_RESPONSE_SCHEMA } }
+    }),
+    signal: AbortSignal.timeout(compact ? RETRY_TIMEOUT_MS : REQUEST_TIMEOUT_MS)
+  });
+  const data = await upstream.json().catch(() => ({}));
+  if (!upstream.ok || data.error) {
+    console.error(`OpenAI request failed: HTTP ${upstream.status || 502}`);
+    throw Object.assign(new Error('upstream_failed'), { status: 502, upstreamStatus: upstream.status });
+  }
+  return normalizeItems(parseJsonAnswer(extractOpenAIText(data)), count, asOfDate);
+}
+
+function runLocalCodex(prompt) {
+  return new Promise((resolve, reject) => {
+    const child = spawn(CODEX_COMMAND, ['exec', '--ephemeral', prompt], {
+      cwd: ROOT,
+      env: process.env,
+      shell: process.platform === 'win32',
+      windowsHide: true
+    });
+    let stdout = '';
+    let stderr = '';
+    const timer = setTimeout(() => {
+      child.kill();
+      reject(Object.assign(new Error('codex_timeout'), { status: 504 }));
+    }, CODEX_TIMEOUT_MS);
+    child.stdout.on('data', chunk => { stdout += chunk; });
+    child.stderr.on('data', chunk => { stderr += chunk; });
+    child.on('error', error => {
+      clearTimeout(timer);
+      console.error(`Codex bridge failed to start: ${error.message}`);
+      reject(Object.assign(new Error('codex_not_installed'), { status: 503 }));
+    });
+    child.on('close', code => {
+      clearTimeout(timer);
+      if (code !== 0) {
+        console.error(`Codex bridge exited with ${code}: ${stderr.trim().slice(-500)}`);
+        reject(Object.assign(new Error('codex_failed'), { status: 502 }));
+        return;
+      }
+      resolve(stdout);
+    });
+  });
+}
+
+async function requestCodex(count, preferences, asOfDate, attempt, slot = 0) {
+  const answer = await runLocalCodex(buildRequestPrompt(count, preferences, asOfDate, attempt > 0, slot));
+  return normalizeItems(parseJsonAnswer(answer), count, asOfDate);
+}
+
+async function requestUpstream(key, count, preferences, asOfDate, attempt, slot = 0, provider = DEFAULT_PROVIDER) {
+  if (provider === 'openai') return requestOpenAI(key, count, preferences, asOfDate, attempt, slot);
+  if (provider === 'codex') return requestCodex(count, preferences, asOfDate, attempt, slot);
+  return requestOpenRouter(key, count, preferences, asOfDate, attempt, slot);
+}
+
 function isTimeoutError(error) {
   return error?.name === 'TimeoutError' || error?.name === 'AbortError' || error?.code === 'ABORT_ERR';
 }
@@ -260,18 +401,23 @@ function isRetryableModelError(error) {
 }
 
 function publicErrorMessage(error) {
-  if (error.message === 'api_key_missing') return '尚未設定 API key。請在 .env.local 設定 OPENROUTER_API_KEY。';
+  if (error.message === 'api_key_missing') return '尚未設定 OpenRouter API key。請在 .env.local 設定 OPENROUTER_API_KEY。';
+  if (error.message === 'openai_api_key_missing') return '尚未設定 OpenAI API key。請在 .env.local 設定 OPENAI_API_KEY。';
+  if (error.message === 'codex_local_only') return '本機 Codex 只能由本機 server.mjs 執行，不能由雲端函式代跑。';
+  if (error.message === 'codex_not_installed') return '找不到本機 Codex CLI；請先安裝並執行 codex login。';
+  if (error.message === 'codex_failed') return '本機 Codex 執行失敗；請確認已完成 codex login，並查看本機終端機訊息。';
+  if (error.message === 'codex_timeout') return '本機 Codex 執行逾時，請稍後再試。';
   if (isTimeoutError(error)) return '即時搜尋逾時，請稍後再試；若一次篇數較多，可先改成 3 篇。';
   if (['model_response_empty', 'model_response_error', 'model_json_missing', 'model_json_incomplete', 'model_items_missing', 'model_items_incomplete'].includes(error.message)) return '模型回覆格式不完整，請稍後再試。';
   if (error.message === 'upstream_failed') return '即時來源暫時無法回應，請稍後再試。';
   return '手沖服務暫時無法使用。';
 }
 
-async function requestWithRetry(key, preferences, asOfDate, slot) {
+async function requestWithRetry(key, preferences, asOfDate, slot, provider) {
   let lastError;
   for (let attempt = 0; attempt < MAX_BREW_ATTEMPTS; attempt += 1) {
     try {
-      return await requestUpstream(key, 1, preferences, asOfDate, attempt, slot);
+      return await requestUpstream(key, 1, preferences, asOfDate, attempt, slot, provider);
     } catch (error) {
       lastError = error;
       if (attempt + 1 >= MAX_BREW_ATTEMPTS || !isRetryableModelError(error)) throw error;
@@ -296,10 +442,13 @@ async function mapConcurrent(count, task, concurrency = MAX_PARALLEL_BREWS) {
   return results.flat();
 }
 
-async function brew(count, preferences, asOfDate) {
-  const key = config.OPENROUTER_API_KEY?.trim();
-  if (!key) throw Object.assign(new Error('api_key_missing'), { status: 503 });
-  const items = await mapConcurrent(count, slot => requestWithRetry(key, preferences, asOfDate, slot));
+async function brew(count, preferences, asOfDate, provider = DEFAULT_PROVIDER) {
+  const selectedProvider = normalizeProvider(provider);
+  if (selectedProvider === 'openrouter' && !config.OPENROUTER_API_KEY?.trim()) throw Object.assign(new Error('api_key_missing'), { status: 503 });
+  if (selectedProvider === 'openai' && !config.OPENAI_API_KEY?.trim()) throw Object.assign(new Error('openai_api_key_missing'), { status: 503 });
+  if (selectedProvider === 'codex' && process.env.VERCEL) throw Object.assign(new Error('codex_local_only'), { status: 503 });
+  const key = selectedProvider === 'openai' ? config.OPENAI_API_KEY?.trim() : config.OPENROUTER_API_KEY?.trim();
+  const items = await mapConcurrent(count, slot => requestWithRetry(key, preferences, asOfDate, slot, selectedProvider));
   return items.map((item, index) => ({ ...item, n: String(index + 1).padStart(2, '0') }));
 }
 
@@ -339,10 +488,13 @@ async function listArchive(month) {
   }));
 }
 
-function createEdition(date, items, mode = 'historical') {
+function createEdition(date, items, mode = 'historical', provider = DEFAULT_PROVIDER) {
+  const selectedProvider = normalizeProvider(provider);
   return {
     run_date: date,
     mode,
+    provider: selectedProvider,
+    model: modelForProvider(selectedProvider),
     requested_count: items.length,
     title: 'Vibe Coding 每日手沖',
     objective: mode === 'historical'
@@ -357,7 +509,7 @@ const server = createServer(async (req, res) => {
   try {
     const requestUrl = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
     if (requestUrl.pathname === '/api/health' && req.method === 'GET') {
-      return sendJson(res, 200, { ok: true, model: MODEL, configured: Boolean(config.OPENROUTER_API_KEY?.trim()) });
+      return sendJson(res, 200, { ok: true, providers: providerStatus() });
     }
     if (requestUrl.pathname === '/api/archive' && req.method === 'GET') {
       const requestedDate = requestUrl.searchParams.get('date');
@@ -387,7 +539,11 @@ const server = createServer(async (req, res) => {
       let live = false;
       const localMatches = localSources.length;
       if (query.length >= 2 && localMatches < 3) {
-        const discovered = await discoverSources(query, { apiKey: config.OPENROUTER_API_KEY?.trim(), model: MODEL, limit: 5 });
+        const requestedProvider = normalizeProvider(requestUrl.searchParams.get('provider') || DEFAULT_PROVIDER);
+        const liveProvider = requestedProvider === 'codex' ? '' : requestedProvider;
+        const liveKey = liveProvider === 'openai' ? config.OPENAI_API_KEY?.trim() : config.OPENROUTER_API_KEY?.trim();
+        const liveModel = liveProvider === 'openai' ? OPENAI_MODEL : OPENROUTER_MODEL;
+        const discovered = liveProvider ? await discoverSources(query, { apiKey: liveKey, model: liveModel, provider: liveProvider, limit: 5 }) : [];
         const knownUrls = new Set(sources.map(source => source.url.replace(/\/$/, '').toLowerCase()));
         for (const source of discovered) {
           const key = source.url.replace(/\/$/, '').toLowerCase();
@@ -400,24 +556,28 @@ const server = createServer(async (req, res) => {
       const body = JSON.parse(await readRequestBody(req) || '{}');
       const historicalDate = body.date ? normalizeTargetDate(body.date) : '';
       const count = historicalDate ? 10 : Number(body.count);
+      const provider = normalizeProvider(body.provider || body.preferences?.provider || DEFAULT_PROVIDER);
       if (!Number.isInteger(count) || count < 1 || count > 10) return sendJson(res, 400, { error: '篇數必須是 1 到 10 之間的整數。' });
       const preferences = sanitizePreferences(body.preferences);
       if (historicalDate) {
-        try { return sendJson(res, 200, { edition: await readEdition(historicalDate), model: MODEL, reused: true }); }
+        try {
+          const edition = await readEdition(historicalDate);
+          return sendJson(res, 200, { edition, model: edition.model || modelForProvider(edition.provider || provider), provider: edition.provider || provider, reused: true });
+        }
         catch (error) { if (error.code !== 'ENOENT') throw error; }
-        const edition = createEdition(historicalDate, await brew(10, preferences, historicalDate));
+        const edition = createEdition(historicalDate, await brew(10, preferences, historicalDate, provider), 'historical', provider);
         await writeEdition(historicalDate, edition);
-        return sendJson(res, 200, { edition, model: MODEL, reused: false });
+        return sendJson(res, 200, { edition, model: edition.model, provider, reused: false });
       }
-      const items = await brew(count, preferences, localDate());
-      return sendJson(res, 200, { items, model: MODEL });
+      const items = await brew(count, preferences, localDate(), provider);
+      return sendJson(res, 200, { items, model: modelForProvider(provider), provider });
     }
     if (req.method === 'GET' && (requestUrl.pathname === '/' || requestUrl.pathname === '/index.html')) return serveSite(res);
     return sendJson(res, 404, { error: 'not_found' });
   } catch (error) {
     const modelError = ['model_response_empty', 'model_response_error', 'model_json_missing', 'model_json_incomplete', 'model_items_missing', 'model_items_incomplete'].includes(error.message);
     const status = error.status || (isTimeoutError(error) ? 504 : error.message === 'request_too_large' ? 413 : error instanceof SyntaxError ? 400 : modelError ? 502 : 500);
-    const message = error.message === 'request_too_large' ? '請求內容太大，請縮短偏好設定後再試。' : error.message === 'api_key_missing' ? '尚未設定 API key。請在 .env.local 設定 OPENROUTER_API_KEY。' : error.message === 'invalid_date' ? '日期格式無效，請使用 YYYY-MM-DD。' : error.message === 'future_date' ? '歷史手沖只能生成今天或更早的日期。' : error.message === 'source_after_as_of_date' ? '模型回傳了公示日期之後的來源，這一批沒有保存。' : publicErrorMessage(error);
+    const message = error.message === 'request_too_large' ? '請求內容太大，請縮短偏好設定後再試。' : error.message === 'invalid_date' ? '日期格式無效，請使用 YYYY-MM-DD。' : error.message === 'future_date' ? '歷史手沖只能生成今天或更早的日期。' : error.message === 'source_after_as_of_date' ? '模型回傳了公示日期之後的來源，這一批沒有保存。' : publicErrorMessage(error);
     console.error(`Request failed: ${error.message}`);
     return sendJson(res, status, { error: message });
   }

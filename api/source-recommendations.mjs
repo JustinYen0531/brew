@@ -1,6 +1,7 @@
 import { discoverSources, rankSources, readSourceCatalog, sourceMatchesQuery, SOURCE_RANKING_VERSION } from '../source-catalog.mjs';
 
-const MODEL = process.env.OPENROUTER_MODEL || 'deepseek/deepseek-v4-flash-0731';
+const OPENROUTER_MODEL = process.env.OPENROUTER_MODEL || 'deepseek/deepseek-v4-flash-0731';
+const OPENAI_MODEL = process.env.OPENAI_MODEL || 'gpt-5.4';
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ error: '只接受 GET 請求。' });
@@ -13,7 +14,11 @@ export default async function handler(req, res) {
     let live = false;
     const localMatches = localSources.length;
     if (query.length >= 2 && localMatches < 3) {
-      const discovered = await discoverSources(query, { apiKey: process.env.OPENROUTER_API_KEY?.trim(), model: MODEL, limit: 5 });
+      const provider = req.query?.provider === 'openai' ? 'openai' : req.query?.provider === 'codex' ? 'codex' : 'openrouter';
+      if (provider === 'codex') return res.status(200).json({ query, sources: rankSources(sources, query, limit), catalog_sources: catalog.sources, live: false, ranking_version: SOURCE_RANKING_VERSION, catalog_version: catalog.catalogVersion, updated_at: catalog.updatedAt });
+      const apiKey = provider === 'openai' ? process.env.OPENAI_API_KEY?.trim() : process.env.OPENROUTER_API_KEY?.trim();
+      const model = provider === 'openai' ? OPENAI_MODEL : OPENROUTER_MODEL;
+      const discovered = await discoverSources(query, { apiKey, model, provider, limit: 5 });
       const knownUrls = new Set(sources.map(source => source.url.replace(/\/$/, '').toLowerCase()));
       for (const source of discovered) {
         const key = source.url.replace(/\/$/, '').toLowerCase();

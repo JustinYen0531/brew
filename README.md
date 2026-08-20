@@ -4,13 +4,21 @@
 
 ## 本機測試
 
-先確認 `.env.local` 已設定 `OPENROUTER_API_KEY`，再執行：
+先確認 `.env.local` 已設定至少一個可用的生成方式，再執行：
 
 ```powershell
 node scripts/daily-brew.mjs --dry-run --date 2026-08-20
 node scripts/daily-brew.mjs
 node server.mjs
 ```
+
+生成方式可以在網站「偏好 → 生成方式」切換：
+
+- `OpenRouter`：使用 `OPENROUTER_API_KEY`，保留目前既有流程。
+- `OpenAI API`：使用 `OPENAI_API_KEY` 與 `OPENAI_MODEL`，透過 OpenAI Responses API 的 web search 生成；API 用量與 ChatGPT 訂閱額度分開計算。
+- `本機 Codex（訂閱）`：只在本機 `node server.mjs` 有效。先在同一台電腦完成 `codex login` 並選擇 ChatGPT 登入，網站按鈕才會透過 `codex exec --ephemeral` 執行；Vercel 不會代跑你的本機 Codex。
+
+建議先把 `.env.example` 複製成 `.env.local`，填入你要使用的 key；不要把任何 API key 放進 HTML、localStorage 或公開 repository。`BREW_PROVIDER` 只決定初始預設值，網站偏好可以逐次切換。
 
 生成結果會放在 `outputs/vibe-coding-daily-brew/daily/YYYY-MM-DD.json`，網站會優先讀取 `daily/latest.json`；同一天已有檔案時，重跑會安全跳過。需要重新生成時才使用 `--force`。
 
@@ -23,7 +31,7 @@ node server.mjs
 # 接著用瀏覽器開啟 http://localhost:4173，進入「過往手沖」
 ```
 
-來源探索資料庫位於 `data/vibe-coding-source-catalog.json`，目前有 10 個候選提供者，預設選取 5 個：`vibecoding.tw`、GitHub Community、Hacker News、DEV Community、OpenAI Developer Community。偏好區塊開啟時會載入 10 筆排序結果；輸入來源名稱、主題或社群後，先用資料庫別名與主題比對，符合項目不足 3 個時才嘗試即時搜尋。需要即時搜尋時，請讓 `.env.local` 有 `OPENROUTER_API_KEY`；沒有 key 仍可使用本地目錄與自訂 URL。
+來源探索資料庫位於 `data/vibe-coding-source-catalog.json`，目前有 10 個候選提供者，預設選取 5 個：`vibecoding.tw`、GitHub Community、Hacker News、DEV Community、OpenAI Developer Community。偏好區塊開啟時會載入 10 筆排序結果；輸入來源名稱、主題或社群後，先用資料庫別名與主題比對，符合項目不足 3 個時才嘗試即時搜尋。即時來源推薦會跟著 `OpenAI API`／`OpenRouter` provider 使用對應 key；選擇本機 Codex 時則仍可使用本地目錄與自訂 URL。每日手沖本身則依你選取的 provider 使用對應 key。
 
 來源推薦的排序與 endpoint 可單獨做靜態／命令列驗證，不需要瀏覽器：
 

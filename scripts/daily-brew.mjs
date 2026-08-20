@@ -1,12 +1,15 @@
 import { existsSync, readFileSync } from 'node:fs';
+import { spawn } from 'node:child_process';
 import { mkdir, rename, writeFile, access } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DEFAULT_OUTPUT_DIR = path.join(ROOT, 'outputs', 'vibe-coding-daily-brew', 'daily');
-const API_URL = 'https://openrouter.ai/api/v1/chat/completions';
-const MODEL = process.env.OPENROUTER_MODEL || 'deepseek/deepseek-v4-flash-0731';
+const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
+const OPENAI_API_URL = 'https://api.openai.com/v1/responses';
+const OPENROUTER_MODEL = process.env.OPENROUTER_MODEL || 'deepseek/deepseek-v4-flash-0731';
+const OPENAI_MODEL = process.env.OPENAI_MODEL || 'gpt-5.4';
 const COUNT = 10;
 const FORMULA_VERSION = 'v1';
 
@@ -69,6 +72,12 @@ function extractText(content) {
     if ('parts' in content) return extractText(content.parts);
   }
   return '';
+}
+
+function extractOpenAIText(payload) {
+  if (typeof payload?.output_text === 'string') return payload.output_text;
+  const parts = (payload?.output || []).flatMap(item => Array.isArray(item?.content) ? item.content : []);
+  return parts.filter(part => part?.type === 'output_text').map(part => part.text || '').join('');
 }
 
 function parseJsonAnswer(text) {
@@ -173,16 +182,40 @@ function buildPrompt(runDate) {
   return `今天是 ${runDate}，資料截點也是 ${runDate}。請為「Vibe Coding Daily Brew」挑選恰好 10 個可長久重用的 Vibe Coding 發現。所有 source.published_at 必須小於或等於 ${runDate}，不得使用之後才發布、更新或發生的內容。這個專案是一個繁體中文、可列印的每日學習頁；讀者需要的是可驗證的工程實作，而不是產品新聞、模型發布、募資、流行金句或功能清單。\n\n請使用可用的 web search，搜尋近期社群討論、開發者論壇、GitHub issue/discussion、技術文章與回覆，優先採用有具體 workflow、程式碼、測試、失敗分析、反例或可重複決策規則的來源。每篇只能教一個可轉移的 idea。請保留來源事實與編輯推論的界線，不確定的作者、日期、URL、互動或引文不得捏造。\n\n依 vibe-coding-curator skill 的 ranking-and-evidence 規範評分，使用 formula_version v1：recency = 5 * exp(-age_days / 30)；base = 0.52 * recency + 0.25 * importance + 0.13 * timeless + 0.10 * popularity。三個分數都是 1–5 整數；若 popularity 無可觀察數據，最多給 2。至少 3 個不同平台/來源，單一 primary category 最多 2 篇；最多保留 2 篇符合條件的 90 天以上經典。\n\n只回傳 JSON object，不要 Markdown 或前言，格式：\n{"items":[{"title":"...","category":"思考|提示設計|Agent 管理|上下文工程|程式碼理解|驗證|工作流程|工藝與心態|安全|協作|學習系統","secondary_categories":["..."],"takeaway":"...","problem":"...","principle":"...","try_it":"...","tradeoffs":"...","practice_prompt":"...","source_says":"一句由來源支持的短 paraphrase","editorial_synthesis":"清楚標示這是編輯綜合或 inference","classic_reserve":false,"source":{"url":"https://canonical-source","platform":"...","author":"...","published_at":"YYYY-MM-DD or ISO-8601","evidence_excerpt":"短 paraphrase 或不超過 25 字的合規短引文","engagement":"可觀察互動證據；未知就填 unknown","popularity_basis":"如何依平台與文章年齡解讀互動；未知就填 unavailable"},"scores":{"timeless":1,"importance":1,"popularity":1,"timeless_reason":"...","importance_reason":"...","popularity_reason":"...","confidence":0.0}}]}\n\n不要回傳第 11 篇，也不要用 placeholder 網址；若找不到足夠有證據的候選，仍回傳可驗證的 10 篇，不要創造來源。`;
 }
 
+function runLocalCodex(prompt) {
+  return new Promise((resolve, reject) => {
+    const child = spawn(config.CODEX_COMMAND || 'codex', ['exec', '--ephemeral', prompt], { cwd: ROOT, env: process.env, shell: process.platform === 'win32', windowsHide: true });
+    let stdout = '';
+    let stderr = '';
+    child.stdout.on('data', chunk => { stdout += chunk; });
+    child.stderr.on('data', chunk => { stderr += chunk; });
+    child.on('error', () => reject(new Error('codex_not_installed')));
+    child.on('close', code => code === 0 ? resolve(stdout) : reject(new Error(`codex_failed:${stderr.trim().slice(-500)}`)));
+  });
+}
+
 async function requestItems(runDate) {
-  const key = config.OPENROUTER_API_KEY?.trim();
-  if (!key) throw new Error('api_key_missing');
+  const provider = ['openrouter', 'openai', 'codex'].includes(config.BREW_PROVIDER) ? config.BREW_PROVIDER : 'openrouter';
+  if (provider === 'codex') {
+    const rawContent = await runLocalCodex(buildPrompt(runDate));
+    return normalizeItems(parseJsonAnswer(rawContent), runDate);
+  }
+  const key = provider === 'openai' ? config.OPENAI_API_KEY?.trim() : config.OPENROUTER_API_KEY?.trim();
+  if (!key) throw new Error(provider === 'openai' ? 'openai_api_key_missing' : 'api_key_missing');
   let lastError;
   for (let attempt = 0; attempt < 2; attempt += 1) {
-    const response = await fetch(API_URL, {
+    const response = await fetch(provider === 'openai' ? OPENAI_API_URL : OPENROUTER_API_URL, {
       method: 'POST',
-      headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json', 'X-Title': 'Vibe Coding Daily Brew' },
-      body: JSON.stringify({
-        model: config.OPENROUTER_MODEL || MODEL,
+      headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json', ...(provider === 'openrouter' ? { 'X-Title': 'Vibe Coding Daily Brew' } : {}) },
+      body: provider === 'openai' ? {
+        model: config.OPENAI_MODEL || OPENAI_MODEL,
+        instructions: '你是遵守 vibe-coding-curator skill 的嚴謹繁體中文編輯。只保留有來源、有證據、可轉移、可實作的做法。10 篇必須有 10 個不同 canonical URL，且 primary category 不得超過 2 篇。只輸出合法 JSON object。',
+        input: `${buildPrompt(runDate)}\n\n這是第 ${attempt + 1} 次嘗試。請先在內部完成檢查，再一次性輸出完整 JSON；不要輸出分析、Markdown、引用標記或 JSON 以外的文字。`,
+        tools: [{ type: 'web_search_preview' }],
+        max_output_tokens: 20_000,
+        text: { format: { type: 'json_object' } }
+      } : {
+        model: config.OPENROUTER_MODEL || OPENROUTER_MODEL,
         messages: [
           { role: 'system', content: '你是遵守 vibe-coding-curator skill 的嚴謹繁體中文編輯。只保留有來源、有證據、可轉移、可實作的做法。10 篇必須有 10 個不同 canonical URL，且 primary category 不得超過 2 篇。只輸出合法 JSON object。' },
           { role: 'user', content: `${buildPrompt(runDate)}\n\n這是第 ${attempt + 1} 次嘗試。請先在內部完成檢查，再一次性輸出完整 JSON；不要輸出分析、Markdown、引用標記或 JSON 以外的文字。` }
@@ -191,14 +224,14 @@ async function requestItems(runDate) {
         max_tokens: 20_000,
         plugins: [{ id: 'web' }],
         response_format: { type: 'json_object' }
-      }),
+      },
       signal: AbortSignal.timeout(120_000)
     });
     const payload = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(`upstream_failed:${response.status}`);
     try {
       const message = payload.choices?.[0]?.message || {};
-      const rawContent = extractText(message.content) || extractText(message.reasoning);
+      const rawContent = provider === 'openai' ? extractOpenAIText(payload) : extractText(message.content) || extractText(message.reasoning);
       return normalizeItems(parseJsonAnswer(rawContent), runDate);
     } catch (error) {
       lastError = error;
@@ -232,9 +265,13 @@ async function main() {
   }
   log(options, `collecting:${options.date}`);
   const items = await requestItems(options.date);
+  const provider = ['openrouter', 'openai', 'codex'].includes(config.BREW_PROVIDER) ? config.BREW_PROVIDER : 'openrouter';
+  const model = provider === 'openai' ? config.OPENAI_MODEL || OPENAI_MODEL : provider === 'codex' ? 'Codex · ChatGPT 訂閱（本機）' : config.OPENROUTER_MODEL || OPENROUTER_MODEL;
   const edition = {
     run_date: options.date,
     mode: 'daily',
+    provider,
+    model,
     requested_count: COUNT,
     formula_version: FORMULA_VERSION,
     title: 'Vibe Coding 每日手沖',
