@@ -169,6 +169,31 @@
     .archive-intro h1, .pantry-intro h1 { font: 400 clamp(54px, 8vw, 92px)/.94 var(--serif); letter-spacing: -.06em; margin: 15px 0 18px; }
     .archive-intro p, .pantry-intro p { color: var(--muted); font: 19px/1.4 var(--serif); max-width: 500px; }
     .archive-heading { color: var(--muted); border-bottom: 1px solid var(--line); padding: 13px 0; font: 10px var(--mono); letter-spacing: .13em; text-transform: uppercase; }
+    .archive-controls { display: flex; align-items: center; justify-content: space-between; gap: 14px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 13px 0; margin-top: 4px; }
+    .archive-month-label { color: var(--ink); font: 18px var(--serif); }
+    .archive-month-button { border: 1px solid var(--line); background: transparent; color: var(--muted); cursor: pointer; min-width: 34px; height: 32px; font: 14px var(--mono); }
+    .archive-month-button:hover { color: var(--ink); border-color: var(--espresso); background: var(--paper-bright); }
+    .archive-calendar-layout { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(280px, .6fr); gap: 42px; padding-top: 24px; }
+    .archive-weekdays, .archive-calendar-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 7px; }
+    .archive-weekdays { margin-bottom: 7px; }
+    .archive-weekday { color: var(--faint); font: 10px var(--mono); text-align: center; padding: 4px 0; }
+    .archive-day { min-height: 86px; border: 1px solid var(--line); background: rgba(251,248,242,.35); color: var(--muted); cursor: pointer; display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between; padding: 10px; text-align: left; }
+    .archive-day:hover:not(:disabled), .archive-day.is-selected { border-color: var(--espresso); background: var(--paper-bright); color: var(--ink); }
+    .archive-day.is-generated { border-color: rgba(105,113,88,.65); }
+    .archive-day.is-generated .archive-day-mark { color: var(--olive); }
+    .archive-day.is-future, .archive-day:disabled { cursor: not-allowed; opacity: .42; }
+    .archive-day.is-empty { border-color: transparent; background: transparent; cursor: default; }
+    .archive-day-number { font: 17px var(--serif); }
+    .archive-day-mark { color: var(--faint); font: 9px var(--mono); }
+    .archive-selection { border-left: 1px solid var(--line); padding: 15px 0 15px 28px; min-height: 230px; }
+    .archive-selection h2 { font: 400 34px/.98 var(--serif); letter-spacing: -.04em; margin: 14px 0 12px; }
+    .archive-selection-copy { color: var(--muted); font: 14px/1.55 var(--serif); margin-bottom: 20px; }
+    .archive-selection-button { border: 1px solid var(--espresso); background: var(--espresso); color: var(--paper-bright); cursor: pointer; padding: 11px 15px; font: 11px var(--mono); }
+    .archive-selection-button:hover { background: var(--ink); }
+    .archive-selection-button.is-secondary { color: var(--espresso); background: transparent; }
+    .archive-selection-button.is-secondary:hover { color: var(--ink); background: var(--paper-deep); }
+    .archive-selection-button:disabled { opacity: .55; cursor: wait; }
+    .archive-selection-status { color: var(--olive); font: 10px/1.5 var(--mono); margin-top: 14px; min-height: 1.5em; }
 
     .pantry-toolbar { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 13px 0; margin-top: 30px; }
     .pantry-browser { min-width: 0; }
@@ -268,6 +293,26 @@
     .preferences-reset { background: transparent; color: var(--muted); border-color: var(--line); }
     .preferences-reset:hover { color: var(--ink); border-color: var(--espresso); }
     .preferences-status { color: var(--olive); font: 10px var(--mono); min-height: 1.4em; }
+    .source-discovery-query { width: 100%; border: 1px solid var(--line); background: var(--paper); color: var(--ink); padding: 12px 13px; font: 14px/1.5 var(--serif); }
+    .source-discovery-query:focus { border-color: var(--espresso); outline: 2px solid rgba(194,145,75,.25); outline-offset: 1px; }
+    .source-discovery-status { color: var(--muted); font: 10px/1.5 var(--mono); margin: 10px 0; min-height: 1.4em; }
+    .source-recommendation-list { display: grid; gap: 8px; max-height: 410px; overflow: auto; }
+    .source-recommendation { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 11px; border: 1px solid var(--line); background: rgba(251,248,242,.56); padding: 12px; }
+    .source-recommendation.is-selected { border-color: var(--espresso); background: var(--paper-deep); }
+    .source-recommendation h4 { font: 17px/1.15 var(--serif); margin: 0 0 4px; }
+    .source-recommendation p { color: var(--muted); font: 11px/1.45 var(--sans); margin: 0 0 7px; }
+    .source-recommendation-meta { color: var(--faint); font: 9px/1.5 var(--mono); }
+    .source-recommendation-meta strong { color: var(--espresso); font-weight: 500; }
+    .source-recommendation-actions { display: flex; align-items: center; gap: 8px; justify-content: flex-end; margin-top: 9px; }
+    .source-recommendation-actions a, .source-select-button { border: 1px solid var(--line); background: transparent; color: var(--espresso); cursor: pointer; padding: 6px 8px; font: 9px var(--mono); text-decoration: none; white-space: nowrap; }
+    .source-select-button { border-color: var(--espresso); background: var(--espresso); color: var(--paper-bright); }
+    .source-select-button.is-selected { background: transparent; color: var(--espresso); }
+    .selected-source-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 11px; }
+    .selected-source-chip { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); padding: 6px 8px; color: var(--ink); font: 10px var(--mono); }
+    .selected-source-chip button { border: 0; background: transparent; color: var(--terracotta); cursor: pointer; padding: 0; }
+    .custom-source-row { display: grid; grid-template-columns: 1fr 1.2fr auto; gap: 7px; align-items: end; }
+    .custom-source-add { border: 1px solid var(--espresso); background: transparent; color: var(--espresso); cursor: pointer; padding: 10px 11px; font: 10px var(--mono); white-space: nowrap; }
+    .source-catalog-note { color: var(--faint); font: 9px/1.5 var(--mono); margin-top: 9px; }
 
     @media (max-width: 850px) {
       .site-shell { width: min(100% - 36px, 680px); }
@@ -290,6 +335,10 @@
       .brew-form { justify-content: flex-start; }
       .archive-row { grid-template-columns: 1fr 1fr; gap: 8px; }
       .archive-count, .archive-time { text-align: left; }
+      .archive-calendar-layout { grid-template-columns: 1fr; gap: 25px; }
+      .archive-selection { border-left: 0; border-top: 1px solid var(--line); padding: 25px 0 0; }
+      .archive-day { min-height: 70px; padding: 8px 6px; }
+      .archive-day-mark { font-size: 8px; }
       .pantry-toolbar { align-items: stretch; flex-direction: column; }
       .pantry-search { width: 100%; }
       .pantry-item { grid-template-columns: 1fr auto; gap: 12px; }
@@ -302,6 +351,7 @@
       .detail-nav a { padding: 3px 0; }
       .preferences-sheet { padding: 28px 22px 42px; }
       .source-weight-row { grid-template-columns: 1fr; gap: 8px; }
+      .custom-source-row { grid-template-columns: 1fr; }
     }
     @media (max-width: 480px) {
       .site-shell { width: calc(100% - 28px); }
@@ -379,17 +429,13 @@
       </section>
 
       <section class="view" id="archive-view" aria-labelledby="archive-title">
-        <div class="archive-intro"><div class="eyebrow">一小段專注的歷史</div><h1 id="archive-title">過往手沖</h1><p>回頭看看哪些內容值得留下。每一期都是一條精簡的想法路徑，不是等著追完的動態牆。</p></div>
-        <div class="archive-heading">日期 <span style="float:right">篇數／時間</span></div>
-        <div class="archive-list">
-          <div class="archive-row"><div class="archive-date">8 月 20 日</div><div class="archive-edition">工具會變，方法留下。</div><div class="archive-count">10 篇學習</div><div class="archive-time">18 分鐘</div></div>
-          <div class="archive-row"><div class="archive-date">8 月 19 日</div><div class="archive-edition">讓下一步變得看得見。</div><div class="archive-count">10 篇學習</div><div class="archive-time">24 分鐘</div></div>
-          <div class="archive-row"><div class="archive-date">8 月 18 日</div><div class="archive-edition">更小的世界，更容易驗證。</div><div class="archive-count">10 篇學習</div><div class="archive-time">21 分鐘</div></div>
-          <div class="archive-row"><div class="archive-date">8 月 17 日</div><div class="archive-edition">好的限制，替工藝留出空間。</div><div class="archive-count">10 篇學習</div><div class="archive-time">16 分鐘</div></div>
-          <div class="archive-row"><div class="archive-date">8 月 16 日</div><div class="archive-edition">先要證據，再要自信。</div><div class="archive-count">10 篇學習</div><div class="archive-time">20 分鐘</div></div>
-          <div class="archive-row"><div class="archive-date">8 月 15 日</div><div class="archive-edition">循環本身就是產品。</div><div class="archive-count">10 篇學習</div><div class="archive-time">22 分鐘</div></div>
+        <div class="archive-intro"><div class="eyebrow">把網站出現以前的好想法補回來</div><h1 id="archive-title">過往手沖</h1><p>選一個日期，看看當天是否已經有一批手沖。沒有的日期，就用當天作為公示日期，模擬網站當時自動沖出的十份發現。</p></div>
+        <div class="archive-controls" aria-label="切換過往手沖月份"><button class="archive-month-button" id="archive-prev" type="button" aria-label="上一個月">←</button><div class="archive-month-label" id="archive-month-label">載入日曆中…</div><button class="archive-month-button" id="archive-next" type="button" aria-label="下一個月">→</button></div>
+        <div class="archive-calendar-layout">
+          <section class="archive-calendar" aria-label="過往手沖日曆"><div class="archive-weekdays" aria-hidden="true"><span class="archive-weekday">日</span><span class="archive-weekday">一</span><span class="archive-weekday">二</span><span class="archive-weekday">三</span><span class="archive-weekday">四</span><span class="archive-weekday">五</span><span class="archive-weekday">六</span></div><div class="archive-calendar-grid" id="archive-calendar"></div></section>
+          <aside class="archive-selection" id="archive-selection" aria-live="polite"><div class="eyebrow">選擇一個日期</div><h2 id="archive-selection-title">尚未選擇</h2><p class="archive-selection-copy" id="archive-selection-copy">日曆會標出已經生成過的批次；沒有的日期可以在這裡補上一批歷史模擬手沖。</p><button class="archive-selection-button" id="archive-open-button" type="button" hidden>查看這一批 →</button><button class="archive-selection-button is-secondary" id="archive-generate-button" type="button" hidden>生成一批（10 份）→</button><div class="archive-selection-status" id="archive-selection-status" role="status"></div></aside>
         </div>
-        <div class="footer-note"><em>這裡沒有待追的進度，只有邀請你再次回來的內容。</em><span class="prototype-label">過往手沖預覽</span></div>
+        <div class="footer-note"><em>這裡不是追進度，是把錯過的日期補回來。</em><span class="prototype-label">歷史模擬手沖</span></div>
       </section>
     </main>
   </div>
@@ -409,21 +455,24 @@
         <button class="preferences-close" id="preferences-close" aria-label="關閉偏好">×</button>
       </div>
 
-      <section class="preferences-section" aria-labelledby="source-weight-title">
-        <h3 id="source-weight-title">來源偏好權重</h3>
-        <p>數字越高，越希望看到這類來源；它是機率偏好，不是硬性保證。</p>
-        <div class="source-weight-legend"><span><strong>1</strong> 盡量不要出現</span><span><strong>3</strong> 正常</span><span><strong>5</strong> 請給我更多</span></div>
-        <div class="source-weight-row"><div class="source-weight-name">Facebook</div><div class="source-weight-scale" role="radiogroup" aria-label="Facebook 來源權重"><label><input type="radio" name="weight-facebook" value="1"><span>1</span></label><label><input type="radio" name="weight-facebook" value="2"><span>2</span></label><label><input type="radio" name="weight-facebook" value="3" checked><span>3</span></label><label><input type="radio" name="weight-facebook" value="4"><span>4</span></label><label><input type="radio" name="weight-facebook" value="5"><span>5</span></label></div></div>
-        <div class="source-weight-row"><div class="source-weight-name">Reddit</div><div class="source-weight-scale" role="radiogroup" aria-label="Reddit 來源權重"><label><input type="radio" name="weight-reddit" value="1"><span>1</span></label><label><input type="radio" name="weight-reddit" value="2"><span>2</span></label><label><input type="radio" name="weight-reddit" value="3" checked><span>3</span></label><label><input type="radio" name="weight-reddit" value="4"><span>4</span></label><label><input type="radio" name="weight-reddit" value="5"><span>5</span></label></div></div>
-        <div class="source-weight-row"><div class="source-weight-name">GitHub</div><div class="source-weight-scale" role="radiogroup" aria-label="GitHub 來源權重"><label><input type="radio" name="weight-github" value="1"><span>1</span></label><label><input type="radio" name="weight-github" value="2"><span>2</span></label><label><input type="radio" name="weight-github" value="3" checked><span>3</span></label><label><input type="radio" name="weight-github" value="4"><span>4</span></label><label><input type="radio" name="weight-github" value="5"><span>5</span></label></div></div>
+      <section class="preferences-section" aria-labelledby="source-discovery-title">
+        <h3 id="source-discovery-title">來源探索資料庫</h3>
+        <p>打開這個偏好區塊就會先顯示 10 個推薦來源。輸入任何字，系統會用資料庫別名與即時網路搜尋猜你想找的提供者；你選取的是來源，不是把自己知道的名字硬塞進 prompt。</p>
+        <label class="preference-field"><span>搜尋來源／主題／社群</span><input class="source-discovery-query" id="source-discovery-query" type="search" maxlength="160" autocomplete="off" placeholder="例如：Vibe Coding Taiwan、Claude Code、agent workflow"></label>
+        <div class="source-discovery-status" id="source-discovery-status" role="status">載入推薦來源中…</div>
+        <div class="source-recommendation-list" id="source-recommendation-list" aria-live="polite"></div>
+        <div class="source-catalog-note" id="source-catalog-note">來源會顯示品質、影響力、訊號與可近性評分；這些是排序證據，不是永遠不變的排名。</div>
+        <div class="selected-source-list" id="selected-source-list" aria-label="已選取的來源偏好"></div>
       </section>
 
-      <section class="preferences-section" aria-labelledby="specific-source-title">
-        <h3 id="specific-source-title">特定社群偏好</h3>
-        <p>這些會成為 prompt 裡的偏好提示；不是網址白名單，模型仍會先確認內容是否真的有用。</p>
-        <label class="preference-field"><span>Facebook 社團</span><input class="preference-input" id="specific-facebook" type="text" maxlength="160" placeholder="例如：Vibe Coding Taiwan"></label>
-        <label class="preference-field"><span>Reddit 討論區</span><input class="preference-input" id="specific-reddit" type="text" maxlength="160" placeholder="例如：r/vibecoding"></label>
-        <label class="preference-field"><span>GitHub 專案／討論</span><input class="preference-input" id="specific-github" type="text" maxlength="160" placeholder="例如：某個 repository 或 Discussions"></label>
+      <section class="preferences-section" aria-labelledby="custom-source-title">
+        <h3 id="custom-source-title">新增來源偏好</h3>
+        <p>找不到你想追的媒體、軟體、論壇、頻道或社群時，可以新增一個可開啟的 URL；它會保存到你的個人偏好，之後也會參與排序。</p>
+        <div class="custom-source-row">
+          <label class="preference-field"><span>來源名稱</span><input class="preference-input" id="custom-source-name" type="text" maxlength="160" placeholder="例如：某個社群／頻道"></label>
+          <label class="preference-field"><span>來源網址</span><input class="preference-input" id="custom-source-url" type="url" maxlength="500" placeholder="https://example.com"></label>
+          <button class="custom-source-add" id="custom-source-add" type="button">加入來源</button>
+        </div>
       </section>
 
       <section class="preferences-section" aria-labelledby="prompt-preference-title">
@@ -481,14 +530,20 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
 
     const categoryFilters = ['全部學習', '思考', '提示設計', 'Agent 管理', '上下文工程', '程式碼理解', '驗證', '工作流程', '工藝與心態'];
     const preferenceStorageKey = 'vibe-coding-daily-brew:source-preferences';
-    const defaultPreferences = { sourceWeights: { facebook: 3, reddit: 3, github: 3 }, specificSources: { facebook: '', reddit: '', github: '' }, prompt: '', directUrls: [], language: 'zh-Hant' };
+    const defaultSourceIds = ['vibecoding-tw', 'github-community', 'hacker-news', 'dev-community', 'openai-community'];
+    const defaultPreferences = { selectedSourceIds: [...defaultSourceIds], selectedSources: [], customSources: [], sourceWeights: {}, specificSources: {}, prompt: '', directUrls: [], language: 'zh-Hant' };
     function loadPreferences() {
       try {
         const saved = JSON.parse(localStorage.getItem(preferenceStorageKey) || '{}');
-        return { ...defaultPreferences, ...saved, sourceWeights: { ...defaultPreferences.sourceWeights, ...(saved.sourceWeights || {}) }, specificSources: { ...defaultPreferences.specificSources, ...(saved.specificSources || {}) }, directUrls: Array.isArray(saved.directUrls) ? saved.directUrls : [] };
-      } catch { return { ...defaultPreferences, sourceWeights: { ...defaultPreferences.sourceWeights }, specificSources: { ...defaultPreferences.specificSources }, directUrls: [] }; }
+        const selectedSourceIds = Array.isArray(saved.selectedSourceIds) ? saved.selectedSourceIds.filter(value => typeof value === 'string').slice(0, 20) : [...defaultSourceIds];
+        return { ...defaultPreferences, ...saved, selectedSourceIds: selectedSourceIds.length ? selectedSourceIds : [...defaultSourceIds], selectedSources: Array.isArray(saved.selectedSources) ? saved.selectedSources : [], customSources: Array.isArray(saved.customSources) ? saved.customSources : [], sourceWeights: saved.sourceWeights && typeof saved.sourceWeights === 'object' ? saved.sourceWeights : {}, directUrls: Array.isArray(saved.directUrls) ? saved.directUrls : [] };
+      } catch { return { ...defaultPreferences, selectedSourceIds: [...defaultSourceIds], selectedSources: [], customSources: [], sourceWeights: {}, directUrls: [] }; }
     }
     let brewPreferences = loadPreferences();
+    let sourceCatalog = [];
+    let sourceRecommendations = [];
+    let sourceSearchTimer = null;
+    let sourceRequestSerial = 0;
     const favoriteFilters = ['全部內容', 'Starred 以上', '僅 Super Starred'];
     const favoriteStorageKey = 'vibe-coding-daily-brew:favorites';
     let pantryMode = 'favorites';
@@ -501,7 +556,19 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
     const pantryList = document.getElementById('pantry-list');
     const detailOverlay = document.getElementById('detail-overlay');
     const detailContent = document.getElementById('detail-content');
+    const archiveCalendar = document.getElementById('archive-calendar');
+    const archiveMonthLabel = document.getElementById('archive-month-label');
+    const archiveSelectionTitle = document.getElementById('archive-selection-title');
+    const archiveSelectionCopy = document.getElementById('archive-selection-copy');
+    const archiveSelectionStatus = document.getElementById('archive-selection-status');
+    const archiveOpenButton = document.getElementById('archive-open-button');
+    const archiveGenerateButton = document.getElementById('archive-generate-button');
     const stages = ['發現中', '篩選中', '提煉中', '準備學習內容'];
+    const archiveStorageKey = 'vibe-coding-daily-brew:historical-editions';
+    let archiveMonthDate = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+    let archiveSelectedDate = '';
+    let archiveRecords = {};
+    let archiveEditions = {};
 
     function escapeHtml(value) {
       return String(value ?? '').replace(/[&<>"']/g, character => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[character]);
@@ -512,6 +579,69 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
         const url = new URL(value);
         return /^https?:$/.test(url.protocol) ? escapeHtml(url.href) : '#';
       } catch { return '#'; }
+    }
+
+    function localDateKey() {
+      const now = new Date();
+      const local = new Date(now.getTime() - now.getTimezoneOffset() * 60_000);
+      return local.toISOString().slice(0, 10);
+    }
+
+    function archiveDateLabel(date) {
+      return new Intl.DateTimeFormat('zh-TW', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' }).format(new Date(`${date}T00:00:00`));
+    }
+
+    function archiveMonthKey(date) {
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+    }
+
+    function loadArchiveCache() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(archiveStorageKey) || '{}');
+        archiveEditions = Object.fromEntries(Object.entries(saved).filter(([date, edition]) => /^\d{4}-\d{2}-\d{2}$/.test(date) && edition?.run_date === date && Array.isArray(edition.items) && edition.items.length === 10));
+      } catch { archiveEditions = {}; }
+      Object.entries(archiveEditions).forEach(([date, edition]) => { archiveRecords[date] = { date, count: edition.items.length, generated_at: edition.generated_at || '', mode: edition.mode || 'historical' }; });
+    }
+
+    function saveArchiveCache() {
+      try { localStorage.setItem(archiveStorageKey, JSON.stringify(archiveEditions)); } catch {}
+    }
+
+    function normalizeEditionItems(edition) {
+      return edition.items.map(item => ({
+        ...item,
+        source: item.source_display || item.source || '社群來源',
+        sourceType: item.sourceType || item.source?.platform || '社群討論',
+        date: item.date || item.source?.published_at || edition.run_date,
+        url: item.url || item.source?.url || '',
+        timeless: Number(item.timeless ?? item.scores?.timeless ?? 3),
+        importance: Number(item.importance ?? item.scores?.importance ?? 3),
+        heat: Number(item.heat ?? item.scores?.popularity ?? 2),
+        time: item.time || '6 分鐘',
+        n: item.n || '00'
+      }));
+    }
+
+    function applyEdition(edition) {
+      if (!edition || !Array.isArray(edition.items) || edition.items.length !== 10) return false;
+      lessons.splice(0, lessons.length, ...normalizeEditionItems(edition));
+      const label = edition.mode === 'historical' ? `歷史模擬 · ${edition.run_date} · ${edition.items.length} 個發現` : `每日選集 · ${edition.run_date} · ${edition.items.length} 個發現`;
+      const editionDate = document.querySelector('.hero .eyebrow');
+      const editionLine = document.querySelector('.edition-line');
+      if (editionDate) editionDate.textContent = label;
+      if (editionLine) editionLine.textContent = `公示日期：${edition.run_date} · ${edition.items.length} 篇學習 · 資料截點不晚於該日`;
+      const metricValues = document.querySelectorAll('.metrics .metric-value');
+      if (metricValues[0]) metricValues[0].textContent = String(edition.items.length);
+      renderLessons();
+      renderFilters();
+      renderPantry();
+      return true;
+    }
+
+    function showView(viewId) {
+      document.querySelectorAll('.view').forEach(view => view.classList.toggle('is-visible', view.id === viewId));
+      document.querySelectorAll('[data-view]').forEach(nav => nav.classList.toggle('is-active', nav.dataset.view === viewId));
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function populatePreferences() {
@@ -648,6 +778,120 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
       pantryList.querySelectorAll('[data-open-lesson]').forEach(button => button.addEventListener('click', () => openLesson(Number(button.dataset.openLesson))));
     }
 
+    function renderArchiveCalendar() {
+      const year = archiveMonthDate.getFullYear();
+      const month = archiveMonthDate.getMonth();
+      const monthKey = archiveMonthKey(archiveMonthDate);
+      archiveMonthLabel.textContent = new Intl.DateTimeFormat('zh-TW', { year: 'numeric', month: 'long' }).format(archiveMonthDate);
+      const firstDay = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const today = localDateKey();
+      const cells = [];
+      for (let index = 0; index < firstDay; index += 1) cells.push('<div class="archive-day is-empty" aria-hidden="true"></div>');
+      for (let day = 1; day <= daysInMonth; day += 1) {
+        const date = `${monthKey}-${String(day).padStart(2, '0')}`;
+        const hasEdition = Boolean(archiveRecords[date] || archiveEditions[date]);
+        const isFuture = date > today;
+        const isSelected = date === archiveSelectedDate;
+        const label = isFuture ? '尚未開放' : hasEdition ? `已生成 ${archiveRecords[date]?.count || 10} 份` : '沒有手沖';
+        cells.push(`<button class="archive-day ${hasEdition ? 'is-generated' : ''} ${isSelected ? 'is-selected' : ''} ${isFuture ? 'is-future' : ''}" type="button" data-archive-date="${date}" aria-label="${archiveDateLabel(date)}，${label}" ${isFuture ? 'disabled' : ''}><span class="archive-day-number">${day}</span><span class="archive-day-mark">${label}</span></button>`);
+      }
+      archiveCalendar.innerHTML = cells.join('');
+      archiveCalendar.querySelectorAll('[data-archive-date]').forEach(button => button.addEventListener('click', () => selectArchiveDate(button.dataset.archiveDate)));
+    }
+
+    function selectArchiveDate(date) {
+      archiveSelectedDate = date;
+      renderArchiveCalendar();
+      archiveOpenButton.hidden = true;
+      archiveGenerateButton.hidden = true;
+      archiveSelectionStatus.textContent = '';
+      archiveSelectionTitle.textContent = archiveDateLabel(date);
+      if (date > localDateKey()) {
+        archiveSelectionCopy.textContent = '這一天還沒有發生，不能預先生成歷史手沖。';
+        return;
+      }
+      const record = archiveRecords[date] || archiveEditions[date];
+      if (record) {
+        archiveSelectionCopy.textContent = `這一天已經有一批 ${record.count || 10} 份手沖。按下查看，就會把它模擬成「今日手沖」的閱讀畫面。`;
+        archiveOpenButton.hidden = false;
+      } else {
+        archiveSelectionCopy.textContent = '這一天目前沒有生成過手沖。下面的按鈕會以這個日期作為公示日期，固定補上一批 10 份發現。';
+        archiveGenerateButton.hidden = false;
+      }
+    }
+
+    async function fetchEdition(date = 'latest') {
+      if (location.protocol === 'file:') return null;
+      const encodedDate = encodeURIComponent(date);
+      const endpoints = date === 'latest'
+        ? ['/api/archive?date=latest', '/outputs/vibe-coding-daily-brew/daily/latest.json']
+        : [`/api/archive?date=${encodedDate}`, `/outputs/vibe-coding-daily-brew/daily/${encodedDate}.json`];
+      for (const endpoint of endpoints) {
+        try {
+          const response = await fetch(endpoint, { cache: 'no-store' });
+          if (!response.ok) continue;
+          const edition = await response.json();
+          if (Array.isArray(edition.items) && edition.items.length === 10) return edition;
+        } catch {}
+      }
+      return null;
+    }
+
+    async function openArchiveEdition(date) {
+      archiveSelectionStatus.textContent = '正在載入這一天的手沖…';
+      const edition = archiveEditions[date] || await fetchEdition(date);
+      if (!edition || !applyEdition(edition)) {
+        archiveSelectionStatus.textContent = '這一批目前讀不到，請確認本機手沖服務。';
+        return;
+      }
+      archiveEditions[date] = edition;
+      archiveRecords[date] = { date, count: edition.items.length, generated_at: edition.generated_at || '', mode: edition.mode || 'historical' };
+      saveArchiveCache();
+      showView('today-view');
+      archiveSelectionStatus.textContent = `已載入 ${date} 的 ${edition.items.length} 份手沖。`;
+    }
+
+    async function generateArchiveEdition(date) {
+      if (location.protocol === 'file:') {
+        archiveSelectionStatus.textContent = '請用 node server.mjs 開啟網站，才能保存歷史批次。';
+        return;
+      }
+      archiveGenerateButton.disabled = true;
+      archiveOpenButton.hidden = true;
+      archiveSelectionStatus.textContent = `正在以 ${date} 為公示日期，手沖 10 份發現…`;
+      try {
+        const response = await fetch('/api/brew', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ count: 10, date, preferences: brewPreferences }) });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(payload.error || '歷史手沖服務暫時無法使用。');
+        const edition = payload.edition || { run_date: date, mode: 'historical', requested_count: 10, generated_at: new Date().toISOString(), items: payload.items };
+        if (!Array.isArray(edition.items) || edition.items.length !== 10) throw new Error('回傳的歷史手沖不是 10 份。');
+        archiveEditions[date] = edition;
+        archiveRecords[date] = { date, count: edition.items.length, generated_at: edition.generated_at || '', mode: edition.mode || 'historical' };
+        saveArchiveCache();
+        renderArchiveCalendar();
+        selectArchiveDate(date);
+        archiveSelectionStatus.textContent = payload.reused ? `這一天原本就有批次，已載入 ${edition.items.length} 份。` : `已生成並保存 ${date} 的 ${edition.items.length} 份手沖。`;
+      } catch (error) {
+        archiveSelectionStatus.textContent = error.message || '歷史手沖沒有完成。';
+      } finally {
+        archiveGenerateButton.disabled = false;
+      }
+    }
+
+    async function loadArchiveIndex() {
+      loadArchiveCache();
+      try {
+        const response = await fetch('/api/archive', { cache: 'no-store' });
+        if (response.ok) {
+          const payload = await response.json();
+          (payload.dates || []).forEach(record => { archiveRecords[record.date] = record; });
+        }
+      } catch {}
+      renderArchiveCalendar();
+      selectArchiveDate(localDateKey());
+    }
+
     function openLesson(index) {
       const item = lessons[index];
       detailContent.innerHTML = `<div class="eyebrow">第 ${escapeHtml(item.n)} 篇 · ${escapeHtml(item.category)} · ${escapeHtml(item.time)}</div><h2 id="detail-title">${escapeHtml(item.title)}</h2><p class="detail-lead">${escapeHtml(item.takeaway)}</p><div class="detail-scoreboard"><span>長久度 <strong>${item.timeless.toFixed(1)} / 5</strong></span><span>重要性 <strong>${item.importance.toFixed(1)} / 5</strong></span><span>熱度 <strong>${item.heat.toFixed(1)} / 5</strong></span></div>${favoriteButton(item, index, 'detail-favorite')}<section class="reading-section" id="idea"><h3>核心想法</h3><p>${escapeHtml(item.principle)}</p><div class="callout"><strong>關鍵想法</strong><p>目的不是讓 Agent 聽起來很確定，而是讓下一個有用的決定更容易被看見。</p></div></section><section class="reading-section" id="why"><h3>為什麼有效</h3><p>${escapeHtml(item.problem)}</p></section><section class="reading-section" id="mental-model"><h3>心智模型</h3><div class="flow"><span>問題</span><i>→</i><span>上下文</span><i>→</i><span>Agent</span><i>→</i><span>驗證</span><i>→</i><span>修訂</span></div><p>每一個箭頭都是人類可以檢查工作狀態的地方。當狀態可見，速度就更容易被信任。</p></section><section class="reading-section" id="example"><h3>範例</h3><p>${escapeHtml(item.tryIt)}</p></section><section class="reading-section" id="try-it"><h3>試試看</h3><ul class="checklist"><li>替目前的一個任務寫出這個做法的最小版本。</li><li>執行一次可觀察的檢查，並把結果放在變更旁邊。</li><li>記錄什麼變得更容易決定、驗證或交接。</li><li>只有在它能替下次省下注意力時，才留下這個 artifact。</li></ul><p class="detail-lead" style="font-size:16px;margin:22px 0 0;color:var(--ink)"><em>練習題：${escapeHtml(item.prompt)}</em></p></section><section class="reading-section" id="limits"><h3>何時不要用</h3><p>${escapeHtml(item.tradeoffs)}</p></section><section class="reading-section" id="evidence"><h3>社群證據</h3><p>${escapeHtml(item.evidence)}</p></section><section class="reading-section" id="sources"><h3>來源</h3><div class="source-box"><a href="${safeUrl(item.url)}" target="_blank" rel="noreferrer">${escapeHtml(item.source)}</a><br>發布日期：${escapeHtml(item.date)} · ${escapeHtml(item.sourceType)}<br><span>原型狀態：來源完整性、互動數據與 canonical evidence 仍需在正式發布前驗證。</span></div></section>`;
@@ -660,12 +904,13 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
     function closeLesson() { detailOverlay.classList.remove('is-open'); document.body.style.overflow = ''; }
 
     document.querySelectorAll('[data-view]').forEach(button => button.addEventListener('click', () => {
-      document.querySelectorAll('.view').forEach(view => view.classList.remove('is-visible'));
-      document.getElementById(button.dataset.view).classList.add('is-visible');
-      document.querySelectorAll('[data-view]').forEach(nav => nav.classList.remove('is-active'));
-      button.classList.add('is-active');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      showView(button.dataset.view);
+      if (button.dataset.view === 'today-view') loadDailyEdition();
     }));
+    document.getElementById('archive-prev').addEventListener('click', () => { archiveMonthDate = new Date(archiveMonthDate.getFullYear(), archiveMonthDate.getMonth() - 1, 1); renderArchiveCalendar(); });
+    document.getElementById('archive-next').addEventListener('click', () => { archiveMonthDate = new Date(archiveMonthDate.getFullYear(), archiveMonthDate.getMonth() + 1, 1); renderArchiveCalendar(); });
+    archiveOpenButton.addEventListener('click', () => { if (archiveSelectedDate) openArchiveEdition(archiveSelectedDate); });
+    archiveGenerateButton.addEventListener('click', () => { if (archiveSelectedDate) generateArchiveEdition(archiveSelectedDate); });
     document.getElementById('detail-close').addEventListener('click', closeLesson);
     detailOverlay.addEventListener('click', event => { if (event.target === detailOverlay) closeLesson(); });
     const quietMenu = document.getElementById('quiet-menu');
@@ -696,30 +941,8 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
 
     document.getElementById('pantry-search').addEventListener('input', event => { renderPantry(undefined, event.target.value); });
     async function loadDailyEdition() {
-      if (location.protocol === 'file:') return;
-      try {
-        const response = await fetch('/outputs/vibe-coding-daily-brew/daily/latest.json', { cache: 'no-store' });
-        if (!response.ok) return;
-        const edition = await response.json();
-        if (!Array.isArray(edition.items) || edition.items.length !== 10) return;
-        lessons.splice(0, lessons.length, ...edition.items.map(item => ({
-          ...item,
-          source: item.source_display || item.source || '社群來源',
-          sourceType: item.sourceType || item.source?.platform || '社群討論',
-          date: item.date || item.source?.published_at || edition.run_date,
-          url: item.url || item.source?.url || '',
-          timeless: Number(item.timeless ?? item.scores?.timeless ?? 3),
-          importance: Number(item.importance ?? item.scores?.importance ?? 3),
-          heat: Number(item.heat ?? item.scores?.popularity ?? 2),
-          time: item.time || '6 分鐘',
-          n: item.n || '00'
-        })));
-        const editionDate = document.querySelector('.hero .eyebrow');
-        if (editionDate) editionDate.textContent = `每日選集 · ${edition.run_date} · ${edition.items.length} 個發現`;
-        renderLessons();
-        renderFilters();
-        renderPantry();
-      } catch {}
+      const edition = await fetchEdition('latest');
+      if (edition) applyEdition(edition);
     }
 
     document.getElementById('brew-form').addEventListener('submit', async event => {
@@ -763,6 +986,7 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
     renderFilters();
     renderPantry();
     loadDailyEdition();
+    loadArchiveIndex();
   </script>
 </body>
 </html>
