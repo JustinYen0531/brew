@@ -208,6 +208,25 @@
     .archive-selection-button.is-secondary:hover { color: var(--ink); background: var(--paper-deep); }
     .archive-selection-button:disabled { opacity: .55; cursor: wait; }
     .archive-selection-status { color: var(--olive); font: 10px/1.5 var(--mono); margin-top: 14px; min-height: 1.5em; }
+    .edition-recipe-link { border: 0; border-bottom: 1px solid var(--espresso); background: transparent; color: var(--espresso); cursor: pointer; padding: 5px 0; margin-top: 12px; font: 10px var(--mono); }
+    .edition-recipe-link:hover { color: var(--ink); border-color: var(--ink); }
+    .edition-recipe-sheet { width: min(960px, 100%); max-height: calc(100vh - 64px); margin: 0 auto; overflow: auto; background: var(--paper-bright); padding: 38px clamp(24px, 5vw, 58px) 54px; position: relative; box-shadow: 0 20px 70px rgba(41,35,31,.18); }
+    .edition-recipe-sheet h2 { font: 400 clamp(36px, 6vw, 64px)/.98 var(--serif); letter-spacing: -.05em; margin: 10px 0 14px; }
+    .edition-recipe-lead { color: var(--muted); font: 17px/1.55 var(--serif); max-width: 720px; margin: 0 0 26px; }
+    .edition-recipe-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--line); border-left: 1px solid var(--line); margin: 24px 0; }
+    .edition-recipe-card { border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 16px; min-height: 112px; }
+    .edition-recipe-card strong { display: block; color: var(--espresso); font: 9px var(--mono); letter-spacing: .1em; margin-bottom: 9px; }
+    .edition-recipe-card p { font: 17px/1.4 var(--serif); margin: 0; overflow-wrap: anywhere; }
+    .edition-recipe-section { border-top: 1px solid var(--line); padding: 22px 0; }
+    .edition-recipe-section h3 { font: 400 25px var(--serif); margin: 0 0 12px; }
+    .edition-recipe-section pre { white-space: pre-wrap; overflow-wrap: anywhere; background: var(--paper); border: 1px solid var(--line); color: var(--ink); padding: 15px; font: 10px/1.65 var(--mono); max-height: 360px; overflow: auto; }
+    .edition-recipe-attempt { border: 1px solid var(--line); margin-top: 10px; }
+    .edition-recipe-attempt summary { cursor: pointer; padding: 12px 14px; color: var(--espresso); font: 10px var(--mono); }
+    .edition-recipe-attempt div { padding: 0 14px 14px; }
+    .edition-recipe-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding-top: 20px; }
+    .edition-recipe-action { border: 1px solid var(--espresso); background: var(--espresso); color: var(--paper-bright); cursor: pointer; padding: 11px 14px; font: 10px var(--mono); }
+    .edition-recipe-action.is-secondary { background: transparent; color: var(--espresso); }
+    .edition-recipe-copy-status { color: var(--olive); font: 10px var(--mono); min-height: 1.4em; }
 
     .pantry-toolbar { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 13px 0; margin-top: 30px; }
     .pantry-browser { min-width: 0; }
@@ -432,6 +451,7 @@
       .archive-count, .archive-time { text-align: left; }
       .archive-calendar-layout { grid-template-columns: 1fr; gap: 25px; }
       .archive-selection { border-left: 0; border-top: 1px solid var(--line); padding: 25px 0 0; }
+      .edition-recipe-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .archive-day { min-height: 70px; padding: 8px 6px; }
       .archive-day-mark { font-size: 8px; }
       .pantry-toolbar { align-items: stretch; flex-direction: column; }
@@ -513,6 +533,7 @@
             <h1 id="today-title">今日手沖</h1>
             <p class="hero-dek">每天一壺，替你把開放網路煮成自己的晨報。</p>
             <div class="edition-line"><span>2026 年 8 月 20 日</span> · 10 篇學習 · 42 個來源 · 18 分鐘</div>
+            <button class="edition-recipe-link" id="today-recipe-button" type="button" hidden>查看本期配方 →</button>
           </div>
           <aside class="coffee-note" aria-label="本期編輯註記"><p>網路不停說，你不用一直追。<br><em>今天先讀幾篇真正值得留下的。</em></p></aside>
         </div>
@@ -544,7 +565,7 @@
         <div class="archive-controls" aria-label="切換過往手沖月份"><button class="archive-month-button" id="archive-prev" type="button" aria-label="上一個月">←</button><div class="archive-month-label" id="archive-month-label">載入日曆中…</div><button class="archive-month-button" id="archive-next" type="button" aria-label="下一個月">→</button></div>
         <div class="archive-calendar-layout">
           <section class="archive-calendar" aria-label="過往手沖日曆"><div class="archive-weekdays" aria-hidden="true"><span class="archive-weekday">日</span><span class="archive-weekday">一</span><span class="archive-weekday">二</span><span class="archive-weekday">三</span><span class="archive-weekday">四</span><span class="archive-weekday">五</span><span class="archive-weekday">六</span></div><div class="archive-calendar-grid" id="archive-calendar"></div></section>
-          <aside class="archive-selection" id="archive-selection" aria-live="polite"><div class="eyebrow">選擇一個日期</div><h2 id="archive-selection-title">尚未選擇</h2><p class="archive-selection-copy" id="archive-selection-copy">日曆會標出已經生成過的批次；沒有的日期可以在這裡補上一批歷史模擬手沖。</p><button class="archive-selection-button" id="archive-open-button" type="button" hidden>進入模擬閱讀 →</button><button class="archive-selection-button is-secondary" id="archive-generate-button" type="button" hidden>生成一批（10 份）→</button><div class="archive-selection-status" id="archive-selection-status" role="status"></div></aside>
+          <aside class="archive-selection" id="archive-selection" aria-live="polite"><div class="eyebrow">選擇一個日期</div><h2 id="archive-selection-title">尚未選擇</h2><p class="archive-selection-copy" id="archive-selection-copy">日曆會標出已經生成過的批次；沒有的日期可以在這裡補上一批歷史模擬手沖。</p><button class="archive-selection-button" id="archive-open-button" type="button" hidden>進入模擬閱讀 →</button><button class="archive-selection-button is-secondary" id="archive-recipe-button" type="button" hidden>查看本期配方 →</button><button class="archive-selection-button is-secondary" id="archive-generate-button" type="button" hidden>生成一批（10 份）→</button><div class="archive-selection-status" id="archive-selection-status" role="status"></div></aside>
         </div>
         <div class="footer-note"><em>每一壺喝過的早晨都留在這裡，想回來時，味道還在。</em><span class="prototype-label">歷史模擬手沖</span></div>
       </section>
@@ -792,6 +813,13 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
     </article>
   </div>
 
+  <div class="detail-overlay" id="edition-recipe-overlay" role="dialog" aria-modal="true" aria-labelledby="edition-recipe-title">
+    <article class="edition-recipe-sheet">
+      <button class="detail-close" id="edition-recipe-close" type="button" aria-label="關閉本期配方">×</button>
+      <div id="edition-recipe-content"></div>
+    </article>
+  </div>
+
   <style>
     .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
   </style>
@@ -902,7 +930,11 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
     const archiveSelectionCopy = document.getElementById('archive-selection-copy');
     const archiveSelectionStatus = document.getElementById('archive-selection-status');
     const archiveOpenButton = document.getElementById('archive-open-button');
+    const archiveRecipeButton = document.getElementById('archive-recipe-button');
     const archiveGenerateButton = document.getElementById('archive-generate-button');
+    const todayRecipeButton = document.getElementById('today-recipe-button');
+    const editionRecipeOverlay = document.getElementById('edition-recipe-overlay');
+    const editionRecipeContent = document.getElementById('edition-recipe-content');
     const simulationBanner = document.getElementById('simulation-banner');
     const simulationBannerTitle = document.getElementById('simulation-banner-title');
     const simulationBannerCopy = document.getElementById('simulation-banner-copy');
@@ -916,6 +948,8 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
     let archiveRecords = {};
     let archiveEditions = {};
     let simulatedEditionDate = '';
+    let currentEditionRecipeDate = '';
+    let activePublicRecipePayload = null;
 
     function escapeHtml(value) {
       return String(value ?? '').replace(/[&<>"']/g, character => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[character]);
@@ -1451,6 +1485,8 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
       if (editionLine) editionLine.textContent = `公示日期：${edition.run_date} · ${edition.items.length} 篇學習 · ${providerLabels[edition.provider] || '既有批次'} · 資料截點不晚於該日`;
       const metricValues = document.querySelectorAll('.metrics .metric-value');
       if (metricValues[0]) metricValues[0].textContent = String(edition.items.length);
+      currentEditionRecipeDate = edition.mode === 'daily' && edition.generation_recipe ? edition.run_date : '';
+      todayRecipeButton.hidden = !currentEditionRecipeDate;
       renderLessons();
       renderFilters();
       renderPantry();
@@ -1742,6 +1778,7 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
       archiveSelectedDate = date;
       renderArchiveCalendar();
       archiveOpenButton.hidden = true;
+      archiveRecipeButton.hidden = true;
       archiveGenerateButton.hidden = true;
       archiveSelectionStatus.textContent = '';
       archiveSelectionTitle.textContent = archiveDateLabel(date);
@@ -1753,6 +1790,8 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
       if (record) {
         archiveSelectionCopy.textContent = `這一天已經有一批 ${record.count || 10} 份手沖。進入後會在「今日手沖」頁重播，頁首會標示這是歷史模擬。`;
         archiveOpenButton.hidden = false;
+        const editionHasRecipe = Boolean(archiveEditions[date]?.generation_recipe);
+        archiveRecipeButton.hidden = !(record.has_recipe || editionHasRecipe);
       } else {
         archiveSelectionCopy.textContent = '這一天目前沒有生成過手沖。下面的按鈕會以這個日期作為公示日期，固定補上一批 10 份發現。';
         archiveGenerateButton.hidden = false;
@@ -1776,6 +1815,59 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
       return null;
     }
 
+    function recipeList(values, fallback = '未指定') {
+      return Array.isArray(values) && values.length ? values.join('、') : fallback;
+    }
+
+    function closeEditionRecipe() {
+      editionRecipeOverlay.classList.remove('is-open');
+      activePublicRecipePayload = null;
+      document.body.style.overflow = '';
+    }
+
+    async function copyRecipeText(text, successMessage) {
+      try {
+        await navigator.clipboard.writeText(text);
+        document.getElementById('edition-recipe-copy-status').textContent = successMessage;
+      } catch {
+        document.getElementById('edition-recipe-copy-status').textContent = '瀏覽器沒有允許複製，請從配方內容手動選取。';
+      }
+    }
+
+    function renderEditionRecipe(payload) {
+      const recipe = payload.recipe || {};
+      const preferences = recipe.preferences || {};
+      const blend = preferences.blend || {};
+      const model = recipe.model || {};
+      const attempts = Array.isArray(payload.generation?.attempts) ? payload.generation.attempts : [];
+      const shareUrl = `${location.origin}${payload.share?.api_path || ''}`;
+      const attemptsHtml = attempts.length ? attempts.map(attempt => `<details class="edition-recipe-attempt"><summary>第 ${escapeHtml(attempt.number)} 次嘗試 · ${escapeHtml(attempt.model || model.name || '模型未記錄')}</summary><div><h4>System Prompt</h4><pre>${escapeHtml(attempt.system || '這次沒有獨立 system prompt')}</pre><h4>完整 User Prompt</h4><pre>${escapeHtml(attempt.user || '')}</pre></div></details>`).join('') : '<p>這一期沒有留下逐次嘗試內容。</p>';
+      editionRecipeContent.innerHTML = `<div class="eyebrow">${escapeHtml(payload.edition?.run_date || '')} · 生成履歷</div><h2 id="edition-recipe-title">本期配方</h2><p class="edition-recipe-lead">這裡保存當時真正用過的材料與做法。之後調整自己的口味，不會改寫這一期。</p><div class="edition-recipe-grid"><article class="edition-recipe-card"><strong>晨報比例</strong><p>${escapeHtml(blend.new_discoveries ?? 0)} 新／${escapeHtml(blend.saved_reviews ?? 0)} 複習／${escapeHtml(blend.classic ?? 0)} 經典／${escapeHtml(blend.surprise ?? 0)} 驚喜</p></article><article class="edition-recipe-card"><strong>模型</strong><p>${escapeHtml(model.provider || '')}<br>${escapeHtml(model.name || '')}</p></article><article class="edition-recipe-card"><strong>偏好方向</strong><p>${escapeHtml(recipeList(preferences.topics))}</p></article><article class="edition-recipe-card"><strong>來源街道</strong><p>${escapeHtml(recipeList(preferences.source_lanes))}</p></article></div><section class="edition-recipe-section"><h3>當時的 Prompt</h3><p>版本：${escapeHtml(recipe.prompt?.version || '未記錄')}</p><pre>${escapeHtml(recipe.prompt?.text || '')}</pre></section><section class="edition-recipe-section"><h3>每一次模型嘗試</h3>${attemptsHtml}</section><section class="edition-recipe-section"><h3>搜尋與證據規則</h3><pre>${escapeHtml(JSON.stringify(recipe.search_rules || {}, null, 2))}</pre></section><section class="edition-recipe-section"><h3>這期留下的來源</h3><pre>${escapeHtml(JSON.stringify(payload.edition?.sources || [], null, 2))}</pre></section><div class="edition-recipe-actions"><button class="edition-recipe-action" id="edition-recipe-copy" type="button">複製公開配方</button><button class="edition-recipe-action is-secondary" id="edition-recipe-share" type="button">複製分享連結</button><span class="edition-recipe-copy-status" id="edition-recipe-copy-status" role="status"></span></div><p class="recipe-note">公開版本不包含 API Key、帳號 ID、排除主題與私人指定來源。相同配方會帶來相近的方法與品質，不保證每次得到完全相同的十篇。</p>`;
+      document.getElementById('edition-recipe-copy').addEventListener('click', () => copyRecipeText(`${payload.share?.copy_text || ''}\n\n${JSON.stringify(recipe, null, 2)}`, '公開配方已複製。'));
+      document.getElementById('edition-recipe-share').addEventListener('click', () => copyRecipeText(shareUrl, '分享連結已複製。'));
+    }
+
+    async function openEditionRecipe(date) {
+      if (!date || location.protocol === 'file:') {
+        archiveSelectionStatus.textContent = '請用 node server.mjs 開啟網站，才能讀取本期配方。';
+        return;
+      }
+      archiveSelectionStatus.textContent = '正在翻開這一期的配方紀錄…';
+      try {
+        const response = await fetch(`/api/edition-recipe?date=${encodeURIComponent(date)}`, { cache: 'no-store' });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(payload.error || '目前讀不到本期配方。');
+        activePublicRecipePayload = payload;
+        renderEditionRecipe(payload);
+        editionRecipeOverlay.classList.add('is-open');
+        document.body.style.overflow = 'hidden';
+        document.getElementById('edition-recipe-close').focus();
+        archiveSelectionStatus.textContent = '';
+      } catch (error) {
+        archiveSelectionStatus.textContent = error.message || '目前讀不到本期配方。';
+      }
+    }
+
     async function openArchiveEdition(date) {
       archiveSelectionStatus.textContent = '正在載入這一天的手沖…';
       const edition = archiveEditions[date] || await fetchEdition(date);
@@ -1784,7 +1876,7 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
         return;
       }
       archiveEditions[date] = edition;
-      archiveRecords[date] = { date, count: edition.items.length, generated_at: edition.generated_at || '', mode: edition.mode || 'historical' };
+      archiveRecords[date] = { date, count: edition.items.length, generated_at: edition.generated_at || '', mode: edition.mode || 'historical', has_recipe: Boolean(edition.generation_recipe), recipe_version: edition.generation_recipe?.schema_version || '', generation_run_id: edition.generation_run_id || '' };
       saveArchiveCache();
       setSimulationMode(date);
       showView('today-view');
@@ -1857,7 +1949,11 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
     document.getElementById('archive-prev').addEventListener('click', () => { archiveMonthDate = new Date(archiveMonthDate.getFullYear(), archiveMonthDate.getMonth() - 1, 1); renderArchiveCalendar(); });
     document.getElementById('archive-next').addEventListener('click', () => { archiveMonthDate = new Date(archiveMonthDate.getFullYear(), archiveMonthDate.getMonth() + 1, 1); renderArchiveCalendar(); });
     archiveOpenButton.addEventListener('click', () => { if (archiveSelectedDate) openArchiveEdition(archiveSelectedDate); });
+    archiveRecipeButton.addEventListener('click', () => { if (archiveSelectedDate) openEditionRecipe(archiveSelectedDate); });
     archiveGenerateButton.addEventListener('click', () => { if (archiveSelectedDate) generateArchiveEdition(archiveSelectedDate); });
+    todayRecipeButton.addEventListener('click', () => { if (currentEditionRecipeDate) openEditionRecipe(currentEditionRecipeDate); });
+    document.getElementById('edition-recipe-close').addEventListener('click', closeEditionRecipe);
+    editionRecipeOverlay.addEventListener('click', event => { if (event.target === editionRecipeOverlay) closeEditionRecipe(); });
     simulationBannerReturn.addEventListener('click', async () => {
       simulationBannerReturn.disabled = true;
       const loaded = await loadDailyEdition();
@@ -1915,7 +2011,7 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
       document.getElementById('preferences-status').textContent = '已恢復正常設定。';
     });
     document.addEventListener('click', event => { if (!quietMenu.contains(event.target) && event.target !== quietTrigger) { quietMenu.classList.remove('is-open'); quietTrigger.setAttribute('aria-expanded', 'false'); } });
-    document.addEventListener('keydown', event => { if (event.key === 'Escape') { closeLesson(); closePreferences(); closeAuthOverlay(); closeOnboarding(); quietMenu.classList.remove('is-open'); quietTrigger.setAttribute('aria-expanded', 'false'); document.getElementById('search-drawer').classList.remove('is-open'); } });
+    document.addEventListener('keydown', event => { if (event.key === 'Escape') { closeLesson(); closeEditionRecipe(); closePreferences(); closeAuthOverlay(); closeOnboarding(); quietMenu.classList.remove('is-open'); quietTrigger.setAttribute('aria-expanded', 'false'); document.getElementById('search-drawer').classList.remove('is-open'); } });
 
     const searchDrawer = document.getElementById('search-drawer');
     const globalSearch = document.getElementById('global-search');

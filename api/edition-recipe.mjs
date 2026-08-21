@@ -15,6 +15,13 @@ async function readEdition(date) {
   return JSON.parse(await readFile(path.join(DAILY_DIR, `${date}.json`), 'utf8'));
 }
 
+function redactPublicText(value) {
+  return String(value || '')
+    .replace(/\bsk-[A-Za-z0-9_-]{16,}/g, '[已移除 API Key]')
+    .replace(/\bsb_secret_[A-Za-z0-9_-]{10,}/g, '[已移除 Supabase Secret]')
+    .replace(/\bBearer\s+[A-Za-z0-9._-]{16,}/gi, 'Bearer [已移除]');
+}
+
 export function publicRecipe(recipe) {
   if (!recipe || recipe.kind !== 'automatic_daily_brew') return null;
   return {
@@ -34,8 +41,8 @@ export function publicRecipe(recipe) {
     },
     prompt: {
       version: recipe.prompt?.version || '',
-      system: recipe.prompt?.system || '',
-      text: recipe.prompt?.text || ''
+      system: redactPublicText(recipe.prompt?.system),
+      text: redactPublicText(recipe.prompt?.text)
     },
     model: recipe.model || {},
     search_rules: recipe.search_rules || {}
@@ -61,7 +68,14 @@ export function buildEditionRecipeResponse(edition) {
       status: edition.generation_run?.status || 'complete',
       started_at: edition.generation_run?.started_at || '',
       completed_at: edition.generation_run?.completed_at || edition.generated_at || '',
-      attempts: edition.generation_run?.attempts || []
+      attempts: (edition.generation_run?.attempts || []).map(attempt => ({
+        number: attempt.number,
+        started_at: attempt.started_at,
+        system: redactPublicText(attempt.system),
+        user: redactPublicText(attempt.user),
+        provider: attempt.provider,
+        model: attempt.model
+      }))
     },
     recipe,
     share: {

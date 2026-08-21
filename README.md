@@ -33,7 +33,7 @@ supabase/migrations/20260821160000_create_brew_profiles.sql
 
 這個帳號是「目前瀏覽器裡的晨報身份」。清除瀏覽器資料、登出或換裝置後，單靠暱稱無法找回原本的配方；這是不用信箱換來的隱私邊界。
 
-每日自動生成會把當次的配方、提示詞版本、模型、搜尋規則、嘗試紀錄與輸出來源保存進 `daily/generation-runs/`，同時把配方副本嵌入當天的 edition。可以用 `/api/edition-recipe?date=YYYY-MM-DD` 讀取安全的公開版本；過往手沖頁面的直接查看按鈕仍是後續工作。
+每日自動生成會把當次的配方、提示詞版本、模型、搜尋規則、嘗試紀錄與輸出來源保存進 `daily/generation-runs/`，同時把配方副本嵌入當天的 edition。可以用 `/api/edition-recipe?date=YYYY-MM-DD` 讀取安全的公開版本；網站會在今日與過往日報顯示「查看本期配方」，提供公開配方與分享連結的複製操作。
 
 生成結果會放在 `outputs/vibe-coding-daily-brew/daily/YYYY-MM-DD.json`，網站會優先讀取 `daily/latest.json`；同一天已有檔案時，重跑會安全跳過。需要重新生成時才使用 `--force`。
 

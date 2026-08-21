@@ -27,5 +27,9 @@ assert.equal(response.generation.status, 'complete');
 assert.equal(response.recipe.prompt.version, 'daily-prompt-v1');
 assert.match(response.share.api_path, /edition-recipe/);
 assert.equal(buildEditionRecipeResponse({ mode: 'historical', generation_recipe: recipe }), null);
+const fakeSecret = `sk-${'a'.repeat(30)}`;
+const redacted = buildEditionRecipeResponse({ id: 'edition-2', run_date: '2026-08-22', mode: 'daily', generation_run: { attempts: [{ number: 1, system: fakeSecret, user: `Bearer ${'b'.repeat(30)}` }] }, items: [], generation_recipe: { ...recipe, prompt: { ...recipe.prompt, text: `${recipe.prompt.text}\n${fakeSecret}` } } });
+assert.doesNotMatch(JSON.stringify(redacted), new RegExp(fakeSecret));
+assert.match(redacted.recipe.prompt.text, /已移除 API Key/);
 
 console.log('daily recipe contract: OK');
