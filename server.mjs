@@ -15,6 +15,7 @@ import { pantryApi } from './api/pantry.mjs';
 import { buildEditionRecipeResponse } from './api/edition-recipe.mjs';
 import { buildMorningBrewPrompt, buildMorningBrewRecipeSnapshot, getMorningRecipe, publicMorningBrewCatalog } from './morning-brew-recipes.mjs';
 import { getAuthorizedContext, readPersonalEdition, readPersonalRecommendationSignals, sanitizeStoredJson, savePersonalEdition } from './api/edition-storage.mjs';
+import { filterAndRankCandidates } from './candidate-pool.mjs';
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const SITE_FILE = path.join(ROOT, 'outputs', 'vibe-coding-daily-brew', 'index.html');
@@ -316,12 +317,16 @@ function parseJsonAnswer(text) {
 
 function normalizeItems(payload, count, asOfDate) {
   if (!payload || !Array.isArray(payload.items)) throw new Error('model_items_missing');
-  const required = ['title', 'category', 'takeaway', 'problem', 'principle', 'try_it', 'tradeoffs', 'practice_prompt'];
+  const required = ['title', 'category', 'takeaway', 'problem', 'principle', 'try_it', 'tradeoffs', 'practice_prompt', 'source_says', 'editorial_synthesis'];
   const items = payload.items.slice(0, count).filter(item => required.every(key => typeof item?.[key] === 'string' && item[key].trim()));
   if (items.length !== count) throw new Error('model_items_incomplete');
   return items.map((item, index) => {
     const source = item.source && typeof item.source === 'object' ? item.source : {};
-    const url = typeof source.url === 'string' && /^https?:\/\//i.test(source.url) ? source.url : '';
+    const url = typeof source.url === 'string' && /^https?:\/\//i.test(source.url) ? source.url.trim() : '';
+    const publishedAt = dateOnly(source.published_at);
+    if (!url || !source.platform?.trim() || !publishedAt || publishedAt > asOfDate || /^(unknown|unavailable|n\/a|無法取得|未提供)$/i.test(item.source_says.trim())) {
+      throw new Error('source_metadata_invalid');
+    }
     return {
       n: String(index + 1).padStart(2, '0'),
       category: item.category.trim(),
@@ -335,18 +340,17 @@ function normalizeItems(payload, count, asOfDate) {
       time: item.time || '6 分鐘',
       source: source.platform ? `${source.platform} · 即時來源` : '即時社群來源',
       sourceType: source.platform || '社群討論',
-      date: dateOnly(source.published_at) || asOfDate,
+      date: publishedAt,
       classic: false,
       problem: item.problem.trim(),
       principle: item.principle.trim(),
       tryIt: item.try_it.trim(),
       tradeoffs: item.tradeoffs.trim(),
       prompt: item.practice_prompt.trim(),
-      evidence: item.source_says || item.editorial_synthesis || '這篇內容由即時選集整理而成，請開啟來源確認原始上下文。',
+      evidence: item.source_says.trim(),
       url
     };
-  }).filter(item => item.date <= asOfDate);
-  if (items.length !== count) throw new Error('source_after_as_of_date');
+  });
   return items;
 }
 
@@ -477,7 +481,7 @@ function isTimeoutError(error) {
 }
 
 function isRetryableModelError(error) {
-  return ['model_response_empty', 'model_response_error', 'model_json_missing', 'model_json_incomplete', 'model_items_missing', 'model_items_incomplete'].includes(error?.message);
+  return ['model_response_empty', 'model_response_error', 'model_json_missing', 'model_json_incomplete', 'model_items_missing', 'model_items_incomplete', 'source_metadata_invalid'].includes(error?.message);
 }
 
 function publicErrorMessage(error) {
@@ -488,7 +492,8 @@ function publicErrorMessage(error) {
   if (error.message === 'codex_failed') return '本機 Codex 執行失敗；請確認已完成 codex login，並查看本機終端機訊息。';
   if (error.message === 'codex_timeout') return '本機 Codex 執行逾時，請稍後再試。';
   if (isTimeoutError(error)) return '即時搜尋逾時，請稍後再試；若一次篇數較多，可先改成 3 篇。';
-  if (['model_response_empty', 'model_response_error', 'model_json_missing', 'model_json_incomplete', 'model_items_missing', 'model_items_incomplete'].includes(error.message)) return '模型回覆格式不完整，請稍後再試。';
+  if (['model_response_empty', 'model_response_error', 'model_json_missing', 'model_json_incomplete', 'model_items_missing', 'model_items_incomplete', 'source_metadata_invalid'].includes(error.message)) return '模型回覆缺少可驗證的來源日期、網址或證據，請稍後再試。';
+  if (error.message === 'candidate_pool_insufficient') return '這一批可驗證的候選內容不足，請稍後再試。';
   if (error.message === 'upstream_failed') return '即時來源暫時無法回應，請稍後再試。';
   return '手沖服務暫時無法使用。';
 }
@@ -531,7 +536,7 @@ async function brew(count, preferences, asOfDate, provider = DEFAULT_PROVIDER, r
   if (selectedProvider === 'codex' && process.env.VERCEL) throw Object.assign(new Error('codex_local_only'), { status: 503 });
   const key = providedKey || configuredKey;
   const items = await mapConcurrent(count, slot => requestWithRetry(key, preferences, asOfDate, slot, selectedProvider, count));
-  return items.map((item, index) => ({ ...item, n: String(index + 1).padStart(2, '0') }));
+  return filterAndRankCandidates(items, preferences, asOfDate, { count });
 }
 
 async function serveSite(res) {
@@ -578,7 +583,7 @@ async function listArchive(month) {
   }));
 }
 
-function buildEditionRecipeSnapshot(date, itemCount, mode, provider, preferences = {}) {
+function buildEditionRecipeSnapshot(date, itemCount, mode, provider, preferences = {}, candidatePool = null) {
   const recipe = getMorningRecipe(preferences.recipeId || preferences.recipe_id);
   const recipePreferences = {
     recipeId: recipe.id,
@@ -642,11 +647,12 @@ function buildEditionRecipeSnapshot(date, itemCount, mode, provider, preferences
       allowed_source_date_lte: date,
       canonical_url_required: true,
       evidence_required: true
-    }
+    },
+    candidate_pool: candidatePool || null
   };
 }
 
-function createEdition(date, items, mode = 'historical', provider = DEFAULT_PROVIDER, preferences = {}) {
+function createEdition(date, items, mode = 'historical', provider = DEFAULT_PROVIDER, preferences = {}, candidatePool = null) {
   const selectedProvider = normalizeProvider(provider);
   return {
     run_date: date,
@@ -659,7 +665,7 @@ function createEdition(date, items, mode = 'historical', provider = DEFAULT_PROV
       ? `模擬網站在 ${date} 當天已存在時，從當時可見的發現中手沖十份可驗證、可轉移的 Vibe Coding 做法。`
       : '從當前社群討論中挑出十個可驗證、可轉移、值得留下的 Vibe Coding 做法。',
     generated_at: new Date().toISOString(),
-    generation_recipe: buildEditionRecipeSnapshot(date, items.length, mode, selectedProvider, preferences),
+    generation_recipe: buildEditionRecipeSnapshot(date, items.length, mode, selectedProvider, preferences, candidatePool),
     items
   };
 }
@@ -786,7 +792,9 @@ const server = createServer(async (req, res) => {
           catch (error) { if (error.code !== 'ENOENT') throw error; }
         }
       }
-      const items = await brew(historicalDate ? 10 : count, preferences, asOfDate, provider, requestApiKey);
+      const brewed = await brew(historicalDate ? 10 : count, preferences, asOfDate, provider, requestApiKey);
+      const items = brewed.items;
+      const candidatePool = brewed.snapshot;
       if (personalContext) {
         const generatedAt = new Date().toISOString();
         const edition = await savePersonalEdition(personalContext, {
@@ -800,22 +808,22 @@ const server = createServer(async (req, res) => {
             ? `從 ${asOfDate} 當時可見的發現中，保存一壺可驗證、可轉移的晨報。`
             : '從當前社群討論中挑出值得留下、可以理解也可以實作的晨報內容。',
           generatedAt,
-          generationRecipe: buildMorningBrewRecipeSnapshot({ date: asOfDate, itemCount: items.length, kind, provider, model: modelForProvider(provider), preferences }),
+          generationRecipe: buildMorningBrewRecipeSnapshot({ date: asOfDate, itemCount: items.length, kind, provider, model: modelForProvider(provider), preferences, candidatePool }),
           items
         });
         return sendJson(res, 200, { items: edition.items, edition, model: edition.model, provider, persisted: true, reused: false });
       }
       if (historicalDate) {
-        const edition = createEdition(historicalDate, items, 'historical', provider, preferences);
+        const edition = createEdition(historicalDate, items, 'historical', provider, preferences, candidatePool);
         await writeEdition(historicalDate, edition);
         return sendJson(res, 200, { edition, model: edition.model, provider, reused: false });
       }
-      return sendJson(res, 200, { items, model: modelForProvider(provider), provider });
+      return sendJson(res, 200, { items, model: modelForProvider(provider), provider, candidate_pool: candidatePool });
     }
     if (req.method === 'GET' && (requestUrl.pathname === '/' || requestUrl.pathname === '/index.html')) return serveSite(res);
     return sendJson(res, 404, { error: 'not_found' });
   } catch (error) {
-    const modelError = ['model_response_empty', 'model_response_error', 'model_json_missing', 'model_json_incomplete', 'model_items_missing', 'model_items_incomplete'].includes(error.message);
+    const modelError = ['model_response_empty', 'model_response_error', 'model_json_missing', 'model_json_incomplete', 'model_items_missing', 'model_items_incomplete', 'source_metadata_invalid'].includes(error.message);
     const status = error.status || (isTimeoutError(error) ? 504 : error.message === 'request_too_large' ? 413 : error instanceof SyntaxError ? 400 : modelError ? 502 : 500);
     const message = error.message === 'request_too_large' ? '請求內容太大，請縮短偏好設定後再試。' : error.message === 'invalid_json' ? '請傳送有效的 JSON。' : error.message === 'invalid_date' ? '日期格式無效，請使用 YYYY-MM-DD。' : error.message === 'future_date' ? '歷史手沖只能生成今天或更早的日期。' : error.message === 'source_after_as_of_date' ? '模型回傳了公示日期之後的來源，這一批沒有保存。' : publicErrorMessage(error);
     console.error(`Request failed: ${error.message}`);

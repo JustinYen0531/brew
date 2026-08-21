@@ -5,6 +5,7 @@ import { mkdir, rename, writeFile, access } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildMorningBrewPrompt, getMorningRecipe } from '../morning-brew-recipes.mjs';
+import { filterAndRankCandidates } from '../candidate-pool.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DEFAULT_OUTPUT_DIR = path.join(ROOT, 'outputs', 'vibe-coding-daily-brew', 'daily');
@@ -136,15 +137,15 @@ function normalizeItems(payload, runDate) {
       try_it: requiredText(raw.try_it, `items[${index}].try_it`),
       tradeoffs: requiredText(raw.tradeoffs, `items[${index}].tradeoffs`),
       practice_prompt: requiredText(raw.practice_prompt, `items[${index}].practice_prompt`),
-      source_says: requiredText(raw.source_says || 'unknown', `items[${index}].source_says`),
-      editorial_synthesis: requiredText(raw.editorial_synthesis || 'unknown', `items[${index}].editorial_synthesis`),
+      source_says: requiredText(raw.source_says, `items[${index}].source_says`),
+      editorial_synthesis: requiredText(raw.editorial_synthesis, `items[${index}].editorial_synthesis`),
       classic_reserve: Boolean(raw.classic_reserve),
       source: {
         url,
         platform: requiredText(source.platform, `items[${index}].source.platform`),
         author: requiredText(source.author, `items[${index}].source.author`),
         published_at: new Date(publishedAt).toISOString(),
-        evidence_excerpt: requiredText(source.evidence_excerpt || 'unknown', `items[${index}].source.evidence_excerpt`),
+        evidence_excerpt: requiredText(source.evidence_excerpt, `items[${index}].source.evidence_excerpt`),
         engagement: requiredText(source.engagement || 'unknown', `items[${index}].source.engagement`),
         popularity_basis: requiredText(source.popularity_basis || 'unavailable', `items[${index}].source.popularity_basis`)
       },
@@ -158,6 +159,9 @@ function normalizeItems(payload, runDate) {
         confidence: Math.min(1, Math.max(0, Number(raw.scores?.confidence ?? 0)))
       }
     };
+    if (/^(unknown|unavailable|n\/a|無法取得|未提供)$/i.test(item.source_says) || /^(unknown|unavailable|n\/a|無法取得|未提供)$/i.test(item.source.evidence_excerpt)) {
+      throw new Error(`source_evidence_missing:${index + 1}`);
+    }
     return { ...item, ranking: rankingBase(runDate, item) };
   });
   const categories = new Map();
@@ -390,11 +394,25 @@ async function main() {
     await writeJson(generationRunPath, { ...baseGenerationRun, attempts: [...attempts] });
   };
   let items;
+  let candidatePool;
   try {
     items = await requestItems(options.date, recipe, recordAttempt);
+    const pooled = filterAndRankCandidates(items, {
+      topics: recipe.preferences.topics,
+      excludedTopics: recipe.preferences.excluded_topics,
+      difficultyLevels: recipe.preferences.difficulty_levels,
+      sourceWeights: recipe.preferences.source_weights,
+      selectedSourceIds: recipe.preferences.selected_source_ids,
+      directUrls: recipe.preferences.direct_urls,
+      noveltyLevel: recipe.preferences.novelty_level,
+      reviewEnabled: recipe.preferences.review_enabled
+    }, options.date, { count: COUNT });
+    items = pooled.items;
+    candidatePool = pooled.snapshot;
   } catch (error) {
     await writeJson(generationRunPath, {
       ...baseGenerationRun,
+      recipe_snapshot: { ...recipe, candidate_pool: candidatePool },
       status: 'failed',
       attempts,
       completed_at: new Date().toISOString(),
@@ -425,13 +443,14 @@ async function main() {
       completed_at: completedAt,
       attempts
     },
-    generation_recipe: recipe,
+    generation_recipe: { ...recipe, candidate_pool: candidatePool },
     items
   };
   await writeJson(datedPath, edition);
   await writeJson(latestPath, edition);
   await writeJson(generationRunPath, {
     ...baseGenerationRun,
+    recipe_snapshot: { ...recipe, candidate_pool: candidatePool },
     edition_id: edition.id,
     status: 'complete',
     attempts,

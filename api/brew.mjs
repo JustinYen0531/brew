@@ -1,6 +1,7 @@
 import { sanitizePreferenceRecord } from './preferences.mjs';
 import { buildMorningBrewPrompt, buildMorningBrewRecipeSnapshot } from '../morning-brew-recipes.mjs';
 import { getAuthorizedContext, readPersonalEdition, readPersonalRecommendationSignals, sanitizeStoredJson, savePersonalEdition } from './edition-storage.mjs';
+import { filterAndRankCandidates } from '../candidate-pool.mjs';
 
 const OPENROUTER_MODEL = process.env.OPENROUTER_MODEL || 'deepseek/deepseek-v4-flash-0731';
 const OPENAI_MODEL = process.env.OPENAI_MODEL || 'gpt-5.4';
@@ -234,12 +235,16 @@ function parseJsonAnswer(text) {
 
 function normalizeItems(payload, count, asOfDate) {
   if (!payload || !Array.isArray(payload.items)) throw new Error('model_items_missing');
-  const required = ['title', 'category', 'takeaway', 'problem', 'principle', 'try_it', 'tradeoffs', 'practice_prompt'];
+  const required = ['title', 'category', 'takeaway', 'problem', 'principle', 'try_it', 'tradeoffs', 'practice_prompt', 'source_says', 'editorial_synthesis'];
   const items = payload.items.slice(0, count).filter(item => required.every(key => typeof item?.[key] === 'string' && item[key].trim()));
   if (items.length !== count) throw new Error('model_items_incomplete');
   return items.map((item, index) => {
     const source = item.source && typeof item.source === 'object' ? item.source : {};
-    const url = typeof source.url === 'string' && /^https?:\/\//i.test(source.url) ? source.url : '';
+    const url = typeof source.url === 'string' && /^https?:\/\//i.test(source.url) ? source.url.trim() : '';
+    const publishedAt = dateOnly(source.published_at);
+    if (!url || !source.platform?.trim() || !publishedAt || publishedAt > asOfDate || /^(unknown|unavailable|n\/a|無法取得|未提供)$/i.test(item.source_says.trim())) {
+      throw new Error('source_metadata_invalid');
+    }
     return {
       n: String(index + 1).padStart(2, '0'),
       category: item.category.trim(),
@@ -253,18 +258,17 @@ function normalizeItems(payload, count, asOfDate) {
       time: item.time || '6 分鐘',
       source: source.platform ? `${source.platform} · 即時來源` : '即時社群來源',
       sourceType: source.platform || '社群討論',
-      date: dateOnly(source.published_at) || asOfDate,
+      date: publishedAt,
       classic: false,
       problem: item.problem.trim(),
       principle: item.principle.trim(),
       tryIt: item.try_it.trim(),
       tradeoffs: item.tradeoffs.trim(),
       prompt: item.practice_prompt.trim(),
-      evidence: item.source_says || item.editorial_synthesis || '這篇內容由即時選集整理而成，請開啟來源確認原始上下文。',
+      evidence: item.source_says.trim(),
       url
     };
-  }).filter(item => item.date <= asOfDate);
-  if (items.length !== count) throw new Error('source_after_as_of_date');
+  });
   return items;
 }
 
@@ -284,14 +288,15 @@ function isTimeoutError(error) {
 }
 
 function isRetryableModelError(error) {
-  return ['model_response_empty', 'model_response_error', 'model_json_missing', 'model_json_incomplete', 'model_items_missing', 'model_items_incomplete'].includes(error?.message);
+  return ['model_response_empty', 'model_response_error', 'model_json_missing', 'model_json_incomplete', 'model_items_missing', 'model_items_incomplete', 'source_metadata_invalid'].includes(error?.message);
 }
 
 function publicErrorMessage(error) {
   if (error.message === 'openai_api_key_missing') return 'Vercel 尚未設定 OPENAI_API_KEY。';
   if (error.message === 'codex_local_only') return '本機 Codex 只能由本機 server.mjs 執行，不能由 Vercel 代跑。';
   if (isTimeoutError(error)) return '即時搜尋逾時，請稍後再試；若一次篇數較多，可先改成 3 篇。';
-  if (['model_response_empty', 'model_response_error', 'model_json_missing', 'model_json_incomplete', 'model_items_missing', 'model_items_incomplete'].includes(error.message)) return '模型回覆格式不完整，請稍後再試。';
+  if (['model_response_empty', 'model_response_error', 'model_json_missing', 'model_json_incomplete', 'model_items_missing', 'model_items_incomplete', 'source_metadata_invalid'].includes(error.message)) return '模型回覆缺少可驗證的來源日期、網址或證據，請稍後再試。';
+  if (error.message === 'candidate_pool_insufficient') return '這一批可驗證的候選內容不足，請稍後再試。';
   if (error.message === 'upstream_failed') return '即時來源暫時無法回應，請稍後再試。';
   return '手沖服務暫時無法使用，請稍後再試。';
 }
@@ -436,7 +441,8 @@ export default async function handler(req, res) {
       }
     }
     await Promise.all(Array.from({ length: Math.min(count, MAX_PARALLEL_BREWS) }, () => worker()));
-    const items = results.flat().map((item, index) => ({ ...item, n: String(index + 1).padStart(2, '0') }));
+    const ranked = filterAndRankCandidates(results.flat(), preferences, asOfDate, { count });
+    const items = ranked.items;
     if (personalContext) {
       const generatedAt = new Date().toISOString();
       const edition = await savePersonalEdition(personalContext, {
@@ -451,16 +457,16 @@ export default async function handler(req, res) {
           ? `從 ${asOfDate} 當時可見的發現中，保存一壺可驗證、可轉移的晨報。`
           : '從當前社群討論中挑出值得留下、可以理解也可以實作的晨報內容。',
         generatedAt,
-        generationRecipe: buildMorningBrewRecipeSnapshot({ date: asOfDate, itemCount: items.length, kind, provider, model: modelForProvider(provider), preferences }),
+        generationRecipe: buildMorningBrewRecipeSnapshot({ date: asOfDate, itemCount: items.length, kind, provider, model: modelForProvider(provider), preferences, candidatePool: ranked.snapshot }),
         items
       });
       return res.status(200).json({ items: edition.items, edition, model: edition.model, provider, persisted: true, reused: false });
     }
-    const edition = historicalDate ? { run_date: historicalDate, mode: 'historical', provider, model: modelForProvider(provider), requested_count: 10, title: 'Vibe Coding 每日手沖', generated_at: new Date().toISOString(), items } : null;
-    return res.status(200).json({ items, model: modelForProvider(provider), provider, ...(edition ? { edition, persisted: false } : {}) });
+    const edition = historicalDate ? { run_date: historicalDate, mode: 'historical', provider, model: modelForProvider(provider), requested_count: 10, title: 'Vibe Coding 每日手沖', generated_at: new Date().toISOString(), generation_recipe: { candidate_pool: ranked.snapshot }, items } : null;
+    return res.status(200).json({ items, model: modelForProvider(provider), provider, candidate_pool: ranked.snapshot, ...(edition ? { edition, persisted: false } : {}) });
   } catch (error) {
     console.error(`Vercel brew failed: ${error.message}`);
-    const status = error.status || (isTimeoutError(error) ? 504 : error.message === 'source_after_as_of_date' ? 502 : 502);
+    const status = error.status || (isTimeoutError(error) ? 504 : 502);
     const message = error.message === 'source_after_as_of_date' ? '模型回傳了公示日期之後的來源，這一批沒有保存。' : publicErrorMessage(error);
     return res.status(status).json({ error: message });
   }

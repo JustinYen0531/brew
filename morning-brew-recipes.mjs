@@ -238,7 +238,8 @@ export function buildMorningBrewRecipeSnapshot({
   provider = 'openrouter',
   model = '',
   preferences = {},
-  generationRunId = ''
+  generationRunId = '',
+  candidatePool = null
 } = {}) {
   const recipe = getMorningRecipe(preferences.recipeId || preferences.recipe_id);
   const recipeId = recipe.id;
@@ -296,6 +297,7 @@ export function buildMorningBrewRecipeSnapshot({
       allowed_source_date_lte: asOfDate,
       canonical_url_required: true,
       evidence_required: true
-    }
+    },
+    candidate_pool: candidatePool ? JSON.parse(redactRecipeText(JSON.stringify(candidatePool))) : null
   };
 }
