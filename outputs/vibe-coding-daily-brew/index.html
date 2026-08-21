@@ -308,6 +308,27 @@
     .preferences-reset { background: transparent; color: var(--muted); border-color: var(--line); }
     .preferences-reset:hover { color: var(--ink); border-color: var(--espresso); }
     .preferences-status { color: var(--olive); font: 10px var(--mono); min-height: 1.4em; }
+    .recipe-intro { max-width: 780px; margin-bottom: 34px; }
+    .recipe-intro h1 { font: 400 clamp(48px, 7vw, 82px)/.94 var(--serif); letter-spacing: -.06em; margin: 10px 0 18px; }
+    .recipe-intro p { color: var(--muted); font: 19px/1.55 var(--serif); max-width: 660px; margin: 0; }
+    .recipe-account-card { display: flex; align-items: center; justify-content: space-between; gap: 20px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 20px 0; margin-bottom: 30px; }
+    .recipe-account-card strong { display: block; font: 27px var(--serif); margin-bottom: 4px; }
+    .recipe-account-card span { color: var(--muted); font: 11px/1.5 var(--mono); }
+    .recipe-account-card button, .recipe-action { border: 1px solid var(--espresso); background: var(--espresso); color: var(--paper-bright); cursor: pointer; padding: 11px 15px; font: 10px var(--mono); white-space: nowrap; }
+    .recipe-account-card button:hover, .recipe-action:hover { background: var(--ink); }
+    .recipe-panel[hidden], .recipe-guest[hidden], .recipe-authenticated[hidden] { display: none; }
+    .recipe-guest { border: 1px solid var(--line); background: var(--paper); padding: 24px; max-width: 720px; }
+    .recipe-guest h2 { font: 400 28px var(--serif); margin: 0 0 9px; }
+    .recipe-guest p { color: var(--muted); font: 14px/1.6 var(--serif); margin: 0 0 17px; max-width: 600px; }
+    .recipe-summary-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--line); border-left: 1px solid var(--line); margin-bottom: 24px; }
+    .recipe-summary-card { min-height: 136px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 18px; background: rgba(251,248,242,.45); }
+    .recipe-summary-card strong { display: block; color: var(--espresso); font: 10px var(--mono); letter-spacing: .12em; text-transform: uppercase; margin-bottom: 12px; }
+    .recipe-summary-card p { color: var(--ink); font: 18px/1.45 var(--serif); margin: 0; }
+    .recipe-summary-card small { display: block; color: var(--muted); font: 10px/1.5 var(--mono); margin-top: 10px; }
+    .recipe-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .recipe-action.is-secondary { background: transparent; color: var(--espresso); border-color: var(--line); }
+    .recipe-action.is-secondary:hover { color: var(--ink); border-color: var(--espresso); }
+    .recipe-note { color: var(--faint); font: 10px/1.6 var(--mono); margin-top: 22px; max-width: 680px; }
     .source-discovery-query { width: 100%; border: 1px solid var(--line); background: var(--paper); color: var(--ink); padding: 12px 13px; font: 14px/1.5 var(--serif); }
     .source-discovery-query:focus { border-color: var(--espresso); outline: 2px solid rgba(194,145,75,.25); outline-offset: 1px; }
     .source-discovery-status { color: var(--muted); font: 10px/1.5 var(--mono); margin: 10px 0; min-height: 1.4em; }
@@ -339,8 +360,8 @@
     .auth-close { flex: 0 0 auto; border: 1px solid var(--line); background: var(--paper); width: 35px; height: 35px; border-radius: 50%; cursor: pointer; font: 18px var(--serif); }
     .auth-form { display: grid; gap: 14px; }
     .auth-form label, .onboarding-field-label { display: block; color: var(--muted); font: 10px var(--mono); letter-spacing: .08em; }
-    .auth-form input[type="email"] { width: 100%; border: 1px solid var(--line); background: var(--paper); color: var(--ink); padding: 13px 12px; margin-top: 7px; font: 16px var(--serif); }
-    .auth-form input[type="email"]:focus { border-color: var(--espresso); outline: 2px solid rgba(194,145,75,.25); outline-offset: 1px; }
+    .auth-form input[type="text"], .auth-form input[type="email"] { width: 100%; border: 1px solid var(--line); background: var(--paper); color: var(--ink); padding: 13px 12px; margin-top: 7px; font: 16px var(--serif); }
+    .auth-form input[type="text"]:focus, .auth-form input[type="email"]:focus { border-color: var(--espresso); outline: 2px solid rgba(194,145,75,.25); outline-offset: 1px; }
     .auth-submit, .onboarding-save { border: 1px solid var(--espresso); background: var(--espresso); color: var(--paper-bright); cursor: pointer; padding: 12px 16px; font: 11px var(--mono); }
     .auth-submit:hover, .onboarding-save:hover { background: var(--ink); }
     .auth-submit:disabled, .onboarding-save:disabled { opacity: .6; cursor: wait; }
@@ -425,6 +446,8 @@
       .auth-card, .onboarding-card { padding: 28px 22px 32px; }
       .onboarding-meta-grid { grid-template-columns: 1fr; gap: 0; }
       .onboarding-account { width: 100%; margin-left: 0; }
+      .recipe-account-card { align-items: flex-start; flex-direction: column; }
+      .recipe-summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
     @media (max-width: 480px) {
       .site-shell { width: calc(100% - 28px); }
@@ -460,6 +483,7 @@
         <button class="nav-button is-active" data-view="today-view">今日手沖</button>
         <button class="nav-button" data-view="pantry-view">知識儲藏室</button>
         <button class="nav-button" data-view="archive-view">過往手沖</button>
+        <button class="nav-button" data-view="recipe-view">我的配方</button>
       </nav>
       <div class="header-actions">
         <button class="auth-entry" id="auth-trigger" type="button" aria-haspopup="dialog" aria-expanded="false">登入／我的晨報</button>
@@ -519,10 +543,36 @@
         </div>
         <div class="footer-note"><em>每一壺喝過的早晨都留在這裡，想回來時，味道還在。</em><span class="prototype-label">歷史模擬手沖</span></div>
       </section>
+      <section class="view" id="recipe-view" aria-labelledby="recipe-title">
+        <div class="recipe-intro">
+          <div class="eyebrow">這一壺，照你的味道找</div>
+          <h1 id="recipe-title">我的配方</h1>
+          <p>這不是冷冰冰的設定表，而是晨報每次找資料、挑文章、安排複習的做法。先給晨報一個稱呼，再把你想讀的味道慢慢調出來。</p>
+        </div>
+        <div class="recipe-account-card">
+          <div><strong id="recipe-account-name">還沒有晨報稱呼</strong><span id="recipe-account-detail">先用一個暱稱領回屬於你的晨報。</span></div>
+          <button id="recipe-account-button" type="button">取一個稱呼 →</button>
+        </div>
+        <div class="recipe-guest" id="recipe-guest" hidden>
+          <h2>先讓晨報知道怎麼叫你</h2>
+          <p>不用信箱，也不用交出電話。你留下的只是報紙上的稱呼；系統會在這個瀏覽器裡替你保留一個看不見的獨特帳號，讓你的配方跟你的晨報放在一起。</p>
+          <button class="recipe-action" id="recipe-guest-button" type="button">開始我的晨報 →</button>
+        </div>
+        <div class="recipe-authenticated" id="recipe-authenticated" hidden>
+          <div class="recipe-summary-grid" aria-label="我的晨報配方摘要">
+            <article class="recipe-summary-card"><strong>想讀的方向</strong><p id="recipe-topics">尚未設定</p><small>晨報會先從這些味道找</small></article>
+            <article class="recipe-summary-card"><strong>內容口感</strong><p id="recipe-styles">尚未設定</p><small>案例、失敗、程式碼或規則</small></article>
+            <article class="recipe-summary-card"><strong>來源街道</strong><p id="recipe-sources">尚未設定</p><small>晨報會優先往哪裡走</small></article>
+            <article class="recipe-summary-card"><strong>每天的節奏</strong><p id="recipe-rhythm">10 篇 · 10 分鐘</p><small id="recipe-rhythm-detail">新鮮度 3 · 會帶回複習</small></article>
+          </div>
+          <div class="recipe-actions"><button class="recipe-action" id="recipe-edit-button" type="button">調整我的配方 →</button><button class="recipe-action is-secondary" id="recipe-detail-button" type="button">打開配方細節</button></div>
+          <p class="recipe-note" id="recipe-note">這些內容會保存給你的匿名帳號。暱稱是親切的顯示方式，真正把資料分開的是系統內部的帳號 ID。</p>
+        </div>
+      </section>
     </main>
   </div>
 
-  <div class="quiet-menu" id="quiet-menu" role="menu"><button class="quiet-menu-button" id="preferences-trigger" type="button" role="menuitem">偏好</button></div>
+  <div class="quiet-menu" id="quiet-menu" role="menu"><button class="quiet-menu-button" id="preferences-trigger" type="button" role="menuitem">調整配方細節</button></div>
 
   <div class="search-drawer" id="search-drawer" aria-label="搜尋學習">
     <label for="global-search">找一個有用的想法</label>
@@ -533,20 +583,20 @@
   <div class="auth-overlay" id="auth-overlay" role="dialog" aria-modal="true" aria-labelledby="auth-title" aria-describedby="auth-copy">
     <article class="auth-card">
       <div class="auth-card-header">
-        <div><div class="eyebrow">把晨報帶回自己的餐桌</div><h2 id="auth-title">登入我的晨報</h2><p id="auth-copy">留一個信箱，晨報通行證會寄到那裡。點開信裡的連結，就能回到你的晨間配方。</p></div>
+        <div><div class="eyebrow">把晨報帶回自己的餐桌</div><h2 id="auth-title">晨報怎麼稱呼你？</h2><p id="auth-copy">留下一個你喜歡的暱稱，晨報就知道該怎麼在報紙上叫你。這裡不需要信箱，也不會要求你交出私人聯絡資料。</p></div>
         <button class="auth-close" id="auth-close" type="button" aria-label="關閉登入視窗">×</button>
       </div>
       <div id="auth-logged-out-panel">
         <form class="auth-form" id="auth-form">
-          <label for="auth-email">收信信箱<input id="auth-email" name="email" type="email" autocomplete="email" inputmode="email" required placeholder="you@example.com"></label>
-          <button class="auth-submit" id="auth-submit" type="submit">寄出晨報通行證 →</button>
+          <label for="auth-nickname">晨報怎麼稱呼你？<input id="auth-nickname" name="nickname" type="text" autocomplete="nickname" maxlength="32" required placeholder="例如：小明的晨報"></label>
+          <button class="auth-submit" id="auth-submit" type="submit">開始我的晨報 →</button>
           <p class="auth-status" id="auth-status" role="status" aria-live="polite"></p>
         </form>
-        <p class="auth-note">這裡只用信箱確認你的晨報配方，不需要另外記住密碼。</p>
+        <p class="auth-note">暱稱不是密碼。系統會在這個瀏覽器裡替你建立一個不公開的帳號 ID，配方會跟著它保存；清除瀏覽器資料或換裝置後，單靠暱稱無法找回。</p>
       </div>
       <div id="auth-logged-in-panel" hidden>
         <p class="auth-account" id="auth-account"></p>
-        <button class="auth-submit" id="auth-onboarding-trigger" type="button">調配我的晨報 →</button>
+        <button class="auth-submit" id="auth-onboarding-trigger" type="button">查看／調整我的配方 →</button>
         <button class="auth-sign-out" id="auth-sign-out" type="button">收起這壺晨報並登出</button>
         <p class="auth-status" id="auth-account-status" role="status" aria-live="polite"></p>
       </div>
@@ -598,7 +648,7 @@
         </fieldset>
         <fieldset class="onboarding-section">
           <legend class="onboarding-legend">來源香氣</legend>
-          <p>選幾條你想在晨報裡聽見的街道，之後還能在偏好裡加上指定社群或網址。</p>
+        <p>選幾條你想在晨報裡聽見的街道，之後還能在配方細節裡加上指定社群或網址。</p>
           <div class="onboarding-tag-list" role="group" aria-label="晨報來源">
             <label class="onboarding-tag"><input type="checkbox" data-onboarding-field="source_lanes" value="GitHub"><span>GitHub</span></label>
             <label class="onboarding-tag"><input type="checkbox" data-onboarding-field="source_lanes" value="Reddit"><span>Reddit</span></label>
@@ -661,23 +711,23 @@
   <div class="preferences-overlay" id="preferences-overlay" role="dialog" aria-modal="true" aria-labelledby="preferences-title">
     <aside class="preferences-sheet">
       <div class="preferences-header">
-        <div><div class="eyebrow">調一調你的晨報配方</div><h2 id="preferences-title">偏好</h2><p>告訴 Brew 你最近想學什麼、今天想讀到哪裡；下一壺就會照這個方向調整。</p></div>
-        <button class="preferences-close" id="preferences-close" aria-label="關閉偏好">×</button>
+        <div><div class="eyebrow">調一調你的晨報配方</div><h2 id="preferences-title">配方細節</h2><p>這裡放更細的配方材料：來源、提示詞、硬性網址與生成方式。每次手沖都會照目前保存的配方找路。</p></div>
+        <button class="preferences-close" id="preferences-close" aria-label="關閉配方細節">×</button>
       </div>
 
       <section class="preferences-section" aria-labelledby="source-discovery-title">
         <h3 id="source-discovery-title">來源探索資料庫</h3>
-        <p>打開這個偏好區塊就會先顯示 10 個推薦來源。輸入任何字，系統會用資料庫別名與即時網路搜尋猜你想找的提供者；你選取的是來源，不是把自己知道的名字硬塞進 prompt。</p>
+        <p>打開這個配方細節就會先顯示 10 個推薦來源。輸入任何字，系統會用資料庫別名與即時網路搜尋猜你想找的提供者；你選取的是來源，不是把自己知道的名字硬塞進 prompt。</p>
         <label class="preference-field"><span>搜尋來源／主題／社群</span><input class="source-discovery-query" id="source-discovery-query" type="search" maxlength="160" autocomplete="off" placeholder="例如：Vibe Coding Taiwan、Claude Code、agent workflow"></label>
         <div class="source-discovery-status" id="source-discovery-status" role="status">載入推薦來源中…</div>
         <div class="source-recommendation-list" id="source-recommendation-list" aria-live="polite"></div>
         <div class="source-catalog-note" id="source-catalog-note">來源會顯示品質、影響力、訊號與可近性評分；這些是排序證據，不是永遠不變的排名。</div>
-        <div class="selected-source-list" id="selected-source-list" aria-label="已選取的來源偏好"></div>
+        <div class="selected-source-list" id="selected-source-list" aria-label="已選取的配方來源"></div>
       </section>
 
       <section class="preferences-section" aria-labelledby="custom-source-title">
-        <h3 id="custom-source-title">新增來源偏好</h3>
-        <p>找不到你想追的媒體、軟體、論壇、頻道或社群時，可以新增一個可開啟的 URL；它會保存到你的個人偏好，之後也會參與排序。</p>
+        <h3 id="custom-source-title">新增來源到配方</h3>
+        <p>找不到你想追的媒體、軟體、論壇、頻道或社群時，可以新增一個可開啟的 URL；它會保存到你的個人配方，之後也會參與排序。</p>
         <div class="custom-source-row">
           <label class="preference-field"><span>來源名稱</span><input class="preference-input" id="custom-source-name" type="text" maxlength="160" placeholder="例如：某個社群／頻道"></label>
           <label class="preference-field"><span>來源網址</span><input class="preference-input" id="custom-source-url" type="url" maxlength="500" placeholder="https://example.com"></label>
@@ -686,7 +736,7 @@
       </section>
 
       <section class="preferences-section" aria-labelledby="prompt-preference-title">
-        <h3 id="prompt-preference-title">額外 prompt 偏好</h3>
+        <h3 id="prompt-preference-title">額外 prompt 配方</h3>
         <p>每次呼叫時都會重新讀取這段話，適合描述你最近想追的主題或排除條件。</p>
         <label class="preference-field"><span>我想看到／不要看到</span><textarea class="preference-textarea" id="preference-prompt" maxlength="1000" placeholder="例如：多找實際 coding agent workflow，少找產品宣傳；優先有測試、失敗分析與可重現步驟的討論。"></textarea></label>
       </section>
@@ -701,7 +751,7 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
       <section class="preferences-section" aria-labelledby="language-title">
         <h3 id="language-title">資訊源頭語言</h3>
         <p>目前支援中文或英文；這會影響來源搜尋時優先尋找哪種語言，不會改變這個中文介面的閱讀語言。</p>
-        <div class="language-options" role="radiogroup" aria-label="資訊源頭語言偏好"><label class="language-option"><input type="radio" name="preference-language" value="zh-Hant" checked><span>繁體中文</span></label><label class="language-option"><input type="radio" name="preference-language" value="en"><span>English</span></label></div>
+        <div class="language-options" role="radiogroup" aria-label="資訊源頭語言配方"><label class="language-option"><input type="radio" name="preference-language" value="zh-Hant" checked><span>繁體中文</span></label><label class="language-option"><input type="radio" name="preference-language" value="en"><span>English</span></label></div>
       </section>
 
       <section class="preferences-section" aria-labelledby="provider-title">
@@ -710,7 +760,7 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
         <div class="language-options" role="radiogroup" aria-label="手沖生成方式"><label class="language-option"><input type="radio" name="brew-provider" value="openrouter" checked><span>OpenRouter</span></label><label class="language-option"><input type="radio" name="brew-provider" value="openai"><span>OpenAI API</span></label><label class="language-option"><input type="radio" name="brew-provider" value="codex"><span>本機 Codex（訂閱）</span></label></div>
       </section>
 
-      <div class="preferences-actions"><button class="preferences-save" id="preferences-save" type="button">儲存偏好</button><button class="preferences-reset" id="preferences-reset" type="button">恢復正常設定</button><span class="preferences-status" id="preferences-status" role="status"></span></div>
+      <div class="preferences-actions"><button class="preferences-save" id="preferences-save" type="button">儲存配方細節</button><button class="preferences-reset" id="preferences-reset" type="button">恢復正常配方</button><span class="preferences-status" id="preferences-status" role="status"></span></div>
     </aside>
   </div>
 
@@ -760,6 +810,7 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
     };
     let authSession = null;
     let authUser = null;
+    let authProfile = null;
     let authPreferences = null;
     let authPreferenceSyncTimer = null;
     let onboardingExcludedTopics = [];
@@ -917,10 +968,11 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
     }
 
     function friendlyAuthError(error) {
-      const message = String(error?.message || error || '登入服務暫時無法使用。');
-      if (/supabase|未設定|not configured|configuration|environment/i.test(message)) return `晨報通行證服務尚未接上 Supabase：${message}`;
-      if (Number(error?.status) === 401) return '這張晨報通行證已經過期，請重新寄一封新的通行證。';
-      if (location.protocol === 'file:') return '請先用 node server.mjs 開啟網站，登入通行證才有地方送出。';
+      const message = String(error?.message || error || '晨報帳號服務暫時無法使用。');
+      if (/anonymous.*開啟|allow anonymous|匿名帳號/i.test(message)) return '晨報還沒有開啟匿名帳號，請先在 Supabase Auth 開啟「Allow anonymous sign-ins」。';
+      if (/supabase|未設定|not configured|configuration|environment/i.test(message)) return `晨報帳號服務尚未接上 Supabase：${message}`;
+      if (Number(error?.status) === 401) return '這個晨報身份已經失效，請在本機重新建立一個新的稱呼。';
+      if (location.protocol === 'file:') return '請先用 node server.mjs 開啟網站，晨報帳號才有地方建立。';
       return message;
     }
 
@@ -948,18 +1000,60 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
       return response;
     }
 
+    function recipeDisplayName() {
+      return typeof authProfile?.nickname === 'string' ? authProfile.nickname.trim() : '';
+    }
+
+    function recipeText(values, fallback = '尚未設定') {
+      return Array.isArray(values) && values.length ? values.join(' · ') : fallback;
+    }
+
+    function renderRecipeView() {
+      const guest = document.getElementById('recipe-guest');
+      const authenticated = document.getElementById('recipe-authenticated');
+      const accountName = document.getElementById('recipe-account-name');
+      const accountDetail = document.getElementById('recipe-account-detail');
+      const accountButton = document.getElementById('recipe-account-button');
+      if (!guest || !authenticated || !accountName || !accountDetail || !accountButton) return;
+      const nickname = recipeDisplayName();
+      const hasAccount = Boolean(authUser);
+      guest.hidden = hasAccount;
+      authenticated.hidden = !hasAccount;
+      accountName.textContent = nickname ? `${nickname} 的晨報` : (hasAccount ? '這個帳號還沒有稱呼' : '還沒有晨報稱呼');
+      accountDetail.textContent = nickname
+        ? '這壺配方會保存給這個瀏覽器裡的匿名帳號。'
+        : (hasAccount ? '先替這個帳號補上一個報紙上的稱呼。' : '先用一個暱稱領回屬於你的晨報。');
+      accountButton.textContent = hasAccount ? '查看帳號資料 →' : '取一個稱呼 →';
+      if (!hasAccount) return;
+      const recipe = authPreferences ? normalizeOnboardingPreferences(authPreferences) : onboardingDefaults;
+      document.getElementById('recipe-topics').textContent = recipeText(recipe.topics);
+      document.getElementById('recipe-styles').textContent = recipeText(recipe.content_styles);
+      document.getElementById('recipe-sources').textContent = recipeText(recipe.source_lanes);
+      document.getElementById('recipe-rhythm').textContent = `${recipe.item_count} 篇 · ${recipe.reading_minutes} 分鐘`;
+      document.getElementById('recipe-rhythm-detail').textContent = `新鮮度 ${recipe.novelty_level} · ${recipe.review_enabled ? '會帶回複習' : '暫不安排複習'}`;
+      document.getElementById('recipe-note').textContent = authProfile
+        ? '這些內容會保存給你的匿名帳號。暱稱是親切的顯示方式，真正把資料分開的是系統內部的帳號 ID。'
+        : '這個帳號目前還沒有稱呼；你可以關閉後重新建立一個暱稱帳號，或繼續使用原本已保存的配方。';
+    }
+
     function updateAuthTrigger() {
       const trigger = document.getElementById('auth-trigger');
       if (!trigger) return;
       trigger.classList.toggle('is-authenticated', Boolean(authUser));
-      trigger.textContent = authUser ? '我的晨報' : '登入／我的晨報';
-      trigger.title = authUser?.email ? `目前使用 ${authUser.email} 的晨報` : '登入，調配自己的晨報';
+      const nickname = recipeDisplayName();
+      trigger.textContent = authUser && nickname ? `${nickname} 的晨報` : (authUser ? '我的晨報' : '我的晨報');
+      trigger.title = authUser ? (nickname ? `目前使用「${nickname}」的晨報` : '目前已在這個瀏覽器保留一壺晨報') : '用一個暱稱開始自己的晨報';
+      renderRecipeView();
     }
 
     function updateAuthPanels() {
       document.getElementById('auth-logged-out-panel').hidden = Boolean(authUser);
       document.getElementById('auth-logged-in-panel').hidden = !authUser;
-      document.getElementById('auth-account').textContent = authUser?.email ? `這壺晨報會保存給：${authUser.email}` : '';
+      const nickname = recipeDisplayName();
+      document.getElementById('auth-account').textContent = nickname
+        ? `這壺晨報會保存給：「${nickname}」`
+        : '這個帳號還沒有報紙稱呼；配方仍會保存給目前的匿名帳號。';
+      renderRecipeView();
     }
 
     function setStatus(element, message, isError = false) {
@@ -973,7 +1067,7 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
       authOverlay.classList.add('is-open');
       document.getElementById('auth-trigger').setAttribute('aria-expanded', 'true');
       document.body.style.overflow = 'hidden';
-      (authUser ? document.getElementById('auth-onboarding-trigger') : document.getElementById('auth-email'))?.focus();
+      (authUser ? document.getElementById('auth-onboarding-trigger') : document.getElementById('auth-nickname'))?.focus();
     }
 
     function closeAuthOverlay() {
@@ -1007,7 +1101,7 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
         if (input.type === 'radio') input.checked = Number(input.value) === Number(recipe[field]);
       });
       renderExcludedTopics();
-      document.getElementById('onboarding-account').textContent = authUser?.email ? `配方會保存給 ${authUser.email}` : '';
+      document.getElementById('onboarding-account').textContent = recipeDisplayName() ? `配方會保存給「${recipeDisplayName()}」` : '配方會保存給目前的匿名帳號';
     }
 
     function openOnboarding(value = authPreferences || onboardingDefaults) {
@@ -1059,6 +1153,7 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
       authPreferences = saved;
       brewPreferences = { ...brewPreferences, ...saved };
       cacheAuthenticatedPreferences(saved);
+      renderRecipeView();
       syncBrewCountInput();
       if (statusElement) setStatus(statusElement, '這份配方已放進你的晨報檔案。');
       return saved;
@@ -1103,23 +1198,42 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
       }
     }
 
-    async function requestMagicLink(event) {
+    async function startAnonymousAccount(event) {
       event.preventDefault();
       const form = event.currentTarget;
-      const email = document.getElementById('auth-email').value.trim();
+      const nickname = document.getElementById('auth-nickname').value.trim();
       const submit = document.getElementById('auth-submit');
       const status = document.getElementById('auth-status');
-      if (!email) return;
+      if (!nickname) return;
       submit.disabled = true;
       submit.setAttribute('aria-busy', 'true');
-      setStatus(status, '正在替你把晨報通行證寄出…');
+      setStatus(status, '正在替你準備一個不需要信箱的晨報帳號…');
       try {
-        const response = await fetch('/api/auth', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'request_link', email }) });
+        const response = await fetch('/api/auth', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'start_anonymous', nickname }) });
         const payload = await responsePayload(response);
-        if (!response.ok) throw apiError(payload, response.status, '晨報通行證暫時寄不出去。');
-        setStatus(status, '信已寄出，請到信箱領晨報通行證，再點開信裡的連結。');
-        form.querySelector('input')?.focus();
+        if (!response.ok) throw apiError(payload, response.status, '晨報帳號暫時建立不了。');
+        const session = sessionFromPayload(payload);
+        if (!session) throw new Error('晨報帳號建立後沒有收到登入狀態。');
+        saveAuthSession(session);
+        authUser = session.user || await fetchCurrentUser();
+        authProfile = await saveRemoteProfile(nickname);
+        const remote = await fetchRemotePreferences();
+        authPreferences = normalizeOnboardingPreferences(remote || {});
+        brewPreferences = freshAuthenticatedPreferences(remote || {});
+        updateAuthTrigger();
+        updateAuthPanels();
+        syncBrewCountInput();
+        form.reset();
+        setStatus(document.getElementById('auth-account-status'), '稱呼已記住，接下來一起調配你的晨報。');
+        closeAuthOverlay();
+        if (!remote || remote.onboarding_completed !== true) openOnboarding(authPreferences);
       } catch (error) {
+        clearAuthSession();
+        authUser = null;
+        authProfile = null;
+        authPreferences = null;
+        updateAuthTrigger();
+        updateAuthPanels();
         setStatus(status, friendlyAuthError(error), true);
       } finally {
         submit.disabled = false;
@@ -1141,12 +1255,26 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
       return payload.preferences || null;
     }
 
+    async function fetchRemoteProfile() {
+      const response = await authFetch('/api/profile', { method: 'GET' });
+      const payload = await responsePayload(response);
+      if (!response.ok) throw apiError(payload, response.status, '目前讀不到你的晨報稱呼。');
+      return payload.profile || null;
+    }
+
+    async function saveRemoteProfile(nickname) {
+      const response = await authFetch('/api/profile', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nickname }) });
+      const payload = await responsePayload(response);
+      if (!response.ok) throw apiError(payload, response.status, '晨報稱呼暫時保存不了。');
+      return payload.profile || { nickname };
+    }
+
     async function restoreAuthState() {
       const fragment = consumeAuthFragment();
       if (fragment.error) {
         updateAuthTrigger();
         openAuthOverlay();
-        setStatus(document.getElementById('auth-status'), `晨報通行證沒有開啟：${fragment.error}`, true);
+        setStatus(document.getElementById('auth-status'), `晨報帳號沒有開啟：${fragment.error}`, true);
         return;
       }
       authSession = fragment.session || readAuthSession();
@@ -1157,11 +1285,12 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
       if (!sessionIsFresh() && !(await refreshAuthSession())) {
         updateAuthTrigger();
         openAuthOverlay();
-        setStatus(document.getElementById('auth-status'), '晨報通行證已經過期，請重新寄一封新的通行證。', true);
+        setStatus(document.getElementById('auth-status'), '這個晨報身份已經失效，請重新建立一個新的稱呼。', true);
         return;
       }
       try {
         authUser = await fetchCurrentUser();
+        authProfile = await fetchRemoteProfile();
         updateAuthTrigger();
         const remote = await fetchRemotePreferences();
         authPreferences = normalizeOnboardingPreferences(remote || {});
@@ -1170,6 +1299,7 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
         if (!remote || remote.onboarding_completed !== true) openOnboarding(authPreferences);
       } catch (error) {
         authUser = null;
+        authProfile = null;
         clearAuthSession();
         updateAuthTrigger();
         openAuthOverlay();
@@ -1196,6 +1326,7 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
         clearTimeout(authPreferenceSyncTimer);
         clearAuthSession();
         authUser = null;
+        authProfile = null;
         authPreferences = null;
         brewPreferences = loadPreferences();
         updateAuthTrigger();
@@ -1339,7 +1470,7 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
       list.innerHTML = sources.length ? sources.map(source => {
         const selected = sourceIsSelected(source.id);
         const evidence = source.evidence || source.description || '尚無可見證據，請開啟來源確認。';
-        return `<article class="source-recommendation ${selected ? 'is-selected' : ''}"><div><h4>${escapeHtml(source.name)}</h4><p>${escapeHtml(source.description || '')}</p><div class="source-recommendation-meta"><strong>${escapeHtml(source.kind || source.platform || '來源')}</strong> · 品質 ${Number(source.qualityScore || 0).toFixed(1)} · 影響力 ${Number(source.influenceScore || 0).toFixed(1)} · ${escapeHtml(evidence)}</div><div class="source-recommendation-actions"><a href="${safeUrl(source.url)}" target="_blank" rel="noreferrer">查看來源 ↗</a><button type="button" class="source-select-button ${selected ? 'is-selected' : ''}" data-select-source="${escapeHtml(source.id)}">${selected ? '已加入偏好' : '加入我的偏好'}</button></div></div></article>`;
+      return `<article class="source-recommendation ${selected ? 'is-selected' : ''}"><div><h4>${escapeHtml(source.name)}</h4><p>${escapeHtml(source.description || '')}</p><div class="source-recommendation-meta"><strong>${escapeHtml(source.kind || source.platform || '來源')}</strong> · 品質 ${Number(source.qualityScore || 0).toFixed(1)} · 影響力 ${Number(source.influenceScore || 0).toFixed(1)} · ${escapeHtml(evidence)}</div><div class="source-recommendation-actions"><a href="${safeUrl(source.url)}" target="_blank" rel="noreferrer">查看來源 ↗</a><button type="button" class="source-select-button ${selected ? 'is-selected' : ''}" data-select-source="${escapeHtml(source.id)}">${selected ? '已加入配方' : '加入我的配方'}</button></div></div></article>`;
       }).join('') : '<p class="empty-state">目前找不到符合的來源；可以用下面的 URL 新增。</p>';
       list.querySelectorAll('[data-select-source]').forEach(button => button.addEventListener('click', () => toggleSource(button.dataset.selectSource)));
       renderSelectedSources();
@@ -1389,7 +1520,7 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
       try { hostname = new URL(url).hostname; } catch {}
       const name = nameField.value.trim() || hostname || '自訂來源';
       const id = `custom-${url.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 72)}`;
-      const source = { id, name: name.slice(0, 160), platform: hostname, kind: '使用者新增來源', url, aliases: [], topics: [], description: '你新增的來源偏好；每日手沖仍需逐篇驗證內容、日期與證據。', evidence: '使用者自訂來源，尚未由來源資料庫評分。', evidenceUrl: url, qualityScore: 3, influenceScore: 3, signalScore: 3, accessibilityScore: 3, confidence: 0.5, defaultSelected: false, custom: true };
+      const source = { id, name: name.slice(0, 160), platform: hostname, kind: '使用者新增來源', url, aliases: [], topics: [], description: '你新增的配方來源；每日手沖仍需逐篇驗證內容、日期與證據。', evidence: '使用者自訂來源，尚未由來源資料庫評分。', evidenceUrl: url, qualityScore: 3, influenceScore: 3, signalScore: 3, accessibilityScore: 3, confidence: 0.5, defaultSelected: false, custom: true };
       const sameUrl = candidate => candidate.url?.replace(/\/$/, '').toLowerCase() === url.toLowerCase();
       const existing = [...sourceCatalog, ...sourceRecommendations, ...(brewPreferences.customSources || []), ...(brewPreferences.selectedSources || [])].find(sameUrl);
       const selectedId = existing?.id || id;
@@ -1403,7 +1534,7 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
       nameField.value = '';
       urlField.value = '';
       renderSourceRecommendations(sourceRecommendations);
-      status.textContent = `${selectedSource.name} 已加入你的來源偏好。`;
+      status.textContent = `${selectedSource.name} 已加入你的配方來源。`;
     }
 
     function populatePreferences() {
@@ -1705,9 +1836,13 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
     });
     document.getElementById('auth-close').addEventListener('click', closeAuthOverlay);
     authOverlay.addEventListener('click', event => { if (event.target === authOverlay) closeAuthOverlay(); });
-    document.getElementById('auth-form').addEventListener('submit', requestMagicLink);
+    document.getElementById('auth-form').addEventListener('submit', startAnonymousAccount);
     document.getElementById('auth-onboarding-trigger').addEventListener('click', () => openOnboarding());
     document.getElementById('auth-sign-out').addEventListener('click', signOut);
+    document.getElementById('recipe-account-button').addEventListener('click', openAuthOverlay);
+    document.getElementById('recipe-guest-button').addEventListener('click', openAuthOverlay);
+    document.getElementById('recipe-edit-button').addEventListener('click', () => { if (authUser) openOnboarding(); else openAuthOverlay(); });
+    document.getElementById('recipe-detail-button').addEventListener('click', () => { if (authUser) openPreferences(); else openAuthOverlay(); });
     document.getElementById('onboarding-form').addEventListener('submit', handleOnboardingSubmit);
     document.getElementById('onboarding-close').addEventListener('click', closeOnboarding);
     document.getElementById('onboarding-close-later').addEventListener('click', closeOnboarding);

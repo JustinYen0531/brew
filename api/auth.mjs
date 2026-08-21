@@ -162,20 +162,31 @@ function sessionResponse(data) {
   return session;
 }
 
-async function requestMagicLink(body, originInfo, config) {
-  const email = typeof body.email === 'string' ? body.email.trim() : '';
-  if (!email || email.length > 320 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    throw new ApiError('invalid_email', 400, '請輸入有效的電子郵件地址。');
+function validateAnonymousNickname(body) {
+  const nickname = typeof body.nickname === 'string' ? body.nickname.trim().replace(/\s+/g, ' ') : '';
+  if (!nickname || nickname.length > 32 || /[\u0000-\u001f\u007f]/.test(nickname)) {
+    throw new ApiError('invalid_nickname', 400, '請輸入 1 到 32 個字的晨報稱呼。');
   }
-  const endpoint = new URL('/auth/v1/otp', `${config.url}/`);
-  endpoint.searchParams.set('redirect_to', originInfo.redirectTo);
-  const { response } = await supabaseRequest(config, `${endpoint.pathname}${endpoint.search}`, {
+  return nickname;
+}
+
+function anonymousAuthUpstreamError(response) {
+  if (response.status === 400 || response.status === 404) {
+    return new ApiError('anonymous_auth_disabled', 503, '匿名帳號服務尚未開啟，請到 Supabase Auth 開啟「Allow anonymous sign-ins」。');
+  }
+  if (response.status === 429) return new ApiError('anonymous_auth_rate_limited', 429, '今天建立晨報帳號的次數太多了，請稍後再試。');
+  return new ApiError('supabase_upstream', 502, '匿名晨報帳號暫時無法建立，請稍後再試。');
+}
+
+async function startAnonymousSession(body, config) {
+  validateAnonymousNickname(body);
+  const { response, data } = await supabaseRequest(config, '/auth/v1/signup', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, create_user: true })
+    body: JSON.stringify({})
   });
-  if (!response.ok) throw authUpstreamError(response, 'otp');
-  return { status: 200, body: { ok: true, message: '登入連結已寄出，請到信箱收下這壺晨光。' } };
+  if (!response.ok) throw anonymousAuthUpstreamError(response);
+  return { status: 200, body: sessionResponse(data) };
 }
 
 async function refreshSession(body, config) {
@@ -213,7 +224,7 @@ async function authApiOrThrow(input) {
   if (input.method !== 'POST') throw new ApiError('method_not_allowed', 405, '這個登入入口不接受目前的請求方式。');
 
   const body = normalizeBody(input.body);
-  if (body.action === 'request_link') return { ...(await requestMagicLink(body, originInfo, config)), headers };
+  if (body.action === 'start_anonymous') return { ...(await startAnonymousSession(body, config)), headers };
   if (body.action === 'refresh') return { ...(await refreshSession(body, config)), headers };
   if (body.action === 'sign_out') return { ...(await signOut(input.headers, config)), headers };
   throw new ApiError('unknown_action', 400, '不支援的登入操作。');

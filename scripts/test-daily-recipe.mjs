@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { buildRecipeSnapshot, promptForAttempt } from './daily-brew.mjs';
-import { publicRecipe } from '../api/edition-recipe.mjs';
+import { buildEditionRecipeResponse, publicRecipe } from '../api/edition-recipe.mjs';
 
 const recipe = buildRecipeSnapshot('2026-08-21');
 assert.equal(recipe.schema_version, 'daily-recipe-v1');
@@ -21,5 +21,11 @@ assert.equal(shared.kind, 'automatic_daily_brew');
 assert.equal(shared.prompt.text, recipe.prompt.text);
 assert.equal('excluded_topics' in shared.preferences, false);
 assert.equal(publicRecipe({ ...recipe, kind: 'manual_brew' }), null);
+const response = buildEditionRecipeResponse({ id: 'edition-1', run_date: '2026-08-21', mode: 'daily', generated_at: '2026-08-21T06:00:00.000Z', generation_run_id: 'run-1', generation_run: { id: 'run-1', status: 'complete', attempts: [] }, items: [{ title: 'A', url: 'https://example.com/a', sourceType: 'Example' }], generation_recipe: recipe });
+assert.equal(response.edition.generation_run_id, 'run-1');
+assert.equal(response.generation.status, 'complete');
+assert.equal(response.recipe.prompt.version, 'daily-prompt-v1');
+assert.match(response.share.api_path, /edition-recipe/);
+assert.equal(buildEditionRecipeResponse({ mode: 'historical', generation_recipe: recipe }), null);
 
 console.log('daily recipe contract: OK');

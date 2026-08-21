@@ -7,6 +7,8 @@ import { fileURLToPath } from 'node:url';
 import { discoverSources, rankSources, readSourceCatalog, sourceMatchesQuery, SOURCE_RANKING_VERSION } from './source-catalog.mjs';
 import { authApi } from './api/auth.mjs';
 import { preferencesApi, sanitizePreferenceRecord } from './api/preferences.mjs';
+import { profileApi } from './api/profile.mjs';
+import { buildEditionRecipeResponse } from './api/edition-recipe.mjs';
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const SITE_FILE = path.join(ROOT, 'outputs', 'vibe-coding-daily-brew', 'index.html');
@@ -545,7 +547,15 @@ async function listArchive(month) {
     .sort((a, b) => b.localeCompare(a));
   return Promise.all(dates.map(async date => {
     const edition = await readEdition(date);
-    return { date, count: Array.isArray(edition.items) ? edition.items.length : 0, generated_at: edition.generated_at || '', mode: edition.mode || 'daily' };
+    return {
+      date,
+      count: Array.isArray(edition.items) ? edition.items.length : 0,
+      generated_at: edition.generated_at || '',
+      mode: edition.mode || 'daily',
+      has_recipe: Boolean(edition.generation_recipe),
+      recipe_version: edition.generation_recipe?.schema_version || '',
+      generation_run_id: edition.generation_run_id || ''
+    };
   }));
 }
 
@@ -580,6 +590,10 @@ const server = createServer(async (req, res) => {
       const body = req.method === 'PUT' ? await readJsonBody(req) : {};
       return sendApiResult(res, await preferencesApi({ method: req.method, headers: req.headers, url: req.url, body, env: config }));
     }
+    if (requestUrl.pathname === '/api/profile' && ['GET', 'PUT', 'OPTIONS'].includes(req.method)) {
+      const body = req.method === 'PUT' ? await readJsonBody(req) : {};
+      return sendApiResult(res, await profileApi({ method: req.method, headers: req.headers, url: req.url, body, env: config }));
+    }
     if (requestUrl.pathname === '/api/archive' && req.method === 'GET') {
       const requestedDate = requestUrl.searchParams.get('date');
       if (requestedDate) {
@@ -590,6 +604,18 @@ const server = createServer(async (req, res) => {
       const month = requestUrl.searchParams.get('month') || '';
       if (month && !/^\d{4}-\d{2}$/.test(month)) return sendJson(res, 400, { error: '月份格式必須是 YYYY-MM。' });
       return sendJson(res, 200, { dates: await listArchive(month) });
+    }
+    if (requestUrl.pathname === '/api/edition-recipe' && req.method === 'GET') {
+      const requestedDate = requestUrl.searchParams.get('date') || 'latest';
+      const date = requestedDate === 'latest' ? 'latest' : normalizeTargetDate(requestedDate);
+      try {
+        const payload = buildEditionRecipeResponse(await readEdition(date));
+        if (!payload) return sendJson(res, 404, { error: '這一期沒有保存可公開的自動日報配方。' });
+        return sendJson(res, 200, payload);
+      } catch (error) {
+        if (error.code === 'ENOENT') return sendJson(res, 404, { error: '找不到這一天的日報配方。' });
+        throw error;
+      }
     }
     const dailyFile = requestUrl.pathname.match(/^\/outputs\/vibe-coding-daily-brew\/daily\/(latest|\d{4}-\d{2}-\d{2})\.json$/);
     if (dailyFile && req.method === 'GET') {
