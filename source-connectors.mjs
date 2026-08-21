@@ -254,4 +254,31 @@ export async function collectSourceCandidates(preferences = {}, asOfDate = '', {
   };
 }
 
+async function checkUrl(url, { fetchImpl = globalThis.fetch, timeoutMs = 4_000 } = {}) {
+  if (typeof fetchImpl !== 'function') return { url, accessible: false, status: 0, reason: 'fetch_unavailable' };
+  try {
+    let response = await fetchImpl(url, { method: 'HEAD', redirect: 'follow', headers: requestHeaders('url-check'), signal: AbortSignal.timeout(timeoutMs) });
+    if (!response.ok && [403, 405, 406, 429, 500, 501].includes(response.status)) {
+      response = await fetchImpl(url, { method: 'GET', redirect: 'follow', headers: { ...requestHeaders('url-check'), Range: 'bytes=0-2048' }, signal: AbortSignal.timeout(timeoutMs) });
+    }
+    return { url, accessible: response.status >= 200 && response.status < 400, status: response.status };
+  } catch (error) {
+    return { url, accessible: false, status: 0, reason: String(error?.message || 'request_failed').slice(0, 120) };
+  }
+}
+
+export async function verifyCandidateUrls(items = [], options = {}) {
+  const input = Array.isArray(items) ? items : [];
+  const urls = [...new Set(input.map(item => canonicalUrl(item?.url)).filter(Boolean))];
+  const checks = await Promise.all(urls.map(url => checkUrl(url, options)));
+  const byUrl = new Map(checks.map(check => [check.url, check]));
+  return {
+    items: input.map(item => {
+      const check = byUrl.get(canonicalUrl(item?.url));
+      return check ? { ...item, url_accessible: check.accessible, url_check: { status: check.status, accessible: check.accessible } } : item;
+    }),
+    checks
+  };
+}
+
 export const sourceConnectorCatalog = Object.freeze(Object.keys(CONNECTORS));

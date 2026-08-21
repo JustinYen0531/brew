@@ -2,7 +2,7 @@ import { sanitizePreferenceRecord } from './preferences.mjs';
 import { buildMorningBrewPrompt, buildMorningBrewRecipeSnapshot } from '../morning-brew-recipes.mjs';
 import { getAuthorizedContext, readPersonalEdition, readPersonalRecommendationSignals, sanitizeStoredJson, savePersonalEdition } from './edition-storage.mjs';
 import { filterAndRankCandidates } from '../candidate-pool.mjs';
-import { collectSourceCandidates } from '../source-connectors.mjs';
+import { collectSourceCandidates, verifyCandidateUrls } from '../source-connectors.mjs';
 
 const OPENROUTER_MODEL = process.env.OPENROUTER_MODEL || 'deepseek/deepseek-v4-flash-0731';
 const OPENAI_MODEL = process.env.OPENAI_MODEL || 'gpt-5.4';
@@ -453,8 +453,9 @@ export default async function handler(req, res) {
       }
     }
     await Promise.all(Array.from({ length: Math.min(count, MAX_PARALLEL_BREWS) }, () => worker()));
-    const ranked = filterAndRankCandidates(results.flat(), preferences, asOfDate, { count });
-    ranked.snapshot = { ...ranked.snapshot, source_collection: sourceCollection.snapshot };
+    const checked = await verifyCandidateUrls(results.flat());
+    const ranked = filterAndRankCandidates(checked.items, preferences, asOfDate, { count });
+    ranked.snapshot = { ...ranked.snapshot, source_collection: sourceCollection.snapshot, url_checks: checked.checks };
     const items = ranked.items;
     if (personalContext) {
       const generatedAt = new Date().toISOString();

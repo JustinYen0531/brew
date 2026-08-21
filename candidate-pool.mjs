@@ -208,6 +208,7 @@ function hardRejectReason(candidate, preferences, asOfDate) {
   if (!candidate || typeof candidate !== 'object') return 'candidate_missing';
   const url = canonicalUrl(candidate.url);
   if (!url) return 'url_invalid';
+  if (candidate.urlAccessible === false || candidate.url_accessible === false) return 'url_unreachable';
   if (dateOnly(candidate.date) !== candidate.date) return 'published_date_invalid';
   if (candidate.date > asOfDate) return 'published_after_cutoff';
   if (!text(candidate.title) || !text(candidate.category) || !text(candidate.evidence)) return 'required_evidence_missing';
@@ -248,7 +249,8 @@ function normalizeCandidate(item, index) {
     tradeoffs: text(item?.tradeoffs),
     importance: Number(item?.importance) || 3,
     timeless: Number(item?.timeless) || 3,
-    heat: Number(item?.heat) || 2
+    heat: Number(item?.heat) || 2,
+    urlAccessible: item?.url_accessible !== false && item?.urlAccessible !== false
   };
 }
 
@@ -368,7 +370,8 @@ function buildSnapshot({ input, eligible, selected, rejected, count, asOfDate })
       score: candidate.score,
       score_breakdown: candidate.breakdown,
       source_weight: candidate.sourceWeight,
-      feedback_matches: candidate.feedbackMatches
+      feedback_matches: candidate.feedbackMatches,
+      url_accessible: candidate.urlAccessible
     }))
   };
 }

@@ -6,6 +6,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildMorningBrewPrompt, getMorningRecipe } from '../morning-brew-recipes.mjs';
 import { filterAndRankCandidates } from '../candidate-pool.mjs';
+import { collectSourceCandidates, verifyCandidateUrls } from '../source-connectors.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DEFAULT_OUTPUT_DIR = path.join(ROOT, 'outputs', 'vibe-coding-daily-brew', 'daily');
@@ -204,7 +205,7 @@ function selectedModel(provider) {
   return config.OPENROUTER_MODEL || OPENROUTER_MODEL;
 }
 
-export function buildRecipeSnapshot(runDate) {
+export function buildRecipeSnapshot(runDate, sourceCollection = null) {
   const provider = selectedProvider();
   const model = selectedModel(provider);
   const morningRecipe = getMorningRecipe('vibe-coding');
@@ -222,13 +223,19 @@ export function buildRecipeSnapshot(runDate) {
     noveltyLevel: 3,
     reviewEnabled: true,
     sourceLanguage: 'zh-Hant',
+    outputLanguage: 'zh-Hant',
+    topicWeights: {},
+    blendRatios: { new_discoveries: 60, saved_reviews: 20, classic: 10, surprise: 10 },
+    timezone: 'Asia/Taipei',
+    morningTime: '07:00',
     selectedSourceIds: [...morningRecipe.sourceIds],
     sourceWeights: {},
     specificSources: {},
     directUrls: [],
     sourcePrompt: '',
     selectedSources: [],
-    customSources: []
+    customSources: [],
+    sourceCandidates: sourceCollection?.candidates || []
   };
   return {
     schema_version: RECIPE_SCHEMA_VERSION,
@@ -240,8 +247,13 @@ export function buildRecipeSnapshot(runDate) {
       editorial_tone: recipePreferences.editorialTone,
       brew_method: recipePreferences.brewMethod,
       source_language: recipePreferences.sourceLanguage,
+      output_language: recipePreferences.outputLanguage,
       selected_source_ids: recipePreferences.selectedSourceIds,
       source_weights: recipePreferences.sourceWeights,
+      topic_weights: recipePreferences.topicWeights,
+      blend_ratios: recipePreferences.blendRatios,
+      timezone: recipePreferences.timezone,
+      morning_time: recipePreferences.morningTime,
       specific_sources: recipePreferences.specificSources,
       direct_urls: recipePreferences.directUrls,
       source_prompt: recipePreferences.sourcePrompt,
@@ -254,13 +266,17 @@ export function buildRecipeSnapshot(runDate) {
       item_count: COUNT,
       novelty_level: 3,
       review_enabled: true,
-      blend: { new_discoveries: 6, saved_reviews: 2, classic: 1, surprise: 1 }
+      blend: recipePreferences.blendRatios
     },
     prompt: {
       version: PROMPT_VERSION,
       system: SYSTEM_PROMPT,
       text: buildMorningBrewPrompt(COUNT, recipePreferences, runDate)
     },
+    source_collection: sourceCollection ? {
+      ...sourceCollection.snapshot,
+      candidates: sourceCollection.candidates.slice(0, 80)
+    } : null,
     model: { provider, name: model, generation_method: provider === 'codex' ? 'local_codex_exec' : 'provider_api' },
     search_rules: {
       version: SEARCH_RULES_VERSION,
@@ -370,7 +386,17 @@ async function main() {
     return;
   }
   log(options, `collecting:${options.date}`);
-  const recipe = buildRecipeSnapshot(options.date);
+  let sourceCollection;
+  try {
+    const baseRecipe = buildRecipeSnapshot(options.date);
+    sourceCollection = await collectSourceCandidates(baseRecipe.preferences, options.date);
+  } catch (error) {
+    sourceCollection = {
+      candidates: [],
+      snapshot: { version: 'source-collection-v1', as_of_date: options.date, requested_source_ids: [], candidate_count: 0, fallback_to_model_search: true, collection_error: String(error?.message || 'collection_failed').slice(0, 120) }
+    };
+  }
+  const recipe = buildRecipeSnapshot(options.date, sourceCollection);
   const generationId = randomUUID();
   const startedAt = new Date().toISOString();
   const generationRunPath = path.join(generationRunsDir, `${options.date}--${generationId}.json`);
@@ -397,18 +423,20 @@ async function main() {
   let candidatePool;
   try {
     items = await requestItems(options.date, recipe, recordAttempt);
-    const pooled = filterAndRankCandidates(items, {
+    const checked = await verifyCandidateUrls(items);
+    const pooled = filterAndRankCandidates(checked.items, {
       topics: recipe.preferences.topics,
       excludedTopics: recipe.preferences.excluded_topics,
       difficultyLevels: recipe.preferences.difficulty_levels,
       sourceWeights: recipe.preferences.source_weights,
       selectedSourceIds: recipe.preferences.selected_source_ids,
       directUrls: recipe.preferences.direct_urls,
+      topicWeights: recipe.preferences.topic_weights,
       noveltyLevel: recipe.preferences.novelty_level,
       reviewEnabled: recipe.preferences.review_enabled
     }, options.date, { count: COUNT });
     items = pooled.items;
-    candidatePool = pooled.snapshot;
+    candidatePool = { ...pooled.snapshot, source_collection: sourceCollection.snapshot, url_checks: checked.checks };
   } catch (error) {
     await writeJson(generationRunPath, {
       ...baseGenerationRun,

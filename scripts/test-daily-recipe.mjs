@@ -6,7 +6,7 @@ const recipe = buildRecipeSnapshot('2026-08-21');
 assert.equal(recipe.schema_version, 'daily-recipe-v1');
 assert.equal(recipe.kind, 'automatic_daily_brew');
 assert.equal(recipe.as_of_date, '2026-08-21');
-assert.deepEqual(recipe.preferences.blend, { new_discoveries: 6, saved_reviews: 2, classic: 1, surprise: 1 });
+assert.deepEqual(recipe.preferences.blend, { new_discoveries: 60, saved_reviews: 20, classic: 10, surprise: 10 });
 assert.equal(recipe.preferences.recipe_id, 'vibe-coding');
 assert.equal(recipe.preferences.editorial_tone, 'hands-on-editor');
 assert.equal(recipe.preferences.brew_method, 'daily-pour');

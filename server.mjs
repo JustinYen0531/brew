@@ -16,7 +16,7 @@ import { buildEditionRecipeResponse } from './api/edition-recipe.mjs';
 import { buildMorningBrewPrompt, buildMorningBrewRecipeSnapshot, getMorningRecipe, publicMorningBrewCatalog } from './morning-brew-recipes.mjs';
 import { getAuthorizedContext, readPersonalEdition, readPersonalRecommendationSignals, sanitizeStoredJson, savePersonalEdition } from './api/edition-storage.mjs';
 import { filterAndRankCandidates } from './candidate-pool.mjs';
-import { collectSourceCandidates } from './source-connectors.mjs';
+import { collectSourceCandidates, verifyCandidateUrls } from './source-connectors.mjs';
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const SITE_FILE = path.join(ROOT, 'outputs', 'vibe-coding-daily-brew', 'index.html');
@@ -547,8 +547,9 @@ async function brew(count, preferences, asOfDate, provider = DEFAULT_PROVIDER, r
   const sourceCollection = await collectSourceCandidates(preferences, asOfDate);
   const requestPreferences = { ...preferences, sourceCandidates: sourceCollection.candidates };
   const items = await mapConcurrent(count, slot => requestWithRetry(key, requestPreferences, asOfDate, slot, selectedProvider, count));
-  const ranked = filterAndRankCandidates(items, preferences, asOfDate, { count });
-  ranked.snapshot = { ...ranked.snapshot, source_collection: sourceCollection.snapshot };
+  const checked = await verifyCandidateUrls(items);
+  const ranked = filterAndRankCandidates(checked.items, preferences, asOfDate, { count });
+  ranked.snapshot = { ...ranked.snapshot, source_collection: sourceCollection.snapshot, url_checks: checked.checks };
   return ranked;
 }
 
