@@ -134,8 +134,14 @@ function topicScore(candidate, preferences) {
   const topics = Array.isArray(preferences?.topics) ? preferences.topics.filter(Boolean) : [];
   if (!topics.length) return 0;
   const haystack = normalized(candidateText(candidate));
-  const matches = topics.filter(topic => haystack.includes(normalized(topic))).length;
-  return matches ? Math.min(2.4, 0.9 + matches * 0.5) : -0.4;
+  const topicWeights = preferences?.topicWeights || preferences?.topic_weights || {};
+  const matchedTopics = topics.filter(topic => haystack.includes(normalized(topic)));
+  if (!matchedTopics.length) return -0.4;
+  const averageWeight = matchedTopics.reduce((sum, topic) => {
+    const weight = Number(topicWeights[topic]);
+    return sum + (Number.isFinite(weight) ? Math.min(5, Math.max(1, weight)) : 3);
+  }, 0) / matchedTopics.length;
+  return Math.min(2.8, 0.6 + matchedTopics.length * 0.45 + averageWeight * 0.18);
 }
 
 function contentStyleScore(candidate, preferences) {

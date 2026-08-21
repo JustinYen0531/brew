@@ -129,6 +129,11 @@ function sanitizePreferences(raw = {}) {
     reviewEnabled: profile.review_enabled,
     onboardingCompleted: profile.onboarding_completed,
     sourceLanguage: profile.source_language,
+    outputLanguage: profile.output_language,
+    topicWeights: profile.topic_weights,
+    blendRatios: profile.blend_ratios,
+    timezone: profile.timezone,
+    morningTime: profile.morning_time,
     selectedSourceIds: profile.selected_source_ids,
     sourceWeights: profile.source_weights,
     specificSources: profile.specific_sources,
@@ -140,7 +145,7 @@ function sanitizePreferences(raw = {}) {
     customSources,
     prompt: typeof raw.prompt === 'string' ? raw.prompt.trim().slice(0, 1000) : '',
     directUrls,
-    language: raw.language === 'en' ? 'en' : 'zh-Hant',
+    language: profile.output_language,
     feedbackSignals
   };
 }
@@ -159,7 +164,11 @@ function preferenceBrief(preferences) {
   const contentStyles = preferences.contentStyles?.join('、') || '未指定內容形式';
   const sourceLanes = preferences.sourceLanes?.join('、') || '未指定來源路徑';
   const difficultyLevels = preferences.difficultyLevels?.join('、') || '普通';
-  return `\n\n【使用者的晨報配方】\n想讀的主題：${topics}\n暫時避開的主題：${excludedTopics}\n偏好的內容形式：${contentStyles}\n偏好的來源路徑：${sourceLanes}\n難度：${difficultyLevels}\n閱讀時間：${preferences.readingMinutes} 分鐘；希望篇數：${preferences.itemCount} 篇；新鮮感：${preferences.noveltyLevel}/5；複習：${preferences.reviewEnabled ? '開啟' : '關閉'}\n預設晨報配方：10 篇時安排 6 篇新發現、2 篇收藏複習、1 篇經典、1 篇意外驚喜；其他篇數按 60%／20%／10%／10% 作方向。\n\n【舊版來源偏好】\n資訊源頭語言偏好：${language}（最後整理仍請使用繁體中文）\n來源機率權重（1=盡量不要，3=正常，5=更多）：${weightedSources}\n來源資料庫中使用者選取的提供者：${providerSources}\n特定社群偏好（prompt 提示）：${specificSources}\n額外 prompt：${preferences.prompt || '沒有額外 prompt'}\n硬性網址來源（若有，只能從這些網址或其頁面翻找）：\n${directSources}\n請嚴格區分「來源推薦／偏好」與「硬性網址」：偏好是排序訊號；硬性網址是來源限制。不要因為某來源被選取，就降低來源證據與日期驗證標準。`;
+  const outputLanguage = preferences.outputLanguage === 'en' ? 'English' : '繁體中文';
+  const topicWeights = Object.entries(preferences.topicWeights || {}).map(([topic, weight]) => `${topic}=${weight}/5`).join('、') || '尚未調整主題權重';
+  const blend = preferences.blendRatios || { new_discoveries: 60, saved_reviews: 20, classic: 10, surprise: 10 };
+  const blendText = `新發現 ${blend.new_discoveries}%／收藏複習 ${blend.saved_reviews}%／經典 ${blend.classic}%／意外驚喜 ${blend.surprise}%`;
+  return `\n\n【使用者的晨報配方】\n想讀的主題：${topics}\n主題權重：${topicWeights}\n暫時避開的主題：${excludedTopics}\n偏好的內容形式：${contentStyles}\n偏好的來源路徑：${sourceLanes}\n難度：${difficultyLevels}\n閱讀時間：${preferences.readingMinutes} 分鐘；希望篇數：${preferences.itemCount} 篇；新鮮感：${preferences.noveltyLevel}/5；複習：${preferences.reviewEnabled ? '開啟' : '關閉'}\n晨報比例：${blendText}\n偏好早晨：${preferences.timezone} ${preferences.morningTime}\n\n【來源偏好】\n資訊源頭語言偏好：${language}\n最後整理語言：${outputLanguage}\n來源機率權重（1=盡量不要，3=正常，5=更多）：${weightedSources}\n來源資料庫中使用者選取的提供者：${providerSources}\n特定社群偏好（prompt 提示）：${specificSources}\n額外 prompt：${preferences.prompt || '沒有額外 prompt'}\n硬性網址來源（若有，只能從這些網址或其頁面翻找）：\n${directSources}\n請嚴格區分「來源推薦／偏好」與「硬性網址」：偏好是排序訊號；硬性網址是來源限制。不要因為某來源被選取，就降低來源證據與日期驗證標準。`;
 }
 
 function allowedSearchDomains(preferences) {

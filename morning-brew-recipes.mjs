@@ -148,13 +148,19 @@ export function buildMorningBrewPrompt(count, preferences = {}, asOfDate) {
   const recipe = getMorningRecipe(preferences.recipeId || preferences.recipe_id);
   const tone = getBrewTone(preferences.editorialTone || preferences.editorial_tone);
   const method = getBrewMethod(preferences.brewMethod || preferences.brew_method);
-  const language = (preferences.sourceLanguage || preferences.source_language) === 'en' ? 'English' : '繁體中文';
+  const sourceLanguage = (preferences.sourceLanguage || preferences.source_language) === 'en' ? 'English' : '繁體中文';
+  const outputLanguage = (preferences.outputLanguage || preferences.output_language) === 'en' ? 'English' : '繁體中文';
   const topics = Array.isArray(preferences.topics) && preferences.topics.length ? preferences.topics.join('、') : recipe.topics.join('、');
   const excludedTopics = Array.isArray(preferences.excludedTopics) && preferences.excludedTopics.length ? preferences.excludedTopics.join('、') : recipe.excludedTopics.join('、');
   const contentStyles = Array.isArray(preferences.contentStyles) && preferences.contentStyles.length ? preferences.contentStyles.join('、') : recipe.defaultContentStyles.join('、');
   const sourceLanes = Array.isArray(preferences.sourceLanes) && preferences.sourceLanes.length ? preferences.sourceLanes.join('、') : recipe.sourceLanes.join('、');
   const difficultyLevels = Array.isArray(preferences.difficultyLevels) && preferences.difficultyLevels.length ? preferences.difficultyLevels.join('、') : '普通';
   const weightedSources = Object.entries(preferences.sourceWeights || {}).map(([source, weight]) => `${source}=${weight}/5`).join('、') || '尚未調整來源權重';
+  const weightedTopics = Object.entries(preferences.topicWeights || preferences.topic_weights || {}).map(([topic, weight]) => `${topic}=${weight}/5`).join('、') || '尚未調整主題權重';
+  const blend = preferences.blendRatios || preferences.blend_ratios || { new_discoveries: 60, saved_reviews: 20, classic: 10, surprise: 10 };
+  const blendText = `新發現 ${Number(blend.new_discoveries ?? 60)}%／收藏複習 ${Number(blend.saved_reviews ?? 20)}%／經典 ${Number(blend.classic ?? 10)}%／意外驚喜 ${Number(blend.surprise ?? 10)}%`;
+  const timezone = preferences.timezone || 'Asia/Taipei';
+  const morningTime = preferences.morningTime || preferences.morning_time || '07:00';
   const selectedSources = [...(preferences.selectedSources || []), ...(preferences.customSources || [])]
     .filter(source => source?.url)
     .map(source => `${source.name || source.platform || '未命名來源'} <${source.url}>`)
@@ -169,7 +175,7 @@ export function buildMorningBrewPrompt(count, preferences = {}, asOfDate) {
     return `${signal?.action || 'feedback'}：${label}${context ? `（${context}）` : ''}`;
   }).join('；') : '';
   return [
-    `資料截點是 ${asOfDate}，資料截點也是 ${asOfDate}。這一壺晨報本次實際必須產出 ${count} 篇，不能多也不能少。請使用可用的 web search，找出在 ${asOfDate} 當天或之前已經存在的、與「${recipe.name}」相關、具體且可重複的實作方法，並整理成繁體中文學習內容。嚴格禁止使用 ${asOfDate} 之後發布、更新或發生的發現，所有 source.published_at 必須小於或等於 ${asOfDate}。`,
+    `資料截點是 ${asOfDate}，資料截點也是 ${asOfDate}。這一壺晨報本次實際必須產出 ${count} 篇，不能多也不能少。請使用可用的 web search，找出在 ${asOfDate} 當天或之前已經存在的、與「${recipe.name}」相關、具體且可重複的實作方法，並整理成${outputLanguage}學習內容。嚴格禁止使用 ${asOfDate} 之後發布、更新或發生的發現，所有 source.published_at 必須小於或等於 ${asOfDate}。`,
     '',
     '【這一壺的主配方】',
     `主題：${recipe.name}`,
@@ -189,8 +195,11 @@ export function buildMorningBrewPrompt(count, preferences = {}, asOfDate) {
     `偏好的來源路徑：${sourceLanes}`,
     `難度：${difficultyLevels}`,
     `閱讀時間：${preferences.readingMinutes || preferences.reading_minutes || 10} 分鐘；希望篇數：${preferences.itemCount || preferences.item_count || count} 篇；新鮮度：${preferences.noveltyLevel || preferences.novelty_level || 3}/5；複習：${preferences.reviewEnabled === false || preferences.review_enabled === false ? '關閉' : '開啟'}`,
-    '晨報比例：10 篇時安排 6 篇新發現、2 篇收藏複習、1 篇經典、1 篇意外驚喜；其他篇數按 60%／20%／10%／10% 作方向。',
-    `來源語言偏好：${language}`,
+    `主題權重：${weightedTopics}`,
+    `晨報比例：${blendText}；實際篇數請依比例取整，但必須剛好產出 ${count} 篇。`,
+    `來源語言偏好：${sourceLanguage}`,
+    `輸出語言：${outputLanguage}`,
+    `偏好早晨：${timezone} ${morningTime}`,
     `來源權重：${weightedSources}`,
     `來源資料庫中已選取的提供者：${selectedSources}`,
     `特定社群偏好：${specificSources}`,
@@ -246,6 +255,7 @@ export function buildMorningBrewRecipeSnapshot({
   const editorialTone = preferences.editorialTone || preferences.editorial_tone || 'hands-on-editor';
   const brewMethod = preferences.brewMethod || preferences.brew_method || 'daily-pour';
   const sourceLanguage = preferences.sourceLanguage || preferences.source_language || 'zh-Hant';
+  const outputLanguage = preferences.outputLanguage || preferences.output_language || 'zh-Hant';
   const selectedSourceIds = recipeArray(preferences, 'selectedSourceIds', 'selected_source_ids', recipe.sourceIds);
   const directUrls = recipeArray(preferences, 'directUrls', 'direct_urls').map(redactRecipeText);
   const sourcePrompt = redactRecipeText(preferences.sourcePrompt || preferences.source_prompt || preferences.prompt || '');
@@ -256,6 +266,7 @@ export function buildMorningBrewRecipeSnapshot({
     editorial_tone: editorialTone,
     brew_method: brewMethod,
     source_language: sourceLanguage,
+    output_language: outputLanguage,
     selected_source_ids: selectedSourceIds,
     source_weights: recipeObject(preferences, 'sourceWeights', 'source_weights'),
     specific_sources: recipeObject(preferences, 'specificSources', 'specific_sources'),
@@ -267,11 +278,14 @@ export function buildMorningBrewRecipeSnapshot({
     content_styles: recipeArray(preferences, 'contentStyles', 'content_styles', recipe.defaultContentStyles),
     source_lanes: recipeArray(preferences, 'sourceLanes', 'source_lanes', recipe.sourceLanes),
     difficulty_levels: recipeArray(preferences, 'difficultyLevels', 'difficulty_levels', ['普通']),
+    topic_weights: recipeObject(preferences, 'topicWeights', 'topic_weights'),
     reading_minutes: Number(preferences.readingMinutes || preferences.reading_minutes || 10),
     item_count: itemCountValue,
     novelty_level: Number(preferences.noveltyLevel || preferences.novelty_level || 3),
     review_enabled: preferences.reviewEnabled !== false && preferences.review_enabled !== false,
-    blend: { new_discoveries: 6, saved_reviews: 2, classic: 1, surprise: 1 }
+    blend: preferences.blendRatios || preferences.blend_ratios || { new_discoveries: 60, saved_reviews: 20, classic: 10, surprise: 10 },
+    timezone: String(preferences.timezone || 'Asia/Taipei').slice(0, 64),
+    morning_time: String(preferences.morningTime || preferences.morning_time || '07:00').slice(0, 5)
   };
   const safePreferences = JSON.parse(redactRecipeText(JSON.stringify(recipePreferences)));
   return {

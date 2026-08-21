@@ -22,6 +22,8 @@ const ALLOWED_ITEM_COUNTS = [5, 10, 15];
 const ALLOWED_RECIPE_IDS = MORNING_BREW_RECIPES.map(recipe => recipe.id);
 const ALLOWED_TONE_IDS = BREW_TONES.map(tone => tone.id);
 const ALLOWED_METHOD_IDS = BREW_METHODS.map(method => method.id);
+const ALLOWED_LANGUAGES = ['zh-Hant', 'en'];
+const DEFAULT_BLEND_RATIOS = { new_discoveries: 60, saved_reviews: 20, classic: 10, surprise: 10 };
 
 function sourceRecord(raw = {}) {
   if (raw?.preferences && typeof raw.preferences === 'object' && !Array.isArray(raw.preferences)) return raw.preferences;
@@ -87,6 +89,38 @@ function normalizeSpecificSources(value) {
   }));
 }
 
+function normalizeTopicWeights(value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
+  return Object.fromEntries(Object.entries(value).slice(0, 20).flatMap(([key, raw]) => {
+    const topic = String(key).trim().slice(0, 80);
+    const number = Number(raw);
+    return topic && Number.isFinite(number) ? [[topic, Math.min(5, Math.max(1, Math.round(number)))]] : [];
+  }));
+}
+
+function normalizeBlendRatios(value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return { ...DEFAULT_BLEND_RATIOS };
+  const keys = Object.keys(DEFAULT_BLEND_RATIOS);
+  const raw = Object.fromEntries(keys.map(key => [key, Number(value[key])]));
+  if (keys.some(key => !Number.isFinite(raw[key]) || raw[key] < 0)) return { ...DEFAULT_BLEND_RATIOS };
+  const total = keys.reduce((sum, key) => sum + raw[key], 0);
+  if (!total) return { ...DEFAULT_BLEND_RATIOS };
+  const scaled = keys.map(key => ({ key, value: Math.round((raw[key] / total) * 100) }));
+  const difference = 100 - scaled.reduce((sum, entry) => sum + entry.value, 0);
+  scaled[0].value += difference;
+  return Object.fromEntries(scaled.map(entry => [entry.key, Math.max(0, entry.value)]));
+}
+
+function normalizeTimezone(value) {
+  const timezone = typeof value === 'string' ? value.trim().slice(0, 64) : '';
+  return /^[A-Za-z0-9_+.-]+(?:\/[A-Za-z0-9_+.-]+){0,2}$/.test(timezone) ? timezone : 'Asia/Taipei';
+}
+
+function normalizeMorningTime(value) {
+  const time = typeof value === 'string' ? value.trim() : '';
+  return /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(time) ? time : '07:00';
+}
+
 export function sanitizePreferenceRecord(raw = {}) {
   const input = sourceRecord(raw);
   const topics = normalizeStringArray(firstDefined(input, 'topics', 'topics'), ARRAY_RULES.topics);
@@ -110,7 +144,12 @@ export function sanitizePreferenceRecord(raw = {}) {
     novelty_level: Math.min(5, Math.max(1, Number.isFinite(Number(firstDefined(input, 'novelty_level', 'noveltyLevel'))) ? Math.round(Number(firstDefined(input, 'novelty_level', 'noveltyLevel'))) : 3)),
     review_enabled: normalizeBoolean(firstDefined(input, 'review_enabled', 'reviewEnabled'), true),
     onboarding_completed: normalizeBoolean(firstDefined(input, 'onboarding_completed', 'onboardingCompleted'), false),
-    source_language: normalizeChoice(firstDefined(input, 'source_language', 'sourceLanguage') ?? input.language, ['zh-Hant', 'en'], 'zh-Hant'),
+    source_language: normalizeChoice(firstDefined(input, 'source_language', 'sourceLanguage') ?? input.language, ALLOWED_LANGUAGES, 'zh-Hant'),
+    output_language: normalizeChoice(firstDefined(input, 'output_language', 'outputLanguage'), ALLOWED_LANGUAGES, 'zh-Hant'),
+    topic_weights: normalizeTopicWeights(firstDefined(input, 'topic_weights', 'topicWeights')),
+    blend_ratios: normalizeBlendRatios(firstDefined(input, 'blend_ratios', 'blendRatios')),
+    timezone: normalizeTimezone(firstDefined(input, 'timezone', 'timeZone')),
+    morning_time: normalizeMorningTime(firstDefined(input, 'morning_time', 'morningTime')),
     selected_source_ids: normalizeSourceIds(firstDefined(input, 'selected_source_ids', 'selectedSourceIds')),
     source_weights: normalizeSourceWeights(firstDefined(input, 'source_weights', 'sourceWeights')),
     specific_sources: normalizeSpecificSources(firstDefined(input, 'specific_sources', 'specificSources')),

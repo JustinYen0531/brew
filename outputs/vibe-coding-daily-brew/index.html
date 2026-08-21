@@ -250,6 +250,21 @@
     .pantry-favorite { color: var(--terracotta); font: 10px var(--mono); margin-left: 8px; }
     .pantry-favorite.super { color: var(--amber); }
     .second-pour-note { color: var(--espresso); font: 11px var(--mono); margin: 16px 0 0; }
+    .second-pour-panel { border-top: 1px solid var(--line); margin-top: 26px; padding-top: 20px; }
+    .second-pour-heading { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; }
+    .second-pour-heading h2 { font: 400 31px/.98 var(--serif); letter-spacing: -.04em; margin: 0; }
+    .second-pour-heading p { color: var(--muted); font: 11px/1.5 var(--mono); margin: 0; }
+    .second-pour-list { margin-top: 12px; }
+    .second-pour-card { border-bottom: 1px solid var(--line); padding: 16px 0; }
+    .second-pour-card h3 { font: 400 23px/1.15 var(--serif); margin: 0 0 7px; }
+    .second-pour-meta { color: var(--muted); font: 10px var(--mono); margin: 0 0 10px; }
+    .second-pour-prompt { color: var(--ink); font: 16px/1.5 var(--serif); margin: 0 0 10px; }
+    .second-pour-answer { border-left: 2px solid var(--amber); color: var(--muted); font: 13px/1.55 var(--serif); margin: 0 0 12px; padding-left: 12px; }
+    .second-pour-actions, .feedback-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+    .second-pour-actions button, .feedback-actions button { border: 1px solid var(--line); background: transparent; color: var(--muted); cursor: pointer; padding: 7px 10px; font: 10px var(--mono); }
+    .second-pour-actions button:hover, .feedback-actions button:hover { border-color: var(--espresso); color: var(--espresso); }
+    .feedback-actions { border-top: 1px solid var(--line); margin: 26px 0 0; padding-top: 16px; }
+    .feedback-actions-label { color: var(--espresso); font: 9px var(--mono); letter-spacing: .1em; margin-right: 2px; padding-top: 8px; }
     .empty-state { color: var(--muted); padding: 30px 0; font: 12px var(--mono); }
 
     .detail-overlay { position: fixed; inset: 0; display: none; z-index: 20; background: rgba(41,35,31,.32); padding: 32px; }
@@ -455,6 +470,8 @@
     .recipe-choice-card strong { display: block; font: 400 23px/1.05 var(--serif); letter-spacing: -.03em; margin-bottom: 9px; }
     .recipe-choice-card p { color: var(--muted); font: 12px/1.5 var(--serif); margin: 0; }
     .recipe-choice input:checked + .recipe-choice-card p { color: rgba(255,250,240,.78); }
+    .flow-topic-section { border-top: 1px solid var(--line); margin-top: 22px; padding-top: 18px; }
+    .flow-topic-section small, #blend-total-note { display: block; color: var(--muted); font: 10px/1.5 var(--mono); margin-top: 10px; }
     .flow-choice-section { border-top: 1px solid var(--line); padding: 18px 0 4px; }
     .flow-choice-label { display: block; color: var(--espresso); font: 9px var(--mono); letter-spacing: .12em; margin-bottom: 10px; }
     .flow-choice-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; }
@@ -618,6 +635,7 @@
 
       <section class="view" id="pantry-view" aria-labelledby="pantry-title">
         <div class="pantry-intro"><div class="eyebrow">把讀過的東西留在手邊</div><h1 id="pantry-title">知識儲藏室</h1><p>這些內容會慢慢長成你的知識庫。收藏、複習，等適合的早晨再回來。</p><p class="second-pour-note" id="second-pour-note">還沒有排好的 Second Pour；收藏一篇，讓它之後回到你的早晨。</p></div>
+        <section class="second-pour-panel" aria-labelledby="second-pour-title"><div class="second-pour-heading"><h2 id="second-pour-title">Second Pour</h2><p>先想起來，再打開答案。</p></div><div class="second-pour-list" id="second-pour-list"></div></section>
         <div class="pantry-toolbar"><div class="pantry-browser"><div class="pantry-browser-caption">瀏覽方式</div><div class="pantry-mode-switch" role="tablist" aria-label="知識儲藏室瀏覽方式"><button class="pantry-mode-button is-active" type="button" data-pantry-mode="favorites" role="tab" aria-selected="true">按收藏</button><button class="pantry-mode-button" type="button" data-pantry-mode="category" role="tab" aria-selected="false">按類別</button><button class="pantry-mode-button" type="button" data-pantry-mode="difficulty" role="tab" aria-selected="false">按難度</button></div><div class="filter-list" id="favorite-filter-list" aria-label="依收藏篩選學習"></div><div class="filter-list is-hidden" id="category-filter-list" aria-label="依類別篩選學習"></div><div class="filter-list is-hidden" id="difficulty-filter-list" aria-label="依難度篩選學習"></div></div><label><span class="sr-only">搜尋知識儲藏室</span><input class="pantry-search" id="pantry-search" type="search" placeholder="搜尋知識儲藏室…"></label></div>
         <div class="pantry-list" id="pantry-list"></div>
       </section>
@@ -706,8 +724,9 @@
             <span class="onboarding-step" data-flow-indicator="3">03 設定早晨</span>
           </div>
           <section class="onboarding-flow-step is-active" data-flow-step="1" aria-labelledby="flow-step-one-title">
-            <div class="onboarding-flow-heading"><span class="onboarding-flow-number">01</span><div><h3 id="flow-step-one-title">今天想訂哪份報紙？</h3><p>先選一個你想靠近的科技方向。每份報紙都有自己的編輯範圍與推薦來源。</p></div></div>
+            <div class="onboarding-flow-heading"><span class="onboarding-flow-number">01</span><div><h3 id="flow-step-one-title">今天想訂哪份報紙？</h3><p>先選一個你想靠近的科技方向，再挑幾個今天早上真正想讀的標籤。</p></div></div>
             <div class="recipe-choice-grid" id="recipe-choice-list" role="radiogroup" aria-label="晨報主配方"></div>
+            <div class="flow-topic-section"><span class="flow-choice-label">這份報紙，今天想多聽哪些主題？</span><div class="onboarding-tag-list" id="flow-topic-list" role="group" aria-label="晨報主題標籤"></div><small>標籤會影響候選內容的排序；之後仍可在配方細節裡調整。</small></div>
           </section>
           <section class="onboarding-flow-step" data-flow-step="2" aria-labelledby="flow-step-two-title" hidden>
             <div class="onboarding-flow-heading"><span class="onboarding-flow-number">02</span><div><h3 id="flow-step-two-title">想由哪種咖啡師替你整理？</h3><p>同一份報紙，可以有不同的說話方式。選一種你早上讀起來最舒服的節奏。</p></div></div>
@@ -841,6 +860,12 @@
         <div class="selected-source-list" id="selected-source-list" aria-label="已選取的配方來源"></div>
       </section>
 
+      <section class="preferences-section" aria-labelledby="topic-weight-title">
+        <h3 id="topic-weight-title">主題出現機會</h3>
+        <p>這是你的口味旋鈕。1 代表少一點，3 是正常，5 代表希望晨報多端上這個方向。</p>
+        <div class="source-weight-grid" id="topic-weight-list" aria-label="主題出現機會設定"></div>
+      </section>
+
       <section class="preferences-section" aria-labelledby="source-weight-title">
         <h3 id="source-weight-title">來源出現機會</h3>
         <p>這是偏好，不是硬性命令。1 代表盡量少出現，3 是正常，5 代表希望多遇到這類來源。</p>
@@ -883,6 +908,28 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
         <h3 id="language-title">資訊源頭語言</h3>
         <p>目前支援中文或英文；這會影響來源搜尋時優先尋找哪種語言，不會改變這個中文介面的閱讀語言。</p>
         <div class="language-options" role="radiogroup" aria-label="資訊源頭語言配方"><label class="language-option"><input type="radio" name="preference-language" value="zh-Hant" checked><span>繁體中文</span></label><label class="language-option"><input type="radio" name="preference-language" value="en"><span>English</span></label></div>
+      </section>
+
+      <section class="preferences-section" aria-labelledby="output-language-title">
+        <h3 id="output-language-title">晨報端上桌的語言</h3>
+        <p>來源可以用一種語言搜尋，最後端到你面前的學習內容則可以選另一種語言。</p>
+        <div class="language-options" role="radiogroup" aria-label="晨報輸出語言配方"><label class="language-option"><input type="radio" name="preference-output-language" value="zh-Hant" checked><span>繁體中文</span></label><label class="language-option"><input type="radio" name="preference-output-language" value="en"><span>English</span></label></div>
+      </section>
+
+      <section class="preferences-section" aria-labelledby="rhythm-title">
+        <h3 id="rhythm-title">這壺的比例與早晨</h3>
+        <p>比例會影響採編時留給新發現、複習、經典與意外驚喜的空間。時區與時間先記在配方裡，之後接上自動遞送時就能沿用。</p>
+        <div class="source-weight-grid" aria-label="晨報內容比例">
+          <label class="source-weight"><span>新發現 %</span><input class="preference-input" id="preference-blend-new" type="number" min="0" max="100" step="1"></label>
+          <label class="source-weight"><span>收藏複習 %</span><input class="preference-input" id="preference-blend-review" type="number" min="0" max="100" step="1"></label>
+          <label class="source-weight"><span>經典 %</span><input class="preference-input" id="preference-blend-classic" type="number" min="0" max="100" step="1"></label>
+          <label class="source-weight"><span>意外驚喜 %</span><input class="preference-input" id="preference-blend-surprise" type="number" min="0" max="100" step="1"></label>
+        </div>
+        <div class="source-specific-grid">
+          <label class="preference-field"><span>晨報時區</span><select class="preference-input" id="preference-timezone"><option value="Asia/Taipei">Asia/Taipei（台北）</option><option value="UTC">UTC</option><option value="America/Los_Angeles">America/Los_Angeles（洛杉磯）</option><option value="America/New_York">America/New_York（紐約）</option><option value="Europe/London">Europe/London（倫敦）</option></select></label>
+          <label class="preference-field"><span>希望幾點讀到晨報</span><input class="preference-input" id="preference-morning-time" type="time" value="07:00"></label>
+        </div>
+        <small id="blend-total-note">四項比例合計 100%。</small>
       </section>
 
       <section class="preferences-section" aria-labelledby="provider-title">
@@ -960,9 +1007,9 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
       methods: [{ id: 'concentrated-brief', name: '濃縮快報', description: '篇幅短，早晨先掌握最重要的幾件事。' }, { id: 'daily-pour', name: '每日手沖', description: '摘要、例子與實作保持平衡。' }, { id: 'slow-special', name: '慢萃專題', description: '篇數少一點，每篇留下更完整的脈絡。' }]
     };
     let morningRecipeCatalog = fallbackMorningRecipeCatalog;
-    const defaultPreferences = { recipeId: 'vibe-coding', editorialTone: 'hands-on-editor', brewMethod: 'daily-pour', selectedSourceIds: [...defaultSourceIds], selectedSources: [], customSources: [], sourceWeights: {}, specificSources: {}, prompt: '', directUrls: [], language: 'zh-Hant', provider: 'openrouter', apiKeys: { openrouter: '', openai: '' } };
+    const defaultPreferences = { recipeId: 'vibe-coding', editorialTone: 'hands-on-editor', brewMethod: 'daily-pour', selectedSourceIds: [...defaultSourceIds], selectedSources: [], customSources: [], sourceWeights: {}, specificSources: {}, topicWeights: {}, prompt: '', directUrls: [], language: 'zh-Hant', sourceLanguage: 'zh-Hant', outputLanguage: 'zh-Hant', blendRatios: { new_discoveries: 60, saved_reviews: 20, classic: 10, surprise: 10 }, timezone: 'Asia/Taipei', morningTime: '07:00', provider: 'openrouter', apiKeys: { openrouter: '', openai: '' } };
     const authStorageKey = 'vibe-coding-daily-brew:auth-session';
-    const onboardingDefaults = { recipe_id: 'vibe-coding', editorial_tone: 'hands-on-editor', brew_method: 'daily-pour', topics: [...fallbackMorningRecipeCatalog.recipes[0].topics], excluded_topics: [], content_styles: [...fallbackMorningRecipeCatalog.recipes[0].defaultContentStyles], source_lanes: [...fallbackMorningRecipeCatalog.recipes[0].sourceLanes], difficulty_levels: ['初學者'], reading_minutes: 10, item_count: 10, novelty_level: 3, review_enabled: true, onboarding_completed: false };
+    const onboardingDefaults = { recipe_id: 'vibe-coding', editorial_tone: 'hands-on-editor', brew_method: 'daily-pour', topics: [...fallbackMorningRecipeCatalog.recipes[0].topics], excluded_topics: [], content_styles: [...fallbackMorningRecipeCatalog.recipes[0].defaultContentStyles], source_lanes: [...fallbackMorningRecipeCatalog.recipes[0].sourceLanes], difficulty_levels: ['初學者'], reading_minutes: 10, item_count: 10, novelty_level: 3, review_enabled: true, topic_weights: {}, output_language: 'zh-Hant', blend_ratios: { new_discoveries: 60, saved_reviews: 20, classic: 10, surprise: 10 }, timezone: 'Asia/Taipei', morning_time: '07:00', onboarding_completed: false };
     const onboardingOptions = {
       topics: [],
       content_styles: [],
@@ -1001,6 +1048,34 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
       return [...new Set(value.map(item => String(item || '').trim().slice(0, maxLength)).filter(Boolean))].slice(0, limit);
     }
 
+    function normalizeTopicWeights(value) {
+      if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
+      return Object.fromEntries(Object.entries(value).slice(0, 20).map(([key, item]) => [String(key).trim().slice(0, 80), clampNumber(item, 1, 5, 3)]).filter(([key]) => key));
+    }
+
+    function normalizeBlendRatios(value) {
+      const fallback = { ...defaultPreferences.blendRatios };
+      if (!value || typeof value !== 'object' || Array.isArray(value)) return fallback;
+      const keys = Object.keys(fallback);
+      const numbers = Object.fromEntries(keys.map(key => [key, Number(value[key])]));
+      if (keys.some(key => !Number.isFinite(numbers[key]) || numbers[key] < 0)) return fallback;
+      const total = keys.reduce((sum, key) => sum + numbers[key], 0);
+      if (!total) return fallback;
+      const result = keys.map(key => [key, Math.max(0, Math.round((numbers[key] / total) * 100))]);
+      result[0][1] += 100 - result.reduce((sum, [, item]) => sum + item, 0);
+      return Object.fromEntries(result);
+    }
+
+    function normalizeTimezone(value) {
+      const timezone = String(value || '').trim().slice(0, 64);
+      return /^[A-Za-z0-9_+.-]+(?:\/[A-Za-z0-9_+.-]+){0,2}$/.test(timezone) ? timezone : defaultPreferences.timezone;
+    }
+
+    function normalizeMorningTime(value) {
+      const time = String(value || '').trim();
+      return /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(time) ? time : defaultPreferences.morningTime;
+    }
+
     function normalizeSourceSettings(value = {}) {
       const source = value && typeof value === 'object' ? value : {};
       const selectedSourceIds = normalizeStringList(Array.isArray(source.selected_source_ids) ? source.selected_source_ids : source.selectedSourceIds, 20, 120);
@@ -1010,7 +1085,8 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
       const rawSpecific = source.specific_sources || source.specificSources;
       const specificSources = rawSpecific && typeof rawSpecific === 'object' && !Array.isArray(rawSpecific) ? Object.fromEntries(Object.entries(rawSpecific).slice(0, 20).map(([key, item]) => [String(key).slice(0, 120), String(item || '').trim().slice(0, 160)]).filter(([, item]) => item)) : {};
       const sourcePrompt = String(source.source_prompt ?? source.sourcePrompt ?? source.prompt ?? '').trim().slice(0, 1000);
-      return { selectedSourceIds, selectedSources: Array.isArray(source.selectedSources) ? source.selectedSources : [], sourceWeights, specificSources, directUrls, prompt: sourcePrompt, sourcePrompt, language: source.source_language === 'en' || source.sourceLanguage === 'en' || source.language === 'en' ? 'en' : 'zh-Hant' };
+      const sourceLanguage = source.source_language === 'en' || source.sourceLanguage === 'en' ? 'en' : 'zh-Hant';
+      return { selectedSourceIds, selectedSources: Array.isArray(source.selectedSources) ? source.selectedSources : [], sourceWeights, specificSources, directUrls, prompt: sourcePrompt, sourcePrompt, language: sourceLanguage, sourceLanguage };
     }
 
     function normalizeOnboardingPreferences(value = {}) {
@@ -1027,6 +1103,9 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
       const topics = valuesFor('topics').length ? valuesFor('topics') : [...(recipe.topics || [])];
       const contentStyles = valuesFor('content_styles').length ? valuesFor('content_styles') : [...(recipe.defaultContentStyles || [])];
       const sourceLanes = valuesFor('source_lanes').length ? valuesFor('source_lanes') : [...(recipe.sourceLanes || [])];
+      const topicWeights = normalizeTopicWeights(source.topic_weights || source.topicWeights);
+      const blendRatios = normalizeBlendRatios(source.blend_ratios || source.blendRatios);
+      const outputLanguage = source.output_language === 'en' || source.outputLanguage === 'en' ? 'en' : 'zh-Hant';
       return {
         recipe_id: recipeId,
         recipeId,
@@ -1047,6 +1126,15 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
         itemCount,
         novelty_level: clampNumber(source.novelty_level, 1, 5, onboardingDefaults.novelty_level),
         review_enabled: source.review_enabled !== false,
+        topic_weights: topicWeights,
+        topicWeights,
+        output_language: outputLanguage,
+        outputLanguage,
+        blend_ratios: blendRatios,
+        blendRatios,
+        timezone: normalizeTimezone(source.timezone || source.timeZone),
+        morning_time: normalizeMorningTime(source.morning_time || source.morningTime),
+        morningTime: normalizeMorningTime(source.morning_time || source.morningTime),
         onboarding_completed: source.onboarding_completed === true
       };
     }
@@ -1259,7 +1347,8 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
       document.getElementById('recipe-styles').textContent = `${tone?.name || '實作導向'} · ${method?.name || '每日手沖'}`;
       document.getElementById('recipe-sources').textContent = `${(recipe.selectedSourceIds || []).length || 10} 個來源 · ${recipeText(recipe.sourceLanes || recipe.source_lanes)}`;
       document.getElementById('recipe-rhythm').textContent = `${recipe.item_count} 篇 · ${recipe.reading_minutes} 分鐘`;
-      document.getElementById('recipe-rhythm-detail').textContent = `新鮮度 ${recipe.novelty_level} · ${recipe.review_enabled ? '會帶回複習' : '暫不安排複習'}`;
+      const blend = recipe.blendRatios || recipe.blend_ratios || defaultPreferences.blendRatios;
+      document.getElementById('recipe-rhythm-detail').textContent = `新鮮 ${blend.new_discoveries}% · 複習 ${blend.saved_reviews}% · ${recipe.review_enabled ? '會帶回複習' : '暫不安排複習'}`;
       document.getElementById('recipe-note').textContent = authProfile
         ? '這些內容會保存給你的匿名帳號。暱稱是親切的顯示方式，真正把資料分開的是系統內部的帳號 ID。'
         : '這個帳號目前還沒有稱呼；你可以關閉後重新建立一個暱稱帳號，或繼續使用原本已保存的配方。';
@@ -1322,13 +1411,24 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
       renderExcludedTopics();
     }
 
-    function renderOnboardingChoices() {
+    function renderFlowTopics(selectedRecipeId = onboardingDefaults.recipe_id, selectedTopics = []) {
+      const topicList = document.getElementById('flow-topic-list');
+      if (!topicList) return;
+      const selectedRecipe = clientMorningRecipe(selectedRecipeId);
+      const topics = Array.isArray(selectedRecipe.topics) ? selectedRecipe.topics : [];
+      const selected = new Set(Array.isArray(selectedTopics) && selectedTopics.length ? selectedTopics : topics);
+      topicList.innerHTML = topics.map(topic => `<label class="onboarding-tag"><input type="checkbox" data-flow-field="topics" value="${escapeHtml(topic)}" ${selected.has(topic) ? 'checked' : ''}><span>${escapeHtml(topic)}</span></label>`).join('');
+    }
+
+    function renderOnboardingChoices(selectedRecipeId = onboardingDefaults.recipe_id, selectedTopics = []) {
       const recipeList = document.getElementById('recipe-choice-list');
       const toneList = document.getElementById('tone-choice-list');
       const methodList = document.getElementById('method-choice-list');
       if (recipeList) recipeList.innerHTML = morningRecipeCatalog.recipes.map(recipe => `<div class="recipe-choice"><input id="flow-recipe-${escapeHtml(recipe.id)}" type="radio" name="flow_recipe" data-flow-field="recipe_id" value="${escapeHtml(recipe.id)}"><label class="recipe-choice-card" for="flow-recipe-${escapeHtml(recipe.id)}"><span class="recipe-choice-kicker">${escapeHtml(recipe.kicker || '今日主配方')}</span><strong>${escapeHtml(recipe.name)}</strong><p>${escapeHtml(recipe.description)}</p></label></div>`).join('');
       if (toneList) toneList.innerHTML = morningRecipeCatalog.tones.map(tone => `<div class="flow-choice-card"><label><input type="radio" name="flow_tone" data-flow-field="editorial_tone" value="${escapeHtml(tone.id)}"><span><strong>${escapeHtml(tone.name)}</strong><small>${escapeHtml(tone.description)}</small></span></label></div>`).join('');
       if (methodList) methodList.innerHTML = morningRecipeCatalog.methods.map(method => `<div class="flow-choice-card"><label><input type="radio" name="flow_method" data-flow-field="brew_method" value="${escapeHtml(method.id)}"><span><strong>${escapeHtml(method.name)}</strong><small>${escapeHtml(method.description)}</small></span></label></div>`).join('');
+      renderFlowTopics(selectedRecipeId, selectedTopics);
+      recipeList?.querySelectorAll('[data-flow-field="recipe_id"]').forEach(input => input.addEventListener('change', () => renderFlowTopics(input.value, [])));
     }
 
     function setOnboardingStep(step) {
@@ -1348,7 +1448,7 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
     function fillOnboardingForm(value = {}) {
       const recipe = normalizeOnboardingPreferences(value);
       onboardingExcludedTopics = [...recipe.excluded_topics];
-      renderOnboardingChoices();
+      renderOnboardingChoices(recipe.recipeId, recipe.topics);
       document.querySelectorAll('[data-flow-field]').forEach(input => {
         const field = input.dataset.flowField;
         if (input.type === 'checkbox') input.checked = recipe[field] !== false;
@@ -1387,7 +1487,7 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
         recipe_id: recipeId,
         editorial_tone: scalarField('editorial_tone'),
         brew_method: scalarField('brew_method'),
-        topics: recipe.topics,
+         topics: arrayField('topics').length ? arrayField('topics') : recipe.topics,
         excluded_topics: onboardingExcludedTopics,
         content_styles: recipe.defaultContentStyles,
         source_lanes: recipe.sourceLanes,
@@ -1395,8 +1495,13 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
         reading_minutes: Number(scalarField('reading_minutes')) || 10,
         item_count: Number(scalarField('item_count')) || 10,
         novelty_level: Number(scalarField('novelty_level')) || 3,
-        review_enabled: document.querySelector('[data-flow-field="review_enabled"]')?.checked !== false,
-        onboarding_completed: true
+         review_enabled: document.querySelector('[data-flow-field="review_enabled"]')?.checked !== false,
+         topic_weights: recipe.topic_weights,
+         output_language: recipe.output_language,
+         blend_ratios: recipe.blend_ratios,
+         timezone: recipe.timezone,
+         morning_time: recipe.morning_time,
+         onboarding_completed: true
       });
     }
 
@@ -1422,7 +1527,12 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
         novelty_level: normalized.novelty_level,
         review_enabled: normalized.review_enabled,
         onboarding_completed: normalized.onboarding_completed,
-        source_language: normalized.language,
+        source_language: normalized.sourceLanguage || normalized.language,
+        output_language: normalized.outputLanguage,
+        topic_weights: normalized.topicWeights,
+        blend_ratios: normalized.blendRatios,
+        timezone: normalized.timezone,
+        morning_time: normalized.morningTime,
         selected_source_ids: normalized.selectedSourceIds,
         source_weights: normalized.sourceWeights,
         specific_sources: normalized.specificSources,
@@ -1872,16 +1982,35 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
       status.textContent = `${selectedSource.name} 已加入你的配方來源。`;
     }
 
+    function renderTopicWeights() {
+      const container = document.getElementById('topic-weight-list');
+      if (!container) return;
+      const recipe = clientMorningRecipe(brewPreferences.recipeId);
+      const weights = normalizeTopicWeights(brewPreferences.topicWeights || brewPreferences.topic_weights);
+      container.innerHTML = (recipe.topics || []).map(topic => `<label class="source-weight"><span>${escapeHtml(topic)}</span><select data-topic-weight="${escapeHtml(topic)}"><option value="1">1 · 少一點</option><option value="2">2</option><option value="3">3 · 正常</option><option value="4">4</option><option value="5">5 · 多一點</option></select></label>`).join('');
+      container.querySelectorAll('[data-topic-weight]').forEach(input => { input.value = String(clampNumber(weights[input.dataset.topicWeight], 1, 5, 3)); });
+    }
+
     function populatePreferences() {
       document.getElementById('preference-prompt').value = brewPreferences.prompt || '';
       document.getElementById('preference-direct-urls').value = (brewPreferences.directUrls || []).join('\n');
       document.querySelectorAll('[data-source-weight]').forEach(input => { input.value = String(clampNumber(brewPreferences.sourceWeights?.[input.dataset.sourceWeight], 1, 5, 3)); });
       document.querySelectorAll('[data-specific-source]').forEach(input => { input.value = brewPreferences.specificSources?.[input.dataset.specificSource] || ''; });
+      renderTopicWeights();
       const apiKeys = normalizeApiKeys(brewPreferences.apiKeys);
       document.getElementById('preference-openrouter-key').value = apiKeys.openrouter;
       document.getElementById('preference-openai-key').value = apiKeys.openai;
-      const language = document.querySelector(`input[name="preference-language"][value="${brewPreferences.language === 'en' ? 'en' : 'zh-Hant'}"]`);
+      const language = document.querySelector(`input[name="preference-language"][value="${brewPreferences.sourceLanguage === 'en' ? 'en' : 'zh-Hant'}"]`);
       if (language) language.checked = true;
+      const outputLanguage = document.querySelector(`input[name="preference-output-language"][value="${brewPreferences.outputLanguage === 'en' ? 'en' : 'zh-Hant'}"]`);
+      if (outputLanguage) outputLanguage.checked = true;
+      const blend = normalizeBlendRatios(brewPreferences.blendRatios || brewPreferences.blend_ratios);
+      document.getElementById('preference-blend-new').value = String(blend.new_discoveries);
+      document.getElementById('preference-blend-review').value = String(blend.saved_reviews);
+      document.getElementById('preference-blend-classic').value = String(blend.classic);
+      document.getElementById('preference-blend-surprise').value = String(blend.surprise);
+      document.getElementById('preference-timezone').value = normalizeTimezone(brewPreferences.timezone);
+      document.getElementById('preference-morning-time').value = normalizeMorningTime(brewPreferences.morningTime || brewPreferences.morning_time);
       const provider = document.querySelector(`input[name="brew-provider"][value="${['openrouter', 'openai', 'codex'].includes(brewPreferences.provider) ? brewPreferences.provider : 'openrouter'}"]`);
       if (provider) provider.checked = true;
       const mainRecipe = clientMorningRecipe(brewPreferences.recipeId);
@@ -1893,8 +2022,10 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
       const selectedSourceIds = [...new Set(brewPreferences.selectedSourceIds || [])].slice(0, 20);
       const provider = document.querySelector('input[name="brew-provider"]:checked')?.value;
       const sourceWeights = Object.fromEntries([...document.querySelectorAll('[data-source-weight]')].map(input => [input.dataset.sourceWeight, clampNumber(input.value, 1, 5, 3)]));
+      const topicWeights = Object.fromEntries([...document.querySelectorAll('[data-topic-weight]')].map(input => [input.dataset.topicWeight, clampNumber(input.value, 1, 5, 3)]));
       const specificSources = Object.fromEntries([...document.querySelectorAll('[data-specific-source]')].map(input => [input.dataset.specificSource, input.value.trim().slice(0, 160)]).filter(([, value]) => value));
-      return { ...brewPreferences, selectedSourceIds, selectedSources: selectedSourceIds.map(sourceById).filter(Boolean), sourceWeights, specificSources, prompt: document.getElementById('preference-prompt').value.trim(), directUrls: document.getElementById('preference-direct-urls').value.split(/\r?\n/).map(url => url.trim()).filter(Boolean), language: document.querySelector('input[name="preference-language"]:checked')?.value === 'en' ? 'en' : 'zh-Hant', provider: ['openrouter', 'openai', 'codex'].includes(provider) ? provider : 'openrouter', apiKeys: normalizeApiKeys({ openrouter: document.getElementById('preference-openrouter-key').value, openai: document.getElementById('preference-openai-key').value }) };
+      const blendRatios = normalizeBlendRatios({ new_discoveries: document.getElementById('preference-blend-new').value, saved_reviews: document.getElementById('preference-blend-review').value, classic: document.getElementById('preference-blend-classic').value, surprise: document.getElementById('preference-blend-surprise').value });
+      return { ...brewPreferences, selectedSourceIds, selectedSources: selectedSourceIds.map(sourceById).filter(Boolean), sourceWeights, topicWeights, specificSources, prompt: document.getElementById('preference-prompt').value.trim(), directUrls: document.getElementById('preference-direct-urls').value.split(/\r?\n/).map(url => url.trim()).filter(Boolean), sourceLanguage: document.querySelector('input[name="preference-language"]:checked')?.value === 'en' ? 'en' : 'zh-Hant', outputLanguage: document.querySelector('input[name="preference-output-language"]:checked')?.value === 'en' ? 'en' : 'zh-Hant', blendRatios, timezone: normalizeTimezone(document.getElementById('preference-timezone').value), morningTime: normalizeMorningTime(document.getElementById('preference-morning-time').value), language: document.querySelector('input[name="preference-language"]:checked')?.value === 'en' ? 'en' : 'zh-Hant', provider: ['openrouter', 'openai', 'codex'].includes(provider) ? provider : 'openrouter', apiKeys: normalizeApiKeys({ openrouter: document.getElementById('preference-openrouter-key').value, openai: document.getElementById('preference-openai-key').value }) };
     }
 
     function savePreferences(showStatus = true) {
@@ -1966,6 +2097,127 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
         button.addEventListener('click', event => { event.stopPropagation(); cycleFavoriteItem(pantryItemsByKey.get(button.dataset.favoriteKey)); });
       });
     }
+
+    function sourceSnapshotForItem(item) {
+      return {
+        title: item?.title || '',
+        url: item?.url || '',
+        date: item?.date || '',
+        category: item?.category || '',
+        difficulty: normalizeDifficulty(item?.difficulty),
+        sourceType: item?.sourceType || item?.source || '',
+        takeaway: item?.takeaway || '',
+        principle: item?.principle || '',
+        problem: item?.problem || '',
+        tryIt: item?.tryIt || '',
+        tradeoffs: item?.tradeoffs || ''
+      };
+    }
+
+    function reviewItemFromRow(row) {
+      const snapshot = row?.source_snapshot && typeof row.source_snapshot === 'object' ? row.source_snapshot : {};
+      const existing = pantryItemsByKey.get(row?.lesson_key) || lessons.find(item => favoriteKey(item) === row?.lesson_key);
+      if (existing) return existing;
+      return {
+        n: '',
+        title: snapshot.title || '未命名 Second Pour',
+        takeaway: snapshot.takeaway || '',
+        problem: snapshot.problem || '',
+        principle: snapshot.principle || '',
+        tryIt: snapshot.tryIt || '',
+        tradeoffs: snapshot.tradeoffs || '',
+        prompt: row?.prompt || '還記得這個原則解決什麼問題嗎？',
+        evidence: '這篇內容來自你的個人複習佇列。',
+        url: snapshot.url || '',
+        source: snapshot.sourceType || '個人收藏',
+        sourceType: snapshot.sourceType || '個人收藏',
+        date: snapshot.date || row?.created_at || '',
+        category: snapshot.category || '學習回訪',
+        difficulty: normalizeDifficulty(snapshot.difficulty),
+        timeless: 0,
+        importance: 0,
+        heat: 0,
+        time: '30 秒'
+      };
+    }
+
+    function renderSecondPour() {
+      const list = document.getElementById('second-pour-list');
+      if (!list) return;
+      if (!authUser) {
+        list.innerHTML = '<p class="empty-state">登入後，這裡會放進你曾經收藏、現在值得想起來的內容。</p>';
+        return;
+      }
+      const today = localDateKey();
+      const due = reviewQueue.filter(row => row?.status === 'pending' && (!row.due_on || row.due_on <= today));
+      if (!due.length) {
+        const upcoming = reviewQueue.filter(row => row?.status === 'pending').length;
+        list.innerHTML = `<p class="empty-state">今天還沒有到期的 Second Pour。${upcoming ? ` 已有 ${upcoming} 篇排在後面的早晨。` : '收藏一篇，讓它之後回到你的早晨。'}</p>`;
+        return;
+      }
+      list.innerHTML = due.map(row => {
+        const item = reviewItemFromRow(row);
+        const snapshot = row.source_snapshot || {};
+        const answer = snapshot.principle || snapshot.takeaway || '打開原文，重新看看當時留下的重點。';
+        const readDate = snapshot.date ? `你在 ${escapeHtml(snapshot.date)} 讀過這個。` : '這篇內容曾經來過你的早晨。';
+        return `<article class="second-pour-card" data-review-card="${escapeHtml(row.id || row.lesson_key)}"><h3>${escapeHtml(item.title)}</h3><p class="second-pour-meta">${readDate} · ${escapeHtml(normalizeDifficulty(item.difficulty))} · 第 ${escapeHtml(row.repetition || 1)} 次回訪</p><p class="second-pour-prompt">${escapeHtml(row.prompt || '還記得這個原則解決什麼問題嗎？')}</p><p class="second-pour-answer" data-review-answer hidden>${escapeHtml(answer)}</p><div class="second-pour-actions"><button type="button" data-review-reveal>先想起來</button><button type="button" data-review-open="${escapeHtml(row.lesson_key)}">打開原文</button><button type="button" data-review-action="reviewed">已複習</button><button type="button" data-review-action="skipped">稍後再喝</button></div></article>`;
+      }).join('');
+      list.querySelectorAll('[data-review-reveal]').forEach(button => button.addEventListener('click', () => {
+        const answer = button.closest('[data-review-card]')?.querySelector('[data-review-answer]');
+        if (!answer) return;
+        answer.hidden = !answer.hidden;
+        button.textContent = answer.hidden ? '先想起來' : '收起答案';
+      }));
+      list.querySelectorAll('[data-review-open]').forEach(button => button.addEventListener('click', () => {
+        const row = due.find(entry => entry.lesson_key === button.dataset.reviewOpen);
+        if (row) openLessonItem(reviewItemFromRow(row));
+      }));
+      list.querySelectorAll('[data-review-action]').forEach(button => button.addEventListener('click', () => {
+        const card = button.closest('[data-review-card]');
+        const row = due.find(entry => String(entry.id || entry.lesson_key) === card?.dataset.reviewCard);
+        if (row) void syncReviewFeedback(row, button.dataset.reviewAction).catch(error => setStatus(document.getElementById('auth-account-status'), error.message || 'Second Pour 狀態暫時無法保存。', true));
+      }));
+    }
+
+    async function syncReviewFeedback(row, action) {
+      if (!authUser || !authSession?.access_token || location.protocol === 'file:') return;
+      const response = await authFetch('/api/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lesson_key: row.lesson_key, edition_id: row.edition_id || null, action, source_snapshot: row.source_snapshot || {} })
+      });
+      const payload = await responsePayload(response);
+      if (!response.ok) throw apiError(payload, response.status, 'Second Pour 狀態暫時無法保存。');
+      await hydratePersonalSignals();
+    }
+
+    async function syncItemFeedback(item, action) {
+      if (!authUser || !authSession?.access_token || location.protocol === 'file:') {
+        setStatus(document.getElementById('detail-feedback-status'), '登入後，這個回饋才會帶進下一壺。', true);
+        return;
+      }
+      const response = await authFetch('/api/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lesson_key: favoriteKey(item), edition_id: item.edition_id || currentEditionId || null, action, source_snapshot: sourceSnapshotForItem(item) })
+      });
+      const payload = await responsePayload(response);
+      if (!response.ok) throw apiError(payload, response.status, '這次回饋暫時無法保存。');
+      reviewQueue = Array.isArray(payload.review_queue) ? payload.review_queue : reviewQueue;
+      setStatus(document.getElementById('detail-feedback-status'), '收到。下一壺會記得這個方向。');
+      renderSecondPour();
+    }
+
+    function bindFeedbackButtons(item) {
+      detailContent.querySelectorAll('[data-feedback-action]').forEach(button => {
+        button.addEventListener('click', event => {
+          event.stopPropagation();
+          button.disabled = true;
+          void syncItemFeedback(item, button.dataset.feedbackAction).catch(error => setStatus(document.getElementById('detail-feedback-status'), error.message || '回饋暫時無法保存。', true)).finally(() => { button.disabled = false; });
+        });
+      });
+    }
+
     async function syncFavoriteFeedback(item, nextState) {
       if (!authUser || !authSession?.access_token || location.protocol === 'file:') return;
       const action = nextState === 1 ? 'starred' : nextState === 2 ? 'super_starred' : 'unstarred';
@@ -1976,7 +2228,7 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
           lesson_key: favoriteKey(item),
           edition_id: item.edition_id || currentEditionId || null,
           action,
-          source_snapshot: { title: item.title, url: item.url, date: item.date, category: item.category, difficulty: item.difficulty, sourceType: item.sourceType, takeaway: item.takeaway, principle: item.principle }
+          source_snapshot: sourceSnapshotForItem(item)
         })
       });
       const payload = await responsePayload(response);
@@ -1993,7 +2245,7 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
           lesson_key: favoriteKey(item),
           edition_id: item.edition_id,
           action: 'read',
-          source_snapshot: { title: item.title, url: item.url, date: item.date, category: item.category, difficulty: item.difficulty, sourceType: item.sourceType, takeaway: item.takeaway, principle: item.principle }
+          source_snapshot: sourceSnapshotForItem(item)
         })
       });
       const payload = await responsePayload(response);
@@ -2090,11 +2342,16 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
       if (!note) return;
       if (!authUser) {
         note.textContent = '登入後，收藏的內容會在合適的早晨回來；那就是你的 Second Pour。';
+        renderSecondPour();
         return;
       }
-      note.textContent = reviewQueue.length
-        ? `今天有 ${reviewQueue.length} 篇 Second Pour 在等你；先回想，再打開原文。`
-        : '還沒有到期的 Second Pour；收藏一篇，讓它之後回到你的早晨。';
+      const dueCount = reviewQueue.filter(row => row?.status === 'pending' && (!row.due_on || row.due_on <= localDateKey())).length;
+      note.textContent = dueCount
+        ? `今天有 ${dueCount} 篇 Second Pour 在等你；先回想，再打開原文。`
+        : reviewQueue.length
+          ? `後面的早晨已排好 ${reviewQueue.length} 篇 Second Pour。`
+          : '還沒有到期的 Second Pour；收藏一篇，讓它之後回到你的早晨。';
+      renderSecondPour();
     }
 
     function renderPantry(filter, query = '') {
@@ -2329,8 +2586,9 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
     function openLessonItem(item, index = -1) {
       if (!item) return;
       const favoriteIndex = index >= 0 ? index : lessons.indexOf(item);
-      detailContent.innerHTML = `<div class="eyebrow">第 ${escapeHtml(item.n)} 篇 · ${escapeHtml(item.category)} · ${escapeHtml(normalizeDifficulty(item.difficulty))} · ${escapeHtml(item.time)}</div><h2 id="detail-title">${escapeHtml(item.title)}</h2><p class="detail-lead">${escapeHtml(item.takeaway)}</p><div class="detail-scoreboard"><span>長久度 <strong>${item.timeless.toFixed(1)} / 5</strong></span><span>重要性 <strong>${item.importance.toFixed(1)} / 5</strong></span><span>熱度 <strong>${item.heat.toFixed(1)} / 5</strong></span></div>${favoriteButton(item, favoriteIndex, 'detail-favorite')}<section class="reading-section" id="idea"><h3>核心想法</h3><p>${escapeHtml(item.principle)}</p><div class="callout"><strong>關鍵想法</strong><p>目的不是讓 Agent 聽起來很確定，而是讓下一個有用的決定更容易被看見。</p></div></section><section class="reading-section" id="why"><h3>為什麼有效</h3><p>${escapeHtml(item.problem)}</p></section><section class="reading-section" id="mental-model"><h3>心智模型</h3><div class="flow"><span>問題</span><i>→</i><span>上下文</span><i>→</i><span>Agent</span><i>→</i><span>驗證</span><i>→</i><span>修訂</span></div><p>每一個箭頭都是人類可以檢查工作狀態的地方。當狀態可見，速度就更容易被信任。</p></section><section class="reading-section" id="example"><h3>範例</h3><p>${escapeHtml(item.tryIt)}</p></section><section class="reading-section" id="try-it"><h3>試試看</h3><ul class="checklist"><li>替目前的一個任務寫出這個做法的最小版本。</li><li>執行一次可觀察的檢查，並把結果放在變更旁邊。</li><li>記錄什麼變得更容易決定、驗證或交接。</li><li>只有在它能替下次省下注意力時，才留下這個 artifact。</li></ul><p class="detail-lead" style="font-size:16px;margin:22px 0 0;color:var(--ink)"><em>練習題：${escapeHtml(item.prompt)}</em></p></section><section class="reading-section" id="limits"><h3>何時不要用</h3><p>${escapeHtml(item.tradeoffs)}</p></section><section class="reading-section" id="evidence"><h3>社群證據</h3><p>${escapeHtml(item.evidence)}</p></section><section class="reading-section" id="sources"><h3>來源</h3><div class="source-box"><a href="${safeUrl(item.url)}" target="_blank" rel="noreferrer">${escapeHtml(item.source)}</a><br>發布日期：${escapeHtml(item.date)} · ${escapeHtml(item.sourceType)}<br><span>原型狀態：來源完整性、互動數據與 canonical evidence 仍需在正式發布前驗證。</span></div></section>`;
+      detailContent.innerHTML = `<div class="eyebrow">第 ${escapeHtml(item.n)} 篇 · ${escapeHtml(item.category)} · ${escapeHtml(normalizeDifficulty(item.difficulty))} · ${escapeHtml(item.time)}</div><h2 id="detail-title">${escapeHtml(item.title)}</h2><p class="detail-lead">${escapeHtml(item.takeaway)}</p><div class="detail-scoreboard"><span>長久度 <strong>${Number(item.timeless || 0).toFixed(1)} / 5</strong></span><span>重要性 <strong>${Number(item.importance || 0).toFixed(1)} / 5</strong></span><span>熱度 <strong>${Number(item.heat || 0).toFixed(1)} / 5</strong></span></div>${favoriteButton(item, favoriteIndex, 'detail-favorite')}<div class="feedback-actions" aria-label="這篇內容的回饋"><span class="feedback-actions-label">告訴下一壺</span><button type="button" data-feedback-action="want_more">想看更多這種</button><button type="button" data-feedback-action="want_to_build">想實作</button><button type="button" data-feedback-action="not_interested">不感興趣</button><button type="button" data-feedback-action="exclude_source">少看這個來源</button><span class="preferences-status" id="detail-feedback-status" role="status" aria-live="polite"></span></div><section class="reading-section" id="idea"><h3>核心想法</h3><p>${escapeHtml(item.principle)}</p><div class="callout"><strong>關鍵想法</strong><p>目的不是讓 Agent 聽起來很確定，而是讓下一個有用的決定更容易被看見。</p></div></section><section class="reading-section" id="why"><h3>為什麼有效</h3><p>${escapeHtml(item.problem)}</p></section><section class="reading-section" id="mental-model"><h3>心智模型</h3><div class="flow"><span>問題</span><i>→</i><span>上下文</span><i>→</i><span>Agent</span><i>→</i><span>驗證</span><i>→</i><span>修訂</span></div><p>每一個箭頭都是人類可以檢查工作狀態的地方。當狀態可見，速度就更容易被信任。</p></section><section class="reading-section" id="example"><h3>範例</h3><p>${escapeHtml(item.tryIt)}</p></section><section class="reading-section" id="try-it"><h3>試試看</h3><ul class="checklist"><li>替目前的一個任務寫出這個做法的最小版本。</li><li>執行一次可觀察的檢查，並把結果放在變更旁邊。</li><li>記錄什麼變得更容易決定、驗證或交接。</li><li>只有在它能替下次省下注意力時，才留下這個 artifact。</li></ul><p class="detail-lead" style="font-size:16px;margin:22px 0 0;color:var(--ink)"><em>練習題：${escapeHtml(item.prompt)}</em></p></section><section class="reading-section" id="limits"><h3>何時不要用</h3><p>${escapeHtml(item.tradeoffs)}</p></section><section class="reading-section" id="evidence"><h3>社群證據</h3><p>${escapeHtml(item.evidence)}</p></section><section class="reading-section" id="sources"><h3>來源</h3><div class="source-box"><a href="${safeUrl(item.url)}" target="_blank" rel="noreferrer">${escapeHtml(item.source)}</a><br>發布日期：${escapeHtml(item.date)} · ${escapeHtml(item.sourceType)}<br><span>原型狀態：來源完整性、互動數據與 canonical evidence 仍需在正式發布前驗證。</span></div></section>`;
       bindFavoriteButtons();
+      bindFeedbackButtons(item);
       detailOverlay.classList.add('is-open');
       document.body.style.overflow = 'hidden';
       document.getElementById('detail-close').focus();
