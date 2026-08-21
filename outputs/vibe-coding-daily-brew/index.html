@@ -308,6 +308,10 @@
     .preferences-reset { background: transparent; color: var(--muted); border-color: var(--line); }
     .preferences-reset:hover { color: var(--ink); border-color: var(--espresso); }
     .preferences-status { color: var(--olive); font: 10px var(--mono); min-height: 1.4em; }
+    .byok-key-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .byok-key-grid .preference-field { margin-top: 0; }
+    .byok-key-input { font-family: var(--mono); font-size: 11px; }
+    .byok-security-note { color: var(--faint); font: 10px/1.6 var(--mono); margin: 14px 0 0; }
     .recipe-intro { max-width: 780px; margin-bottom: 34px; }
     .recipe-intro h1 { font: 400 clamp(48px, 7vw, 82px)/.94 var(--serif); letter-spacing: -.06em; margin: 10px 0 18px; }
     .recipe-intro p { color: var(--muted); font: 19px/1.55 var(--serif); max-width: 660px; margin: 0; }
@@ -442,6 +446,7 @@
       .detail-nav a { padding: 3px 0; }
       .preferences-sheet { padding: 28px 22px 42px; }
       .source-weight-row { grid-template-columns: 1fr; gap: 8px; }
+      .byok-key-grid { grid-template-columns: 1fr; }
       .custom-source-row { grid-template-columns: 1fr; }
       .auth-card, .onboarding-card { padding: 28px 22px 32px; }
       .onboarding-meta-grid { grid-template-columns: 1fr; gap: 0; }
@@ -760,6 +765,16 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
         <div class="language-options" role="radiogroup" aria-label="手沖生成方式"><label class="language-option"><input type="radio" name="brew-provider" value="openrouter" checked><span>OpenRouter</span></label><label class="language-option"><input type="radio" name="brew-provider" value="openai"><span>OpenAI API</span></label><label class="language-option"><input type="radio" name="brew-provider" value="codex"><span>本機 Codex（訂閱）</span></label></div>
       </section>
 
+      <section class="preferences-section" aria-labelledby="byok-title">
+        <h3 id="byok-title">你自己的 API Key</h3>
+        <p>手動生成晨報時，可以使用你自己的 OpenRouter 或 OpenAI API Key。它只保存在這個瀏覽器的本機資料裡，不會同步到 Supabase、帳號配方或日報檔案；真正生成時才會暫時傳給目前的手沖服務。共用電腦請不要保存。</p>
+        <div class="byok-key-grid">
+          <label class="preference-field"><span>OpenRouter API Key</span><input class="preference-input byok-key-input" id="preference-openrouter-key" type="password" maxlength="512" autocomplete="off" spellcheck="false" placeholder="sk-or-v1-…"></label>
+          <label class="preference-field"><span>OpenAI API Key</span><input class="preference-input byok-key-input" id="preference-openai-key" type="password" maxlength="512" autocomplete="off" spellcheck="false" placeholder="sk-…"></label>
+        </div>
+        <p class="byok-security-note">選「本機 Codex（訂閱）」不需要填 Key。清除網站資料、換瀏覽器或換裝置後，這裡的 Key 不會自動跟著走。</p>
+      </section>
+
       <div class="preferences-actions"><button class="preferences-save" id="preferences-save" type="button">儲存配方細節</button><button class="preferences-reset" id="preferences-reset" type="button">恢復正常配方</button><span class="preferences-status" id="preferences-status" role="status"></span></div>
     </aside>
   </div>
@@ -799,7 +814,7 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
     const difficultyFilters = ['全部難度', '初學者', '普通', '困難'];
     const preferenceStorageKey = 'vibe-coding-daily-brew:source-preferences';
     const defaultSourceIds = ['vibecoding-tw', 'github-community', 'hacker-news', 'dev-community', 'openai-community'];
-    const defaultPreferences = { selectedSourceIds: [...defaultSourceIds], selectedSources: [], customSources: [], sourceWeights: {}, specificSources: {}, prompt: '', directUrls: [], language: 'zh-Hant', provider: 'openrouter' };
+    const defaultPreferences = { selectedSourceIds: [...defaultSourceIds], selectedSources: [], customSources: [], sourceWeights: {}, specificSources: {}, prompt: '', directUrls: [], language: 'zh-Hant', provider: 'openrouter', apiKeys: { openrouter: '', openai: '' } };
     const authStorageKey = 'vibe-coding-daily-brew:auth-session';
     const onboardingDefaults = { topics: [], excluded_topics: [], content_styles: [], source_lanes: [], difficulty_levels: ['普通'], reading_minutes: 10, item_count: 10, novelty_level: 3, review_enabled: true, onboarding_completed: false };
     const onboardingOptions = {
@@ -818,6 +833,12 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
     function clampNumber(value, minimum, maximum, fallback) {
       const number = Number(value);
       return Number.isFinite(number) ? Math.max(minimum, Math.min(maximum, number)) : fallback;
+    }
+
+    function normalizeApiKeys(value) {
+      const source = value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+      const normalize = key => typeof source[key] === 'string' ? source[key].trim().slice(0, 512) : '';
+      return { openrouter: normalize('openrouter'), openai: normalize('openai') };
     }
 
     function normalizeOnboardingPreferences(value = {}) {
@@ -842,7 +863,8 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
 
     function freshAuthenticatedPreferences(value = {}) {
       const source = value && typeof value === 'object' ? value : {};
-      return { ...defaultPreferences, selectedSourceIds: [...defaultSourceIds], selectedSources: [], customSources: [], ...source, ...normalizeOnboardingPreferences(source), selectedSourceIds: Array.isArray(source.selectedSourceIds) ? source.selectedSourceIds : [...defaultSourceIds], selectedSources: Array.isArray(source.selectedSources) ? source.selectedSources : [], customSources: Array.isArray(source.customSources) ? source.customSources : [] };
+      const localApiKeys = typeof brewPreferences !== 'undefined' ? brewPreferences.apiKeys : defaultPreferences.apiKeys;
+      return { ...defaultPreferences, selectedSourceIds: [...defaultSourceIds], selectedSources: [], customSources: [], ...source, ...normalizeOnboardingPreferences(source), selectedSourceIds: Array.isArray(source.selectedSourceIds) ? source.selectedSourceIds : [...defaultSourceIds], selectedSources: Array.isArray(source.selectedSources) ? source.selectedSources : [], customSources: Array.isArray(source.customSources) ? source.customSources : [], apiKeys: normalizeApiKeys(localApiKeys) };
     }
 
     function loadPreferences() {
@@ -850,8 +872,8 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
         const saved = JSON.parse(localStorage.getItem(preferenceStorageKey) || '{}');
         const selectedSourceIds = Array.isArray(saved.selectedSourceIds) ? saved.selectedSourceIds.filter(value => typeof value === 'string').slice(0, 20) : [...defaultSourceIds];
         const provider = ['openrouter', 'openai', 'codex'].includes(saved.provider) ? saved.provider : defaultPreferences.provider;
-        return { ...defaultPreferences, ...saved, provider, selectedSourceIds: selectedSourceIds.length ? selectedSourceIds : [...defaultSourceIds], selectedSources: Array.isArray(saved.selectedSources) ? saved.selectedSources : [], customSources: Array.isArray(saved.customSources) ? saved.customSources : [], sourceWeights: saved.sourceWeights && typeof saved.sourceWeights === 'object' ? saved.sourceWeights : {}, directUrls: Array.isArray(saved.directUrls) ? saved.directUrls : [] };
-      } catch { return { ...defaultPreferences, selectedSourceIds: [...defaultSourceIds], selectedSources: [], customSources: [], sourceWeights: {}, directUrls: [] }; }
+        return { ...defaultPreferences, ...saved, provider, apiKeys: normalizeApiKeys(saved.apiKeys), selectedSourceIds: selectedSourceIds.length ? selectedSourceIds : [...defaultSourceIds], selectedSources: Array.isArray(saved.selectedSources) ? saved.selectedSources : [], customSources: Array.isArray(saved.customSources) ? saved.customSources : [], sourceWeights: saved.sourceWeights && typeof saved.sourceWeights === 'object' ? saved.sourceWeights : {}, directUrls: Array.isArray(saved.directUrls) ? saved.directUrls : [] };
+      } catch { return { ...defaultPreferences, selectedSourceIds: [...defaultSourceIds], selectedSources: [], customSources: [], sourceWeights: {}, directUrls: [], apiKeys: { openrouter: '', openai: '' } }; }
     }
     let brewPreferences = loadPreferences();
     let sourceCatalog = [];
@@ -1146,7 +1168,9 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
 
     async function saveAuthenticatedPreferences(value, statusElement) {
       if (!authUser || !authSession?.access_token) throw new Error('請先登入，再保存這份晨報配方。');
-      const response = await authFetch('/api/preferences', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(value) });
+      const remoteValue = { ...(value && typeof value === 'object' ? value : {}) };
+      delete remoteValue.apiKeys;
+      const response = await authFetch('/api/preferences', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(remoteValue) });
       const payload = await responsePayload(response);
       if (!response.ok) throw apiError(payload, response.status, '晨報配方暫時保存不了。');
       const saved = normalizeOnboardingPreferences({ ...value, ...(payload.preferences || {}) });
@@ -1168,7 +1192,20 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
     }
 
     function getBrewRequestPreferences() {
-      return authUser && authPreferences ? { ...brewPreferences, ...authPreferences } : { ...brewPreferences };
+      const source = authUser && authPreferences ? { ...brewPreferences, ...authPreferences } : { ...brewPreferences };
+      const remoteSafe = { ...source };
+      delete remoteSafe.apiKeys;
+      return remoteSafe;
+    }
+
+    function getBrewApiKey(provider = brewPreferences.provider) {
+      return normalizeApiKeys(brewPreferences.apiKeys)[provider] || '';
+    }
+
+    function buildBrewRequestBody(payload = {}) {
+      const provider = brewPreferences.provider;
+      const apiKey = getBrewApiKey(provider);
+      return { ...payload, provider, ...(apiKey ? { apiKey } : {}), preferences: getBrewRequestPreferences() };
     }
 
     async function handleOnboardingSubmit(event) {
@@ -1540,6 +1577,9 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
     function populatePreferences() {
       document.getElementById('preference-prompt').value = brewPreferences.prompt || '';
       document.getElementById('preference-direct-urls').value = (brewPreferences.directUrls || []).join('\n');
+      const apiKeys = normalizeApiKeys(brewPreferences.apiKeys);
+      document.getElementById('preference-openrouter-key').value = apiKeys.openrouter;
+      document.getElementById('preference-openai-key').value = apiKeys.openai;
       const language = document.querySelector(`input[name="preference-language"][value="${brewPreferences.language === 'en' ? 'en' : 'zh-Hant'}"]`);
       if (language) language.checked = true;
       const provider = document.querySelector(`input[name="brew-provider"][value="${['openrouter', 'openai', 'codex'].includes(brewPreferences.provider) ? brewPreferences.provider : 'openrouter'}"]`);
@@ -1550,7 +1590,7 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
     function collectPreferences() {
       const selectedSourceIds = [...new Set(brewPreferences.selectedSourceIds || [])].slice(0, 20);
       const provider = document.querySelector('input[name="brew-provider"]:checked')?.value;
-      return { ...brewPreferences, selectedSourceIds, selectedSources: selectedSourceIds.map(sourceById).filter(Boolean), prompt: document.getElementById('preference-prompt').value.trim(), directUrls: document.getElementById('preference-direct-urls').value.split(/\r?\n/).map(url => url.trim()).filter(Boolean), language: document.querySelector('input[name="preference-language"]:checked')?.value === 'en' ? 'en' : 'zh-Hant', provider: ['openrouter', 'openai', 'codex'].includes(provider) ? provider : 'openrouter' };
+      return { ...brewPreferences, selectedSourceIds, selectedSources: selectedSourceIds.map(sourceById).filter(Boolean), prompt: document.getElementById('preference-prompt').value.trim(), directUrls: document.getElementById('preference-direct-urls').value.split(/\r?\n/).map(url => url.trim()).filter(Boolean), language: document.querySelector('input[name="preference-language"]:checked')?.value === 'en' ? 'en' : 'zh-Hant', provider: ['openrouter', 'openai', 'codex'].includes(provider) ? provider : 'openrouter', apiKeys: normalizeApiKeys({ openrouter: document.getElementById('preference-openrouter-key').value, openai: document.getElementById('preference-openai-key').value }) };
     }
 
     function savePreferences(showStatus = true) {
@@ -1760,7 +1800,7 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
       archiveOpenButton.hidden = true;
       archiveSelectionStatus.textContent = `正在以 ${date} 為公示日期，手沖 10 份發現…`;
       try {
-        const response = await fetch('/api/brew', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ count: 10, date, provider: brewPreferences.provider, preferences: getBrewRequestPreferences() }) });
+        const response = await fetch('/api/brew', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(buildBrewRequestBody({ count: 10, date })) });
         const payload = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(payload.error || '歷史手沖服務暫時無法使用。');
         const edition = payload.edition || { run_date: date, mode: 'historical', requested_count: 10, generated_at: new Date().toISOString(), items: payload.items };
@@ -1866,7 +1906,7 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
     });
     document.getElementById('custom-source-add').addEventListener('click', addCustomSource);
     document.getElementById('preferences-reset').addEventListener('click', () => {
-      brewPreferences = { ...defaultPreferences, ...(authUser ? (authPreferences || {}) : {}), selectedSourceIds: [...defaultSourceIds], selectedSources: [], customSources: [], sourceWeights: {}, specificSources: {}, prompt: '', directUrls: [], language: 'zh-Hant', provider: 'openrouter' };
+      brewPreferences = { ...defaultPreferences, ...(authUser ? (authPreferences || {}) : {}), selectedSourceIds: [...defaultSourceIds], selectedSources: [], customSources: [], sourceWeights: {}, specificSources: {}, prompt: '', directUrls: [], language: 'zh-Hant', provider: 'openrouter', apiKeys: { openrouter: '', openai: '' } };
       savePreferences(false);
       sourceDiscoveryQuery.value = '';
       sourceRecommendations = [];
@@ -1923,7 +1963,7 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
       let i = 0;
       const timer = setInterval(() => { stage.textContent = stages[Math.min(i, stages.length - 1)]; i += 1; }, 650);
       try {
-        const response = await fetch('/api/brew', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ count, provider: brewPreferences.provider, preferences: getBrewRequestPreferences() }) });
+        const response = await fetch('/api/brew', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(buildBrewRequestBody({ count })) });
         const payload = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(payload.error || '手沖服務暫時無法使用。');
         const incoming = Array.isArray(payload.items) ? payload.items : [];

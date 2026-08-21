@@ -359,7 +359,9 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: '只接受 POST 請求。' });
   const provider = normalizeProvider(req.body?.provider || req.body?.preferences?.provider || DEFAULT_PROVIDER);
   if (provider === 'codex') return res.status(503).json({ error: '本機 Codex 只能由本機 server.mjs 執行，不能由 Vercel 代跑。' });
-  const key = provider === 'openai' ? process.env.OPENAI_API_KEY?.trim() : process.env.OPENROUTER_API_KEY?.trim();
+  const providedKey = typeof req.body?.apiKey === 'string' ? req.body.apiKey.trim().slice(0, 512) : '';
+  const configuredKey = provider === 'openai' ? process.env.OPENAI_API_KEY?.trim() : process.env.OPENROUTER_API_KEY?.trim();
+  const key = providedKey || configuredKey;
   if (!key) return res.status(503).json({ error: provider === 'openai' ? 'Vercel 尚未設定 OPENAI_API_KEY。' : 'Vercel 尚未設定 OPENROUTER_API_KEY。' });
 
   let historicalDate = '';

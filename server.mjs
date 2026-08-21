@@ -505,12 +505,14 @@ async function mapConcurrent(count, task, concurrency = MAX_PARALLEL_BREWS) {
   return results.flat();
 }
 
-async function brew(count, preferences, asOfDate, provider = DEFAULT_PROVIDER) {
+async function brew(count, preferences, asOfDate, provider = DEFAULT_PROVIDER, requestApiKey = '') {
   const selectedProvider = normalizeProvider(provider);
-  if (selectedProvider === 'openrouter' && !config.OPENROUTER_API_KEY?.trim()) throw Object.assign(new Error('api_key_missing'), { status: 503 });
-  if (selectedProvider === 'openai' && !config.OPENAI_API_KEY?.trim()) throw Object.assign(new Error('openai_api_key_missing'), { status: 503 });
+  const providedKey = typeof requestApiKey === 'string' ? requestApiKey.trim().slice(0, 512) : '';
+  const configuredKey = selectedProvider === 'openai' ? config.OPENAI_API_KEY?.trim() : config.OPENROUTER_API_KEY?.trim();
+  if (selectedProvider === 'openrouter' && !providedKey && !configuredKey) throw Object.assign(new Error('api_key_missing'), { status: 503 });
+  if (selectedProvider === 'openai' && !providedKey && !configuredKey) throw Object.assign(new Error('openai_api_key_missing'), { status: 503 });
   if (selectedProvider === 'codex' && process.env.VERCEL) throw Object.assign(new Error('codex_local_only'), { status: 503 });
-  const key = selectedProvider === 'openai' ? config.OPENAI_API_KEY?.trim() : config.OPENROUTER_API_KEY?.trim();
+  const key = providedKey || configuredKey;
   const items = await mapConcurrent(count, slot => requestWithRetry(key, preferences, asOfDate, slot, selectedProvider, count));
   return items.map((item, index) => ({ ...item, n: String(index + 1).padStart(2, '0') }));
 }
@@ -653,6 +655,7 @@ const server = createServer(async (req, res) => {
       const preferences = sanitizePreferences(body.preferences);
       const count = historicalDate ? 10 : Number(body.count ?? preferences.itemCount);
       const provider = normalizeProvider(body.provider || body.preferences?.provider || DEFAULT_PROVIDER);
+      const requestApiKey = typeof body.apiKey === 'string' ? body.apiKey.trim().slice(0, 512) : '';
       if (!Number.isInteger(count) || count < 1 || count > 15) return sendJson(res, 400, { error: '篇數必須是 1 到 15 之間的整數。' });
       if (historicalDate) {
         try {
@@ -660,11 +663,11 @@ const server = createServer(async (req, res) => {
           return sendJson(res, 200, { edition, model: edition.model || modelForProvider(edition.provider || provider), provider: edition.provider || provider, reused: true });
         }
         catch (error) { if (error.code !== 'ENOENT') throw error; }
-        const edition = createEdition(historicalDate, await brew(10, preferences, historicalDate, provider), 'historical', provider);
+        const edition = createEdition(historicalDate, await brew(10, preferences, historicalDate, provider, requestApiKey), 'historical', provider);
         await writeEdition(historicalDate, edition);
         return sendJson(res, 200, { edition, model: edition.model, provider, reused: false });
       }
-      const items = await brew(count, preferences, localDate(), provider);
+      const items = await brew(count, preferences, localDate(), provider, requestApiKey);
       return sendJson(res, 200, { items, model: modelForProvider(provider), provider });
     }
     if (req.method === 'GET' && (requestUrl.pathname === '/' || requestUrl.pathname === '/index.html')) return serveSite(res);
