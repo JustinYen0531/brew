@@ -78,6 +78,8 @@
     .nav-button:hover, .nav-button.is-active { color: var(--ink); }
     .nav-button:hover::after, .nav-button.is-active::after { right: 0; }
     .header-actions { display: flex; align-items: center; gap: 15px; }
+    .auth-entry { border: 1px solid var(--line); background: rgba(251,248,242,.45); color: var(--espresso); cursor: pointer; padding: 8px 11px; font: 10px var(--mono); letter-spacing: .04em; max-width: 190px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .auth-entry:hover, .auth-entry.is-authenticated { background: var(--espresso); color: var(--paper-bright); border-color: var(--espresso); }
     .search-trigger, .circle-trigger { border: 1px solid var(--line); background: rgba(251,248,242,.45); width: 34px; height: 34px; border-radius: 50%; cursor: pointer; display: grid; place-items: center; }
     .search-trigger:hover, .circle-trigger:hover { background: var(--paper-bright); border-color: var(--espresso); }
     .search-glyph { width: 13px; height: 13px; border: 1.5px solid var(--ink); border-radius: 50%; display: block; position: relative; }
@@ -327,12 +329,66 @@
     .custom-source-add { border: 1px solid var(--espresso); background: transparent; color: var(--espresso); cursor: pointer; padding: 10px 11px; font: 10px var(--mono); white-space: nowrap; }
     .source-catalog-note { color: var(--faint); font: 9px/1.5 var(--mono); margin-top: 9px; }
 
+    .auth-overlay, .onboarding-overlay { position: fixed; inset: 0; display: none; z-index: 21; align-items: center; justify-content: center; padding: 22px; background: rgba(41,35,31,.38); }
+    .auth-overlay.is-open, .onboarding-overlay.is-open { display: flex; }
+    .auth-card, .onboarding-card { width: min(510px, 100%); max-height: min(780px, calc(100vh - 44px)); overflow: auto; background: var(--paper-bright); border: 1px solid var(--line); box-shadow: 0 20px 60px rgba(66,46,33,.22); padding: 36px 38px 40px; }
+    .onboarding-card { width: min(790px, 100%); }
+    .auth-card-header, .onboarding-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; border-bottom: 1px solid var(--line); padding-bottom: 22px; margin-bottom: 25px; }
+    .auth-card-header h2, .onboarding-card-header h2 { font: 400 43px/.98 var(--serif); letter-spacing: -.05em; margin: 10px 0 9px; }
+    .auth-card-header p, .onboarding-card-header p { color: var(--muted); font: 13px/1.55 var(--serif); margin: 0; max-width: 530px; }
+    .auth-close { flex: 0 0 auto; border: 1px solid var(--line); background: var(--paper); width: 35px; height: 35px; border-radius: 50%; cursor: pointer; font: 18px var(--serif); }
+    .auth-form { display: grid; gap: 14px; }
+    .auth-form label, .onboarding-field-label { display: block; color: var(--muted); font: 10px var(--mono); letter-spacing: .08em; }
+    .auth-form input[type="email"] { width: 100%; border: 1px solid var(--line); background: var(--paper); color: var(--ink); padding: 13px 12px; margin-top: 7px; font: 16px var(--serif); }
+    .auth-form input[type="email"]:focus { border-color: var(--espresso); outline: 2px solid rgba(194,145,75,.25); outline-offset: 1px; }
+    .auth-submit, .onboarding-save { border: 1px solid var(--espresso); background: var(--espresso); color: var(--paper-bright); cursor: pointer; padding: 12px 16px; font: 11px var(--mono); }
+    .auth-submit:hover, .onboarding-save:hover { background: var(--ink); }
+    .auth-submit:disabled, .onboarding-save:disabled { opacity: .6; cursor: wait; }
+    .auth-status, .onboarding-status { min-height: 1.5em; color: var(--olive); font: 11px/1.5 var(--mono); margin: 0; }
+    .auth-status.is-error, .onboarding-status.is-error { color: var(--terracotta); }
+    .auth-note { color: var(--faint); font: 10px/1.55 var(--mono); margin: 18px 0 0; }
+    .auth-account { color: var(--muted); font: 11px var(--mono); margin: 0 0 18px; word-break: break-word; }
+    .auth-sign-out { border: 1px solid var(--line); background: transparent; color: var(--muted); cursor: pointer; padding: 10px 13px; font: 10px var(--mono); }
+    .auth-sign-out:hover { border-color: var(--espresso); color: var(--ink); }
+    .onboarding-intro { color: var(--muted); font: 14px/1.55 var(--serif); margin: -4px 0 27px; max-width: 600px; }
+    .onboarding-section { border: 0; border-top: 1px solid var(--line); padding: 21px 0 22px; margin: 0; min-width: 0; }
+    .onboarding-section h3 { color: var(--espresso); font: 10px var(--mono); letter-spacing: .13em; text-transform: uppercase; margin: 0 0 7px; }
+    .onboarding-section > legend, .onboarding-legend { color: var(--espresso); font: 10px var(--mono); letter-spacing: .13em; text-transform: uppercase; margin: 0 0 7px; padding: 0; }
+    .onboarding-section p { color: var(--muted); font: 12px/1.5 var(--serif); margin: 0 0 13px; }
+    .onboarding-tag-list, .onboarding-options { display: flex; flex-wrap: wrap; gap: 8px; }
+    .onboarding-tag, .onboarding-option { position: relative; }
+    .onboarding-tag input, .onboarding-option input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+    .onboarding-tag span, .onboarding-option span { display: block; border: 1px solid var(--line); background: transparent; color: var(--muted); cursor: pointer; padding: 9px 12px; font: 11px var(--mono); }
+    .onboarding-tag:hover span, .onboarding-tag input:focus-visible + span, .onboarding-option:hover span, .onboarding-option input:focus-visible + span { border-color: var(--espresso); color: var(--espresso); }
+    .onboarding-tag input:checked + span, .onboarding-option input:checked + span { border-color: var(--espresso); background: var(--espresso); color: var(--paper-bright); }
+    .onboarding-meta-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 21px 28px; }
+    .onboarding-control-label { display: block; color: var(--muted); font: 10px var(--mono); letter-spacing: .08em; margin-bottom: 9px; }
+    .onboarding-range { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; }
+    .onboarding-range .onboarding-option span { text-align: center; padding-left: 6px; padding-right: 6px; }
+    .onboarding-review { display: flex; align-items: center; gap: 9px; color: var(--ink); cursor: pointer; font: 13px var(--serif); }
+    .onboarding-review input { width: 17px; height: 17px; accent-color: var(--espresso); }
+    .onboarding-excluded-editor { border: 1px solid var(--line); background: var(--paper); padding: 9px 10px 7px; }
+    .onboarding-excluded-editor:focus-within { border-color: var(--espresso); outline: 2px solid rgba(194,145,75,.25); outline-offset: 1px; }
+    .onboarding-excluded-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .onboarding-excluded-chip { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); background: var(--paper-bright); color: var(--ink); padding: 5px 7px; font: 10px var(--mono); }
+    .onboarding-excluded-chip button { border: 0; background: transparent; color: var(--terracotta); cursor: pointer; padding: 0; line-height: 1; }
+    .onboarding-excluded-input { width: 100%; border: 0; background: transparent; color: var(--ink); padding: 7px 2px 4px; font: 13px var(--sans); }
+    .onboarding-excluded-input:focus { outline: 0; }
+    .onboarding-recipe { border: 1px solid var(--line); background: var(--paper); padding: 13px 14px; margin-top: 18px; }
+    .onboarding-recipe-label { display: block; color: var(--espresso); font: 10px var(--mono); letter-spacing: .1em; margin-bottom: 5px; }
+    .onboarding-recipe p { color: var(--ink); font: 15px/1.45 var(--serif); margin: 0; }
+    .onboarding-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 13px; border-top: 1px solid var(--line); padding-top: 22px; margin-top: 2px; }
+    .onboarding-later { border: 1px solid var(--line); background: transparent; color: var(--muted); cursor: pointer; padding: 11px 14px; font: 10px var(--mono); }
+    .onboarding-later:hover { border-color: var(--espresso); color: var(--ink); }
+    .onboarding-account { color: var(--faint); font: 10px var(--mono); margin-left: auto; }
+
     @media (max-width: 850px) {
       .site-shell { width: min(100% - 36px, 680px); }
       .site-header { align-items: flex-start; flex-wrap: wrap; gap: 16px; }
       .brand-lockup { min-width: auto; }
       .top-nav { order: 3; width: 100%; justify-content: space-between; gap: 8px; border-top: 1px solid var(--line); padding-top: 12px; }
       .header-actions { margin-left: auto; }
+      .auth-entry { max-width: 150px; }
       .view { padding-top: 46px; }
       .simulation-banner { align-items: flex-start; flex-direction: column; gap: 14px; }
       .hero { grid-template-columns: 1fr; gap: 25px; }
@@ -366,6 +422,9 @@
       .preferences-sheet { padding: 28px 22px 42px; }
       .source-weight-row { grid-template-columns: 1fr; gap: 8px; }
       .custom-source-row { grid-template-columns: 1fr; }
+      .auth-card, .onboarding-card { padding: 28px 22px 32px; }
+      .onboarding-meta-grid { grid-template-columns: 1fr; gap: 0; }
+      .onboarding-account { width: 100%; margin-left: 0; }
     }
     @media (max-width: 480px) {
       .site-shell { width: calc(100% - 28px); }
@@ -403,6 +462,7 @@
         <button class="nav-button" data-view="archive-view">過往手沖</button>
       </nav>
       <div class="header-actions">
+        <button class="auth-entry" id="auth-trigger" type="button" aria-haspopup="dialog" aria-expanded="false">登入／我的晨報</button>
         <button class="search-trigger" id="search-trigger" aria-label="開啟搜尋" aria-expanded="false"><span class="search-glyph" aria-hidden="true"></span></button>
         <button class="circle-trigger" id="quiet-trigger" aria-label="開啟設定選單" aria-expanded="false" aria-controls="quiet-menu">•••</button>
       </div>
@@ -438,7 +498,7 @@
         <div class="lesson-list" id="lesson-list" aria-live="polite"></div>
         <section class="brew-panel" aria-labelledby="brew-title">
           <div><h3 id="brew-title">再手沖一批</h3><p>看不夠，再泡一壺。換個方向，找一些你今天還沒有想到的內容。請透過本機 server 開啟，以保護 API key。</p></div>
-          <form class="brew-form" id="brew-form"><label for="brew-count" class="sr-only">學習篇數</label><input class="brew-input" id="brew-count" type="number" value="5" min="1" max="10" aria-label="學習篇數"><button class="brew-submit" type="submit">手沖 →</button></form>
+          <form class="brew-form" id="brew-form"><label for="brew-count" class="sr-only">學習篇數</label><input class="brew-input" id="brew-count" type="number" value="5" min="1" max="15" aria-label="學習篇數"><button class="brew-submit" type="submit">手沖 →</button></form>
           <div class="brew-status" id="brew-status" role="status"><span id="brew-message">正在手沖 5 篇學習…</span><span class="stage" id="brew-stage">發現中</span></div>
         </section>
         <div class="footer-note"><em>每天早晨新鮮沖煮，今天讀得懂，過些日子還用得上。</em><span class="prototype-label">原型本期 · 示範內容</span></div>
@@ -468,6 +528,134 @@
     <label for="global-search">找一個有用的想法</label>
     <input class="global-search" id="global-search" type="search" placeholder="試試「驗證」或「上下文」…">
     <div class="global-results" id="global-results"></div>
+  </div>
+
+  <div class="auth-overlay" id="auth-overlay" role="dialog" aria-modal="true" aria-labelledby="auth-title" aria-describedby="auth-copy">
+    <article class="auth-card">
+      <div class="auth-card-header">
+        <div><div class="eyebrow">把晨報帶回自己的餐桌</div><h2 id="auth-title">登入我的晨報</h2><p id="auth-copy">留一個信箱，晨報通行證會寄到那裡。點開信裡的連結，就能回到你的晨間配方。</p></div>
+        <button class="auth-close" id="auth-close" type="button" aria-label="關閉登入視窗">×</button>
+      </div>
+      <div id="auth-logged-out-panel">
+        <form class="auth-form" id="auth-form">
+          <label for="auth-email">收信信箱<input id="auth-email" name="email" type="email" autocomplete="email" inputmode="email" required placeholder="you@example.com"></label>
+          <button class="auth-submit" id="auth-submit" type="submit">寄出晨報通行證 →</button>
+          <p class="auth-status" id="auth-status" role="status" aria-live="polite"></p>
+        </form>
+        <p class="auth-note">這裡只用信箱確認你的晨報配方，不需要另外記住密碼。</p>
+      </div>
+      <div id="auth-logged-in-panel" hidden>
+        <p class="auth-account" id="auth-account"></p>
+        <button class="auth-submit" id="auth-onboarding-trigger" type="button">調配我的晨報 →</button>
+        <button class="auth-sign-out" id="auth-sign-out" type="button">收起這壺晨報並登出</button>
+        <p class="auth-status" id="auth-account-status" role="status" aria-live="polite"></p>
+      </div>
+    </article>
+  </div>
+
+  <div class="onboarding-overlay" id="onboarding-overlay" role="dialog" aria-modal="true" aria-labelledby="onboarding-title" aria-describedby="onboarding-copy">
+    <article class="onboarding-card">
+      <div class="onboarding-card-header">
+        <div><div class="eyebrow">第一壺，先調成你的味道</div><h2 id="onboarding-title">調配我的晨報</h2><p id="onboarding-copy">選幾個早上願意讀的方向。這份配方會跟著你的帳號走，之後每一壺都從這裡開始找味道。</p></div>
+        <button class="auth-close" id="onboarding-close" type="button" aria-label="關閉晨報配方">×</button>
+      </div>
+      <div class="onboarding-recipe" aria-label="預設晨報配方"><span class="onboarding-recipe-label">第一壺的預設配方</span><p>6 篇新發現／2 篇收藏複習／1 篇經典／1 篇意外驚喜</p></div>
+      <form id="onboarding-form">
+        <fieldset class="onboarding-section">
+          <legend class="onboarding-legend">想讀的方向</legend>
+          <p>選幾個你最近想靠近的主題，晨報會替你留意相關討論。</p>
+          <div class="onboarding-tag-list" role="group" aria-label="晨報主題">
+            <label class="onboarding-tag"><input type="checkbox" data-onboarding-field="topics" value="Agent 工作流"><span>Agent 工作流</span></label>
+            <label class="onboarding-tag"><input type="checkbox" data-onboarding-field="topics" value="提示設計"><span>提示設計</span></label>
+            <label class="onboarding-tag"><input type="checkbox" data-onboarding-field="topics" value="上下文工程"><span>上下文工程</span></label>
+            <label class="onboarding-tag"><input type="checkbox" data-onboarding-field="topics" value="程式碼理解"><span>程式碼理解</span></label>
+            <label class="onboarding-tag"><input type="checkbox" data-onboarding-field="topics" value="測試與驗證"><span>測試與驗證</span></label>
+            <label class="onboarding-tag"><input type="checkbox" data-onboarding-field="topics" value="工具與自動化"><span>工具與自動化</span></label>
+            <label class="onboarding-tag"><input type="checkbox" data-onboarding-field="topics" value="協作"><span>協作</span></label>
+            <label class="onboarding-tag"><input type="checkbox" data-onboarding-field="topics" value="安全"><span>安全</span></label>
+            <label class="onboarding-tag"><input type="checkbox" data-onboarding-field="topics" value="學習系統"><span>學習系統</span></label>
+            <label class="onboarding-tag"><input type="checkbox" data-onboarding-field="topics" value="產品與設計"><span>產品與設計</span></label>
+          </div>
+        </fieldset>
+        <fieldset class="onboarding-section">
+          <legend class="onboarding-legend">我想少看／避開什麼</legend>
+          <p>寫下幾個你最近不想遇到的主題。輸入後按 Enter，或用逗號分開，晨報會替你留出空間。</p>
+          <div class="onboarding-excluded-editor" id="onboarding-excluded-editor">
+            <div class="onboarding-excluded-tags" id="onboarding-excluded-tags" aria-live="polite"></div>
+            <label class="sr-only" for="onboarding-excluded-input">新增想避開的主題</label><input class="onboarding-excluded-input" id="onboarding-excluded-input" type="text" maxlength="80" autocomplete="off" placeholder="例如：產品新聞、純理論、重複教學">
+          </div>
+        </fieldset>
+        <fieldset class="onboarding-section">
+          <legend class="onboarding-legend">你喜歡怎麼讀</legend>
+          <p>同一個主題，可以從不同角度端上桌。選幾種你願意打開的內容。</p>
+          <div class="onboarding-tag-list" role="group" aria-label="晨報內容風格">
+            <label class="onboarding-tag"><input type="checkbox" data-onboarding-field="content_styles" value="實戰案例"><span>實戰案例</span></label>
+            <label class="onboarding-tag"><input type="checkbox" data-onboarding-field="content_styles" value="失敗分析"><span>失敗分析</span></label>
+            <label class="onboarding-tag"><input type="checkbox" data-onboarding-field="content_styles" value="程式碼範例"><span>程式碼範例</span></label>
+            <label class="onboarding-tag"><input type="checkbox" data-onboarding-field="content_styles" value="可重用規則"><span>可重用規則</span></label>
+            <label class="onboarding-tag"><input type="checkbox" data-onboarding-field="content_styles" value="反直覺觀點"><span>反直覺觀點</span></label>
+          </div>
+        </fieldset>
+        <fieldset class="onboarding-section">
+          <legend class="onboarding-legend">來源香氣</legend>
+          <p>選幾條你想在晨報裡聽見的街道，之後還能在偏好裡加上指定社群或網址。</p>
+          <div class="onboarding-tag-list" role="group" aria-label="晨報來源">
+            <label class="onboarding-tag"><input type="checkbox" data-onboarding-field="source_lanes" value="GitHub"><span>GitHub</span></label>
+            <label class="onboarding-tag"><input type="checkbox" data-onboarding-field="source_lanes" value="Reddit"><span>Reddit</span></label>
+            <label class="onboarding-tag"><input type="checkbox" data-onboarding-field="source_lanes" value="Hacker News"><span>Hacker News</span></label>
+            <label class="onboarding-tag"><input type="checkbox" data-onboarding-field="source_lanes" value="技術部落格"><span>技術部落格</span></label>
+            <label class="onboarding-tag"><input type="checkbox" data-onboarding-field="source_lanes" value="社群論壇"><span>社群論壇</span></label>
+          </div>
+        </fieldset>
+        <fieldset class="onboarding-section">
+          <legend class="onboarding-legend">閱讀深度</legend>
+          <p>先選你早晨讀得舒服的範圍，內容會保留一點挑戰，也不會突然端上一整鍋。</p>
+          <div class="onboarding-tag-list" role="group" aria-label="晨報難度">
+            <label class="onboarding-tag"><input type="checkbox" data-onboarding-field="difficulty_levels" value="初學者"><span>初學者</span></label>
+            <label class="onboarding-tag"><input type="checkbox" data-onboarding-field="difficulty_levels" value="普通"><span>普通</span></label>
+            <label class="onboarding-tag"><input type="checkbox" data-onboarding-field="difficulty_levels" value="困難"><span>困難</span></label>
+          </div>
+        </fieldset>
+        <div class="onboarding-section onboarding-meta-grid">
+          <div>
+            <span class="onboarding-control-label">一早願意留幾分鐘</span>
+            <div class="onboarding-options" role="radiogroup" aria-label="每日閱讀時間">
+              <label class="onboarding-option"><input type="radio" name="reading_minutes" data-onboarding-field="reading_minutes" value="5"><span>5 分鐘</span></label>
+              <label class="onboarding-option"><input type="radio" name="reading_minutes" data-onboarding-field="reading_minutes" value="10" checked><span>10 分鐘</span></label>
+              <label class="onboarding-option"><input type="radio" name="reading_minutes" data-onboarding-field="reading_minutes" value="20"><span>20 分鐘</span></label>
+            </div>
+          </div>
+          <div>
+            <span class="onboarding-control-label">每天端上幾篇</span>
+            <div class="onboarding-options" role="radiogroup" aria-label="每日文章篇數">
+              <label class="onboarding-option"><input type="radio" name="item_count" data-onboarding-field="item_count" value="5"><span>5 篇</span></label>
+              <label class="onboarding-option"><input type="radio" name="item_count" data-onboarding-field="item_count" value="10" checked><span>10 篇</span></label>
+              <label class="onboarding-option"><input type="radio" name="item_count" data-onboarding-field="item_count" value="15"><span>15 篇</span></label>
+            </div>
+          </div>
+          <div>
+            <span class="onboarding-control-label">想要多少新鮮轉香</span>
+            <div class="onboarding-range" role="radiogroup" aria-label="晨報新鮮度">
+              <label class="onboarding-option"><input type="radio" name="novelty_level" data-onboarding-field="novelty_level" value="1"><span>1</span></label>
+              <label class="onboarding-option"><input type="radio" name="novelty_level" data-onboarding-field="novelty_level" value="2"><span>2</span></label>
+              <label class="onboarding-option"><input type="radio" name="novelty_level" data-onboarding-field="novelty_level" value="3" checked><span>3</span></label>
+              <label class="onboarding-option"><input type="radio" name="novelty_level" data-onboarding-field="novelty_level" value="4"><span>4</span></label>
+              <label class="onboarding-option"><input type="radio" name="novelty_level" data-onboarding-field="novelty_level" value="5"><span>5</span></label>
+            </div>
+          </div>
+          <div>
+            <span class="onboarding-control-label">留一點時間回訪</span>
+            <label class="onboarding-review"><input id="onboarding-review" type="checkbox" data-onboarding-field="review_enabled" checked><span>把收藏內容帶回後面的早晨</span></label>
+          </div>
+        </div>
+        <div class="onboarding-actions">
+          <button class="onboarding-save" id="onboarding-save" type="submit">保存這份配方 →</button>
+          <button class="onboarding-later" id="onboarding-close-later" type="button">先回到今天的報紙</button>
+          <span class="onboarding-status" id="onboarding-status" role="status" aria-live="polite"></span>
+          <span class="onboarding-account" id="onboarding-account"></span>
+        </div>
+      </form>
+    </article>
   </div>
 
   <div class="preferences-overlay" id="preferences-overlay" role="dialog" aria-modal="true" aria-labelledby="preferences-title">
@@ -562,6 +750,50 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
     const preferenceStorageKey = 'vibe-coding-daily-brew:source-preferences';
     const defaultSourceIds = ['vibecoding-tw', 'github-community', 'hacker-news', 'dev-community', 'openai-community'];
     const defaultPreferences = { selectedSourceIds: [...defaultSourceIds], selectedSources: [], customSources: [], sourceWeights: {}, specificSources: {}, prompt: '', directUrls: [], language: 'zh-Hant', provider: 'openrouter' };
+    const authStorageKey = 'vibe-coding-daily-brew:auth-session';
+    const onboardingDefaults = { topics: [], excluded_topics: [], content_styles: [], source_lanes: [], difficulty_levels: ['普通'], reading_minutes: 10, item_count: 10, novelty_level: 3, review_enabled: true, onboarding_completed: false };
+    const onboardingOptions = {
+      topics: ['Agent 工作流', '提示設計', '上下文工程', '程式碼理解', '測試與驗證', '工具與自動化', '協作', '安全', '學習系統', '產品與設計'],
+      content_styles: ['實戰案例', '失敗分析', '程式碼範例', '可重用規則', '反直覺觀點'],
+      source_lanes: ['GitHub', 'Reddit', 'Hacker News', '技術部落格', '社群論壇'],
+      difficulty_levels: ['初學者', '普通', '困難']
+    };
+    let authSession = null;
+    let authUser = null;
+    let authPreferences = null;
+    let authPreferenceSyncTimer = null;
+    let onboardingExcludedTopics = [];
+
+    function clampNumber(value, minimum, maximum, fallback) {
+      const number = Number(value);
+      return Number.isFinite(number) ? Math.max(minimum, Math.min(maximum, number)) : fallback;
+    }
+
+    function normalizeOnboardingPreferences(value = {}) {
+      const source = value && typeof value === 'object' ? value : {};
+      const valuesFor = field => [...new Set((Array.isArray(source[field]) ? source[field] : []).filter(item => onboardingOptions[field]?.includes(item)))];
+      const excluded = [...new Set((Array.isArray(source.excluded_topics) ? source.excluded_topics : []).map(item => String(item || '').trim()).filter(Boolean).map(item => item.slice(0, 80)))];
+      const readingMinutes = [5, 10, 20].includes(Number(source.reading_minutes)) ? Number(source.reading_minutes) : onboardingDefaults.reading_minutes;
+      const itemCount = [5, 10, 15].includes(Number(source.item_count)) ? Number(source.item_count) : onboardingDefaults.item_count;
+      return {
+        topics: valuesFor('topics'),
+        excluded_topics: excluded,
+        content_styles: valuesFor('content_styles'),
+        source_lanes: valuesFor('source_lanes'),
+        difficulty_levels: valuesFor('difficulty_levels').length ? valuesFor('difficulty_levels') : [...onboardingDefaults.difficulty_levels],
+        reading_minutes: readingMinutes,
+        item_count: itemCount,
+        novelty_level: clampNumber(source.novelty_level, 1, 5, onboardingDefaults.novelty_level),
+        review_enabled: source.review_enabled !== false,
+        onboarding_completed: source.onboarding_completed === true
+      };
+    }
+
+    function freshAuthenticatedPreferences(value = {}) {
+      const source = value && typeof value === 'object' ? value : {};
+      return { ...defaultPreferences, selectedSourceIds: [...defaultSourceIds], selectedSources: [], customSources: [], ...source, ...normalizeOnboardingPreferences(source), selectedSourceIds: Array.isArray(source.selectedSourceIds) ? source.selectedSourceIds : [...defaultSourceIds], selectedSources: Array.isArray(source.selectedSources) ? source.selectedSources : [], customSources: Array.isArray(source.customSources) ? source.customSources : [] };
+    }
+
     function loadPreferences() {
       try {
         const saved = JSON.parse(localStorage.getItem(preferenceStorageKey) || '{}');
@@ -602,6 +834,8 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
     const simulationBannerTitle = document.getElementById('simulation-banner-title');
     const simulationBannerCopy = document.getElementById('simulation-banner-copy');
     const simulationBannerReturn = document.getElementById('simulation-banner-return');
+    const authOverlay = document.getElementById('auth-overlay');
+    const onboardingOverlay = document.getElementById('onboarding-overlay');
     const stages = ['發現中', '篩選中', '提煉中', '準備學習內容'];
     const archiveStorageKey = 'vibe-coding-daily-brew:historical-editions';
     let archiveMonthDate = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
@@ -634,6 +868,348 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
     function difficultyBadge(item) {
       const difficulty = normalizeDifficulty(item.difficulty);
       return `<span class="difficulty-chip ${difficultyClass(difficulty)}">${escapeHtml(difficulty)}</span>`;
+    }
+
+    function sessionFromPayload(payload) {
+      const source = payload?.session && typeof payload.session === 'object' ? payload.session : payload;
+      if (!source || !source.access_token) return null;
+      const expiresIn = Number(source.expires_in || 3600);
+      return { access_token: String(source.access_token), refresh_token: String(source.refresh_token || ''), expires_in: expiresIn, expires_at: Number(source.expires_at) || Math.floor(Date.now() / 1000) + expiresIn, token_type: String(source.token_type || 'bearer') };
+    }
+
+    function saveAuthSession(session) {
+      authSession = sessionFromPayload(session);
+      if (!authSession) return;
+      try { localStorage.setItem(authStorageKey, JSON.stringify(authSession)); } catch {}
+    }
+
+    function readAuthSession() {
+      try { return sessionFromPayload(JSON.parse(localStorage.getItem(authStorageKey) || 'null')); } catch { return null; }
+    }
+
+    function clearAuthSession() {
+      authSession = null;
+      try { localStorage.removeItem(authStorageKey); } catch {}
+    }
+
+    function consumeAuthFragment() {
+      if (!location.hash || !/access_token|refresh_token|error/.test(location.hash)) return { session: null, error: '' };
+      const params = new URLSearchParams(location.hash.slice(1));
+      const session = sessionFromPayload({ access_token: params.get('access_token'), refresh_token: params.get('refresh_token'), expires_in: params.get('expires_in'), token_type: params.get('token_type') });
+      const error = params.get('error_description') || params.get('error') || '';
+      try { history.replaceState(null, document.title, `${location.pathname}${location.search}`); } catch {}
+      return { session, error };
+    }
+
+    function sessionIsFresh() {
+      return Boolean(authSession?.access_token && Number(authSession.expires_at) * 1000 > Date.now() + 30_000);
+    }
+
+    async function responsePayload(response) {
+      return response.json().catch(() => ({}));
+    }
+
+    function apiError(payload, status, fallback) {
+      const message = payload?.error || payload?.message || fallback;
+      const error = new Error(String(message));
+      error.status = status;
+      return error;
+    }
+
+    function friendlyAuthError(error) {
+      const message = String(error?.message || error || '登入服務暫時無法使用。');
+      if (/supabase|未設定|not configured|configuration|environment/i.test(message)) return `晨報通行證服務尚未接上 Supabase：${message}`;
+      if (Number(error?.status) === 401) return '這張晨報通行證已經過期，請重新寄一封新的通行證。';
+      if (location.protocol === 'file:') return '請先用 node server.mjs 開啟網站，登入通行證才有地方送出。';
+      return message;
+    }
+
+    async function refreshAuthSession() {
+      if (!authSession?.refresh_token) return false;
+      try {
+        const response = await fetch('/api/auth', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'refresh', refresh_token: authSession.refresh_token }) });
+        const payload = await responsePayload(response);
+        if (!response.ok) throw apiError(payload, response.status, '晨報通行證更新失敗。');
+        const session = sessionFromPayload(payload);
+        if (!session) throw new Error('晨報通行證更新後沒有收到新的 session。');
+        saveAuthSession(session);
+        return true;
+      } catch {
+        clearAuthSession();
+        return false;
+      }
+    }
+
+    async function authFetch(url, options = {}, retry = true) {
+      const headers = new Headers(options.headers || {});
+      if (authSession?.access_token) headers.set('Authorization', `${authSession.token_type || 'Bearer'} ${authSession.access_token}`);
+      const response = await fetch(url, { ...options, headers });
+      if (response.status === 401 && retry && authSession?.refresh_token && await refreshAuthSession()) return authFetch(url, options, false);
+      return response;
+    }
+
+    function updateAuthTrigger() {
+      const trigger = document.getElementById('auth-trigger');
+      if (!trigger) return;
+      trigger.classList.toggle('is-authenticated', Boolean(authUser));
+      trigger.textContent = authUser ? '我的晨報' : '登入／我的晨報';
+      trigger.title = authUser?.email ? `目前使用 ${authUser.email} 的晨報` : '登入，調配自己的晨報';
+    }
+
+    function updateAuthPanels() {
+      document.getElementById('auth-logged-out-panel').hidden = Boolean(authUser);
+      document.getElementById('auth-logged-in-panel').hidden = !authUser;
+      document.getElementById('auth-account').textContent = authUser?.email ? `這壺晨報會保存給：${authUser.email}` : '';
+    }
+
+    function setStatus(element, message, isError = false) {
+      if (!element) return;
+      element.textContent = message;
+      element.classList.toggle('is-error', isError);
+    }
+
+    function openAuthOverlay() {
+      updateAuthPanels();
+      authOverlay.classList.add('is-open');
+      document.getElementById('auth-trigger').setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
+      (authUser ? document.getElementById('auth-onboarding-trigger') : document.getElementById('auth-email'))?.focus();
+    }
+
+    function closeAuthOverlay() {
+      authOverlay.classList.remove('is-open');
+      document.getElementById('auth-trigger').setAttribute('aria-expanded', 'false');
+      if (!onboardingOverlay.classList.contains('is-open')) document.body.style.overflow = '';
+    }
+
+    function renderExcludedTopics() {
+      const container = document.getElementById('onboarding-excluded-tags');
+      container.innerHTML = onboardingExcludedTopics.map((topic, index) => `<span class="onboarding-excluded-chip">${escapeHtml(topic)}<button type="button" data-remove-excluded="${index}" aria-label="移除避開主題：${escapeHtml(topic)}">×</button></span>`).join('');
+      container.querySelectorAll('[data-remove-excluded]').forEach(button => button.addEventListener('click', () => {
+        onboardingExcludedTopics.splice(Number(button.dataset.removeExcluded), 1);
+        renderExcludedTopics();
+        document.getElementById('onboarding-excluded-input').focus();
+      }));
+    }
+
+    function addExcludedTopics(value) {
+      const topics = String(value || '').split(/[,，\n]+/).map(item => item.trim()).filter(Boolean).map(item => item.slice(0, 80));
+      onboardingExcludedTopics = [...new Set([...onboardingExcludedTopics, ...topics])].slice(0, 12);
+      renderExcludedTopics();
+    }
+
+    function fillOnboardingForm(value = {}) {
+      const recipe = normalizeOnboardingPreferences(value);
+      onboardingExcludedTopics = [...recipe.excluded_topics];
+      document.querySelectorAll('[data-onboarding-field]').forEach(input => {
+        const field = input.dataset.onboardingField;
+        if (input.type === 'checkbox') input.checked = Array.isArray(recipe[field]) ? recipe[field].includes(input.value) : Boolean(recipe[field]);
+        if (input.type === 'radio') input.checked = Number(input.value) === Number(recipe[field]);
+      });
+      renderExcludedTopics();
+      document.getElementById('onboarding-account').textContent = authUser?.email ? `配方會保存給 ${authUser.email}` : '';
+    }
+
+    function openOnboarding(value = authPreferences || onboardingDefaults) {
+      fillOnboardingForm(value);
+      onboardingOverlay.classList.add('is-open');
+      closeAuthOverlay();
+      document.getElementById('auth-trigger').setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
+      setStatus(document.getElementById('onboarding-status'), '');
+      document.querySelector('[data-onboarding-field="topics"]')?.focus();
+    }
+
+    function closeOnboarding() {
+      onboardingOverlay.classList.remove('is-open');
+      document.getElementById('auth-trigger').setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+    }
+
+    function collectOnboardingPreferences() {
+      addExcludedTopics(document.getElementById('onboarding-excluded-input').value);
+      document.getElementById('onboarding-excluded-input').value = '';
+      const arrayField = field => [...document.querySelectorAll(`[data-onboarding-field="${field}"]:checked`)].map(input => input.value);
+      const scalarField = field => document.querySelector(`[data-onboarding-field="${field}"]:checked`)?.value;
+      return normalizeOnboardingPreferences({
+        topics: arrayField('topics'),
+        excluded_topics: onboardingExcludedTopics,
+        content_styles: arrayField('content_styles'),
+        source_lanes: arrayField('source_lanes'),
+        difficulty_levels: arrayField('difficulty_levels'),
+        reading_minutes: Number(scalarField('reading_minutes')),
+        item_count: Number(scalarField('item_count')),
+        novelty_level: Number(scalarField('novelty_level')),
+        review_enabled: document.querySelector('[data-onboarding-field="review_enabled"]')?.checked !== false,
+        onboarding_completed: true
+      });
+    }
+
+    function cacheAuthenticatedPreferences(value) {
+      if (!authUser?.id) return;
+      try { localStorage.setItem(`${preferenceStorageKey}:user:${authUser.id}`, JSON.stringify(value)); } catch {}
+    }
+
+    async function saveAuthenticatedPreferences(value, statusElement) {
+      if (!authUser || !authSession?.access_token) throw new Error('請先登入，再保存這份晨報配方。');
+      const response = await authFetch('/api/preferences', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(value) });
+      const payload = await responsePayload(response);
+      if (!response.ok) throw apiError(payload, response.status, '晨報配方暫時保存不了。');
+      const saved = normalizeOnboardingPreferences({ ...value, ...(payload.preferences || {}) });
+      authPreferences = saved;
+      brewPreferences = { ...brewPreferences, ...saved };
+      cacheAuthenticatedPreferences(saved);
+      syncBrewCountInput();
+      if (statusElement) setStatus(statusElement, '這份配方已放進你的晨報檔案。');
+      return saved;
+    }
+
+    function syncBrewCountInput() {
+      const input = document.getElementById('brew-count');
+      if (!input) return;
+      const desired = authUser && authPreferences ? Number(authPreferences.item_count) : Number(input.value);
+      input.value = String(clampNumber(desired, 1, 15, 5));
+      input.title = '';
+    }
+
+    function getBrewRequestPreferences() {
+      return authUser && authPreferences ? { ...brewPreferences, ...authPreferences } : { ...brewPreferences };
+    }
+
+    async function handleOnboardingSubmit(event) {
+      event.preventDefault();
+      const status = document.getElementById('onboarding-status');
+      const submit = document.getElementById('onboarding-save');
+      let recipe;
+      try { recipe = collectOnboardingPreferences(); } catch (error) { setStatus(status, error.message, true); return; }
+      if (!recipe.topics.length) {
+        setStatus(status, '先選幾個想在早晨讀到的方向。', true);
+        document.querySelector('[data-onboarding-field="topics"]')?.focus();
+        return;
+      }
+      submit.disabled = true;
+      submit.setAttribute('aria-busy', 'true');
+      setStatus(status, '正在把這份配方送進你的晨報檔案…');
+      try {
+        await saveAuthenticatedPreferences(recipe, status);
+        closeOnboarding();
+        updateAuthPanels();
+        setStatus(document.getElementById('auth-account-status'), '配方已保存，下一壺會照這個方向尋找。');
+      } catch (error) {
+        setStatus(status, friendlyAuthError(error), true);
+      } finally {
+        submit.disabled = false;
+        submit.removeAttribute('aria-busy');
+      }
+    }
+
+    async function requestMagicLink(event) {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const email = document.getElementById('auth-email').value.trim();
+      const submit = document.getElementById('auth-submit');
+      const status = document.getElementById('auth-status');
+      if (!email) return;
+      submit.disabled = true;
+      submit.setAttribute('aria-busy', 'true');
+      setStatus(status, '正在替你把晨報通行證寄出…');
+      try {
+        const response = await fetch('/api/auth', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'request_link', email }) });
+        const payload = await responsePayload(response);
+        if (!response.ok) throw apiError(payload, response.status, '晨報通行證暫時寄不出去。');
+        setStatus(status, '信已寄出，請到信箱領晨報通行證，再點開信裡的連結。');
+        form.querySelector('input')?.focus();
+      } catch (error) {
+        setStatus(status, friendlyAuthError(error), true);
+      } finally {
+        submit.disabled = false;
+        submit.removeAttribute('aria-busy');
+      }
+    }
+
+    async function fetchCurrentUser() {
+      const response = await authFetch('/api/auth', { method: 'GET' });
+      const payload = await responsePayload(response);
+      if (!response.ok || !payload.user) throw apiError(payload, response.status, '目前讀不到你的晨報身份。');
+      return payload.user;
+    }
+
+    async function fetchRemotePreferences() {
+      const response = await authFetch('/api/preferences', { method: 'GET' });
+      const payload = await responsePayload(response);
+      if (!response.ok) throw apiError(payload, response.status, '目前讀不到你的晨報配方。');
+      return payload.preferences || null;
+    }
+
+    async function restoreAuthState() {
+      const fragment = consumeAuthFragment();
+      if (fragment.error) {
+        updateAuthTrigger();
+        openAuthOverlay();
+        setStatus(document.getElementById('auth-status'), `晨報通行證沒有開啟：${fragment.error}`, true);
+        return;
+      }
+      authSession = fragment.session || readAuthSession();
+      if (!authSession) {
+        updateAuthTrigger();
+        return;
+      }
+      if (!sessionIsFresh() && !(await refreshAuthSession())) {
+        updateAuthTrigger();
+        openAuthOverlay();
+        setStatus(document.getElementById('auth-status'), '晨報通行證已經過期，請重新寄一封新的通行證。', true);
+        return;
+      }
+      try {
+        authUser = await fetchCurrentUser();
+        updateAuthTrigger();
+        const remote = await fetchRemotePreferences();
+        authPreferences = normalizeOnboardingPreferences(remote || {});
+        brewPreferences = freshAuthenticatedPreferences(remote || {});
+        syncBrewCountInput();
+        if (!remote || remote.onboarding_completed !== true) openOnboarding(authPreferences);
+      } catch (error) {
+        authUser = null;
+        clearAuthSession();
+        updateAuthTrigger();
+        openAuthOverlay();
+        setStatus(document.getElementById('auth-status'), friendlyAuthError(error), true);
+      }
+    }
+
+    async function signOut() {
+      const button = document.getElementById('auth-sign-out');
+      const status = document.getElementById('auth-account-status');
+      button.disabled = true;
+      button.setAttribute('aria-busy', 'true');
+      setStatus(status, '正在收起這壺晨報…');
+      let failure = null;
+      try {
+        if (authSession?.access_token) {
+          const response = await authFetch('/api/auth', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'sign_out' }) });
+          const payload = await responsePayload(response);
+          if (!response.ok) failure = apiError(payload, response.status, '登出服務暫時無法回應。');
+        }
+      } catch (error) {
+        failure = error;
+      } finally {
+        clearTimeout(authPreferenceSyncTimer);
+        clearAuthSession();
+        authUser = null;
+        authPreferences = null;
+        brewPreferences = loadPreferences();
+        updateAuthTrigger();
+        updateAuthPanels();
+        syncBrewCountInput();
+        closeAuthOverlay();
+        closeOnboarding();
+        button.disabled = false;
+        button.removeAttribute('aria-busy');
+      }
+      if (failure) {
+        openAuthOverlay();
+        setStatus(document.getElementById('auth-status'), `已在本機收起登入狀態，但伺服器回報：${friendlyAuthError(failure)}`, true);
+      }
     }
 
     function localDateKey() {
@@ -728,7 +1304,12 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
     }
 
     function persistPreferences() {
-      try { localStorage.setItem(preferenceStorageKey, JSON.stringify(brewPreferences)); } catch {}
+      const key = authUser?.id ? `${preferenceStorageKey}:user:${authUser.id}` : preferenceStorageKey;
+      try { localStorage.setItem(key, JSON.stringify(brewPreferences)); } catch {}
+      if (authUser && authSession?.access_token) {
+        clearTimeout(authPreferenceSyncTimer);
+        authPreferenceSyncTimer = setTimeout(() => { void saveAuthenticatedPreferences({ ...brewPreferences, ...(authPreferences || {}) }, null).catch(() => {}); }, 240);
+      }
     }
 
     function renderSelectedSources() {
@@ -843,8 +1424,10 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
 
     function savePreferences(showStatus = true) {
       brewPreferences = collectPreferences();
-      try { localStorage.setItem(preferenceStorageKey, JSON.stringify(brewPreferences)); } catch {}
-      if (showStatus) document.getElementById('preferences-status').textContent = '已儲存，下一次手沖會套用。';
+      persistPreferences();
+      const status = document.getElementById('preferences-status');
+      if (showStatus) setStatus(status, authUser ? '正在保存這份晨報配方…' : '已儲存，下一次手沖會套用。');
+      if (authUser) void saveAuthenticatedPreferences(brewPreferences, status).catch(error => setStatus(status, friendlyAuthError(error), true));
     }
 
     function closePreferences() {
@@ -1046,7 +1629,7 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
       archiveOpenButton.hidden = true;
       archiveSelectionStatus.textContent = `正在以 ${date} 為公示日期，手沖 10 份發現…`;
       try {
-        const response = await fetch('/api/brew', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ count: 10, date, provider: brewPreferences.provider, preferences: brewPreferences }) });
+        const response = await fetch('/api/brew', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ count: 10, date, provider: brewPreferences.provider, preferences: getBrewRequestPreferences() }) });
         const payload = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(payload.error || '歷史手沖服務暫時無法使用。');
         const edition = payload.edition || { run_date: date, mode: 'historical', requested_count: 10, generated_at: new Date().toISOString(), items: payload.items };
@@ -1115,6 +1698,27 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
     const quietMenu = document.getElementById('quiet-menu');
     const quietTrigger = document.getElementById('quiet-trigger');
     quietTrigger.addEventListener('click', event => { event.stopPropagation(); const open = quietMenu.classList.toggle('is-open'); quietTrigger.setAttribute('aria-expanded', String(open)); });
+    document.getElementById('auth-trigger').addEventListener('click', () => {
+      quietMenu.classList.remove('is-open');
+      quietTrigger.setAttribute('aria-expanded', 'false');
+      if (authUser && authPreferences && !authPreferences.onboarding_completed) openOnboarding(); else openAuthOverlay();
+    });
+    document.getElementById('auth-close').addEventListener('click', closeAuthOverlay);
+    authOverlay.addEventListener('click', event => { if (event.target === authOverlay) closeAuthOverlay(); });
+    document.getElementById('auth-form').addEventListener('submit', requestMagicLink);
+    document.getElementById('auth-onboarding-trigger').addEventListener('click', () => openOnboarding());
+    document.getElementById('auth-sign-out').addEventListener('click', signOut);
+    document.getElementById('onboarding-form').addEventListener('submit', handleOnboardingSubmit);
+    document.getElementById('onboarding-close').addEventListener('click', closeOnboarding);
+    document.getElementById('onboarding-close-later').addEventListener('click', closeOnboarding);
+    onboardingOverlay.addEventListener('click', event => { if (event.target === onboardingOverlay) closeOnboarding(); });
+    document.getElementById('onboarding-excluded-input').addEventListener('keydown', event => {
+      if (event.key === 'Enter' || event.key === ',' || event.key === '，') {
+        event.preventDefault();
+        addExcludedTopics(event.currentTarget.value);
+        event.currentTarget.value = '';
+      }
+    });
     document.getElementById('preferences-trigger').addEventListener('click', () => { quietMenu.classList.remove('is-open'); quietTrigger.setAttribute('aria-expanded', 'false'); openPreferences(); });
     document.getElementById('preferences-close').addEventListener('click', closePreferences);
     document.getElementById('preferences-overlay').addEventListener('click', event => { if (event.target.id === 'preferences-overlay') closePreferences(); });
@@ -1127,7 +1731,7 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
     });
     document.getElementById('custom-source-add').addEventListener('click', addCustomSource);
     document.getElementById('preferences-reset').addEventListener('click', () => {
-      brewPreferences = { ...defaultPreferences, selectedSourceIds: [...defaultSourceIds], selectedSources: [], customSources: [], sourceWeights: {}, specificSources: {}, prompt: '', directUrls: [], language: 'zh-Hant', provider: 'openrouter' };
+      brewPreferences = { ...defaultPreferences, ...(authUser ? (authPreferences || {}) : {}), selectedSourceIds: [...defaultSourceIds], selectedSources: [], customSources: [], sourceWeights: {}, specificSources: {}, prompt: '', directUrls: [], language: 'zh-Hant', provider: 'openrouter' };
       savePreferences(false);
       sourceDiscoveryQuery.value = '';
       sourceRecommendations = [];
@@ -1136,7 +1740,7 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
       document.getElementById('preferences-status').textContent = '已恢復正常設定。';
     });
     document.addEventListener('click', event => { if (!quietMenu.contains(event.target) && event.target !== quietTrigger) { quietMenu.classList.remove('is-open'); quietTrigger.setAttribute('aria-expanded', 'false'); } });
-    document.addEventListener('keydown', event => { if (event.key === 'Escape') { closeLesson(); closePreferences(); quietMenu.classList.remove('is-open'); quietTrigger.setAttribute('aria-expanded', 'false'); document.getElementById('search-drawer').classList.remove('is-open'); } });
+    document.addEventListener('keydown', event => { if (event.key === 'Escape') { closeLesson(); closePreferences(); closeAuthOverlay(); closeOnboarding(); quietMenu.classList.remove('is-open'); quietTrigger.setAttribute('aria-expanded', 'false'); document.getElementById('search-drawer').classList.remove('is-open'); } });
 
     const searchDrawer = document.getElementById('search-drawer');
     const globalSearch = document.getElementById('global-search');
@@ -1165,7 +1769,10 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
 
     document.getElementById('brew-form').addEventListener('submit', async event => {
       event.preventDefault();
-      const count = Math.max(1, Math.min(10, Number(document.getElementById('brew-count').value) || 5));
+      const countInput = document.getElementById('brew-count');
+      const preferredCount = authUser && authPreferences ? Number(authPreferences.item_count) : Number(countInput.value);
+      const count = clampNumber(preferredCount, 1, 15, 5);
+      countInput.value = String(count);
       const status = document.getElementById('brew-status');
       const message = document.getElementById('brew-message');
       const stage = document.getElementById('brew-stage');
@@ -1181,7 +1788,7 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
       let i = 0;
       const timer = setInterval(() => { stage.textContent = stages[Math.min(i, stages.length - 1)]; i += 1; }, 650);
       try {
-        const response = await fetch('/api/brew', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ count, provider: brewPreferences.provider, preferences: brewPreferences }) });
+        const response = await fetch('/api/brew', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ count, provider: brewPreferences.provider, preferences: getBrewRequestPreferences() }) });
         const payload = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(payload.error || '手沖服務暫時無法使用。');
         const incoming = Array.isArray(payload.items) ? payload.items : [];
@@ -1204,6 +1811,9 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
     renderLessons();
     renderFilters();
     renderPantry();
+    updateAuthTrigger();
+    syncBrewCountInput();
+    void restoreAuthState();
     loadDailyEdition();
     loadArchiveIndex();
   </script>

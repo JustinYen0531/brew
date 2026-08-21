@@ -5,6 +5,8 @@ import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { discoverSources, rankSources, readSourceCatalog, sourceMatchesQuery, SOURCE_RANKING_VERSION } from './source-catalog.mjs';
+import { authApi } from './api/auth.mjs';
+import { preferencesApi, sanitizePreferenceRecord } from './api/preferences.mjs';
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const SITE_FILE = path.join(ROOT, 'outputs', 'vibe-coding-daily-brew', 'index.html');
@@ -135,6 +137,8 @@ function clamp(value, min, max, fallback) {
 }
 
 function sanitizePreferences(raw = {}) {
+  raw = raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : {};
+  const profile = sanitizePreferenceRecord(raw);
   const sources = ['facebook', 'reddit', 'github'];
   const sourceWeights = Object.fromEntries(sources.map(source => [source, Math.round(clamp(raw.sourceWeights?.[source], 1, 5, 3))]));
   const specificSources = Object.fromEntries(sources.map(source => [source, typeof raw.specificSources?.[source] === 'string' ? raw.specificSources[source].trim().slice(0, 160) : '']));
@@ -153,7 +157,26 @@ function sanitizePreferences(raw = {}) {
     url: source.url.trim().slice(0, 500),
     kind: '使用者新增'
   })) : [];
-  return { sourceWeights, specificSources, selectedSources, customSources, prompt: typeof raw.prompt === 'string' ? raw.prompt.trim().slice(0, 1000) : '', directUrls, language: raw.language === 'en' ? 'en' : 'zh-Hant' };
+  return {
+    ...profile,
+    topics: profile.topics,
+    excludedTopics: profile.excluded_topics,
+    contentStyles: profile.content_styles,
+    sourceLanes: profile.source_lanes,
+    difficultyLevels: profile.difficulty_levels,
+    readingMinutes: profile.reading_minutes,
+    itemCount: profile.item_count,
+    noveltyLevel: profile.novelty_level,
+    reviewEnabled: profile.review_enabled,
+    onboardingCompleted: profile.onboarding_completed,
+    sourceWeights,
+    specificSources,
+    selectedSources,
+    customSources,
+    prompt: typeof raw.prompt === 'string' ? raw.prompt.trim().slice(0, 1000) : '',
+    directUrls,
+    language: raw.language === 'en' ? 'en' : 'zh-Hant'
+  };
 }
 
 function preferenceBrief(preferences) {
@@ -162,7 +185,13 @@ function preferenceBrief(preferences) {
   const specificSources = Object.entries(preferences.specificSources).filter(([, value]) => value).map(([source, value]) => `${source}: ${value}`).join('；') || '沒有指定特定社群';
   const selectedSources = [...(preferences.selectedSources || []), ...(preferences.customSources || [])].map(source => `${source.name || source.platform || '未命名來源'} <${source.url}>`).join('；') || '尚未選取來源';
   const directSources = preferences.directUrls.length ? preferences.directUrls.join('\n') : '沒有硬性網址限制';
-  return `\n\n【使用者本次偏好】\n資訊源頭語言偏好：${language}（最後整理仍請使用繁體中文）\n來源機率權重（舊版相容）：${weightedSources}\n來源資料庫中使用者選取的提供者：${selectedSources}\n特定社群偏好（舊版相容）：${specificSources}\n額外 prompt：${preferences.prompt || '沒有額外 prompt'}\n硬性網址來源（若有，只能從這些網址或其頁面翻找）：\n${directSources}\n請嚴格區分「來源推薦／偏好」與「硬性網址」：偏好是排序訊號；硬性網址是來源限制。不要因為某來源被選取，就降低來源證據與日期驗證標準。`;
+  const topics = preferences.topics?.join('、') || '尚未指定主題';
+  const excludedTopics = preferences.excludedTopics?.join('、') || '沒有排除主題';
+  const contentStyles = preferences.contentStyles?.join('、') || '未指定內容形式';
+  const sourceLanes = preferences.sourceLanes?.join('、') || '未指定來源路徑';
+  const difficultyLevels = preferences.difficultyLevels?.join('、') || '普通';
+  const recipe = '預設晨報配方：10 篇時安排 6 篇新發現、2 篇收藏複習、1 篇經典、1 篇意外驚喜；其他篇數按 60%／20%／10%／10% 作方向，取整時維持本次實際篇數，不可自行增減。';
+  return `\n\n【使用者的晨報配方】\n想讀的主題：${topics}\n暫時避開的主題：${excludedTopics}\n偏好的內容形式：${contentStyles}\n偏好的來源路徑：${sourceLanes}\n難度：${difficultyLevels}\n閱讀時間：${preferences.readingMinutes} 分鐘；希望篇數：${preferences.itemCount} 篇；新鮮感：${preferences.noveltyLevel}/5；複習：${preferences.reviewEnabled ? '開啟' : '關閉'}\n${recipe}\n\n【舊版來源偏好】\n資訊源頭語言偏好：${language}（最後整理仍請使用繁體中文）\n來源機率權重：${weightedSources}\n來源資料庫中使用者選取的提供者：${selectedSources}\n特定社群偏好（prompt 提示）：${specificSources}\n額外 prompt：${preferences.prompt || '沒有額外 prompt'}\n硬性網址來源（若有，只能從這些網址或其頁面翻找）：\n${directSources}\n請嚴格區分「來源推薦／偏好」與「硬性網址」：偏好是排序訊號；硬性網址是來源限制。不要因為某來源被選取，就降低來源證據與日期驗證標準。`;
 }
 
 function allowedSearchDomains(preferences) {
@@ -203,6 +232,20 @@ function readRequestBody(req, maxBytes = 100_000) {
     req.on('end', () => resolve(raw));
     req.on('error', reject);
   });
+}
+
+async function readJsonBody(req) {
+  const raw = await readRequestBody(req);
+  if (!raw.trim()) return {};
+  try { return JSON.parse(raw); }
+  catch { throw Object.assign(new Error('invalid_json'), { status: 400 }); }
+}
+
+function sendApiResult(res, result) {
+  const headers = { ...jsonHeaders, ...(result.headers || {}) };
+  res.writeHead(result.status, headers);
+  if (result.body === undefined) return res.end();
+  return res.end(JSON.stringify(result.body));
 }
 
 function extractText(content) {
@@ -289,17 +332,17 @@ function normalizeItems(payload, count, asOfDate) {
 }
 
 function buildPrompt(count, preferences, asOfDate) {
-  return `資料截點是 ${asOfDate}。請使用可用的 web search，找出在 ${asOfDate} 當天或之前已經存在的、與 Vibe Coding 相關、具體且可重複的實作方法，並整理成 ${count} 篇繁體中文學習內容。嚴格禁止使用 ${asOfDate} 之後發布、更新或發生的發現，所有 source.published_at 必須小於或等於 ${asOfDate}。不要做產品新聞、模型發布摘要或空泛金句。每篇都必須說明問題、可轉移原則、可操作範例、限制、練習題與來源證據。${preferenceBrief(preferences)}\n\n難度請依先備知識與實作風險判定：初學者＝具備基本閱讀與提問能力即可嘗試；普通＝需要基本程式碼、repository 或測試經驗；困難＝需要多步驟整合、架構／權限／部署判斷，或實際操作後才能安全掌握。請只回傳 JSON object，不要 Markdown，不要前言，格式必須是：\n{"items":[{"title":"...","category":"思考|提示設計|Agent 管理|上下文工程|程式碼理解|驗證|工作流程|工藝與心態|安全|協作|學習系統","tag":"新鮮實作|近期耐用|舊作高價值","difficulty":"初學者|普通|困難","takeaway":"...","problem":"...","principle":"...","try_it":"...","tradeoffs":"...","practice_prompt":"...","source_says":"...","editorial_synthesis":"...","source":{"url":"https://...","platform":"...","author":"...","published_at":"YYYY-MM-DD","evidence_excerpt":"...","popularity_basis":"..."},"scores":{"timeless":1,"importance":1,"popularity":1}}]}\n\n評分必須是 1 到 5 的數字。來源 URL、作者、日期與證據不確定時，請如實降低評分或排除，不要捏造。`;
+  return `資料截點是 ${asOfDate}。這一壺晨報本次實際必須產出 ${count} 篇，不能多也不能少。請使用可用的 web search，找出在 ${asOfDate} 當天或之前已經存在的、與 Vibe Coding 相關、具體且可重複的實作方法，並整理成繁體中文學習內容。嚴格禁止使用 ${asOfDate} 之後發布、更新或發生的發現，所有 source.published_at 必須小於或等於 ${asOfDate}。不要做產品新聞、模型發布摘要或空泛金句。每篇都必須說明問題、可轉移原則、可操作範例、限制、練習題與來源證據。${preferenceBrief(preferences)}\n\n晨報內容配方請以 60% 新發現、20% 收藏複習、10% 經典、10% 意外驚喜作方向；當實際 count 為 10 時，具體安排為 6／2／1／1。其他 count 請依比例取整並維持恰好 ${count} 篇。複習與經典內容必須來自可驗證的既有材料；若當次沒有足夠候選，請用可重讀的新發現補位，不要捏造收藏狀態。難度請依先備知識與實作風險判定：初學者＝具備基本閱讀與提問能力即可嘗試；普通＝需要基本程式碼、repository 或測試經驗；困難＝需要多步驟整合、架構／權限／部署判斷，或實際操作後才能安全掌握。請只回傳 JSON object，不要 Markdown，不要前言，格式必須是：\n{"items":[{"title":"...","category":"思考|提示設計|Agent 管理|上下文工程|程式碼理解|驗證|工作流程|工藝與心態|安全|協作|學習系統","tag":"新鮮實作|近期耐用|舊作高價值","difficulty":"初學者|普通|困難","takeaway":"...","problem":"...","principle":"...","try_it":"...","tradeoffs":"...","practice_prompt":"...","source_says":"...","editorial_synthesis":"...","source":{"url":"https://...","platform":"...","author":"...","published_at":"YYYY-MM-DD","evidence_excerpt":"...","popularity_basis":"..."},"scores":{"timeless":1,"importance":1,"popularity":1}}]}\n\n評分必須是 1 到 5 的數字。來源 URL、作者、日期與證據不確定時，請如實降低評分或排除，不要捏造。`;
 }
 
-function buildRequestPrompt(count, preferences, asOfDate, compact = false, slot = 0) {
-  const prompt = buildPrompt(count, preferences, asOfDate);
+function buildRequestPrompt(count, preferences, asOfDate, compact = false, slot = 0, batchCount = count) {
+  const prompt = buildPrompt(batchCount, preferences, asOfDate);
   const diversity = count === 1 ? `\n\n這是同一批中的第 ${slot + 1} 個獨立發現，請選擇與其他發現不同的實作主題，不要重複常見金句。` : '';
   const retry = compact ? `\n\n這是重試版本：每個欄位只寫 1 到 2 句，整篇控制在約 350 個中文字內，務必只完成這 1 篇。` : '';
   return `${prompt}${diversity}${retry}\n\n輸出欄位以 API 的 JSON Schema 為最高優先；source 只保留 url、platform、published_at，items 必須恰好包含 1 篇。`;
 }
 
-async function requestOpenRouter(key, count, preferences, asOfDate, attempt, slot = 0) {
+async function requestOpenRouter(key, count, preferences, asOfDate, attempt, slot = 0, batchCount = count) {
   const compact = attempt > 0;
   const responseFormat = compact
     ? { type: 'json_object' }
@@ -316,7 +359,7 @@ async function requestOpenRouter(key, count, preferences, asOfDate, attempt, slo
       model: OPENROUTER_MODEL,
       messages: [
         { role: 'system', content: '你是 Vibe Coding Daily Brew 的嚴謹中文編輯。只保留有證據、可轉移、可實作的做法。' },
-        { role: 'user', content: buildRequestPrompt(count, preferences, asOfDate, compact, slot) }
+        { role: 'user', content: buildRequestPrompt(count, preferences, asOfDate, compact, slot, batchCount) }
       ],
       temperature: compact ? 0.15 : 0.25,
       max_tokens: compact ? 2200 : 2400,
@@ -342,7 +385,7 @@ async function requestOpenRouter(key, count, preferences, asOfDate, attempt, slo
   return normalizeItems(parseJsonAnswer(answer), count, asOfDate);
 }
 
-async function requestOpenAI(key, count, preferences, asOfDate, attempt, slot = 0) {
+async function requestOpenAI(key, count, preferences, asOfDate, attempt, slot = 0, batchCount = count) {
   const compact = attempt > 0;
   const domains = allowedSearchDomains(preferences);
   const upstream = await fetch(OPENAI_API_URL, {
@@ -351,7 +394,7 @@ async function requestOpenAI(key, count, preferences, asOfDate, attempt, slot = 
     body: JSON.stringify({
       model: OPENAI_MODEL,
       instructions: '你是 Vibe Coding Daily Brew 的嚴謹中文編輯。只保留有證據、可轉移、可實作的做法。',
-      input: buildRequestPrompt(count, preferences, asOfDate, compact, slot),
+      input: buildRequestPrompt(count, preferences, asOfDate, compact, slot, batchCount),
       tools: [{ type: 'web_search_preview', ...(domains.length ? { filters: { allowed_domains: domains } } : {}) }],
       max_output_tokens: compact ? 2200 : 2400,
       text: { format: { type: 'json_schema', name: 'vibe_coding_brew', strict: true, schema: BREW_RESPONSE_SCHEMA } }
@@ -399,15 +442,15 @@ function runLocalCodex(prompt) {
   });
 }
 
-async function requestCodex(count, preferences, asOfDate, attempt, slot = 0) {
-  const answer = await runLocalCodex(buildRequestPrompt(count, preferences, asOfDate, attempt > 0, slot));
+async function requestCodex(count, preferences, asOfDate, attempt, slot = 0, batchCount = count) {
+  const answer = await runLocalCodex(buildRequestPrompt(count, preferences, asOfDate, attempt > 0, slot, batchCount));
   return normalizeItems(parseJsonAnswer(answer), count, asOfDate);
 }
 
-async function requestUpstream(key, count, preferences, asOfDate, attempt, slot = 0, provider = DEFAULT_PROVIDER) {
-  if (provider === 'openai') return requestOpenAI(key, count, preferences, asOfDate, attempt, slot);
-  if (provider === 'codex') return requestCodex(count, preferences, asOfDate, attempt, slot);
-  return requestOpenRouter(key, count, preferences, asOfDate, attempt, slot);
+async function requestUpstream(key, count, preferences, asOfDate, attempt, slot = 0, provider = DEFAULT_PROVIDER, batchCount = count) {
+  if (provider === 'openai') return requestOpenAI(key, count, preferences, asOfDate, attempt, slot, batchCount);
+  if (provider === 'codex') return requestCodex(count, preferences, asOfDate, attempt, slot, batchCount);
+  return requestOpenRouter(key, count, preferences, asOfDate, attempt, slot, batchCount);
 }
 
 function isTimeoutError(error) {
@@ -431,11 +474,11 @@ function publicErrorMessage(error) {
   return '手沖服務暫時無法使用。';
 }
 
-async function requestWithRetry(key, preferences, asOfDate, slot, provider) {
+async function requestWithRetry(key, preferences, asOfDate, slot, provider, batchCount) {
   let lastError;
   for (let attempt = 0; attempt < MAX_BREW_ATTEMPTS; attempt += 1) {
     try {
-      return await requestUpstream(key, 1, preferences, asOfDate, attempt, slot, provider);
+      return await requestUpstream(key, 1, preferences, asOfDate, attempt, slot, provider, batchCount);
     } catch (error) {
       lastError = error;
       if (attempt + 1 >= MAX_BREW_ATTEMPTS || !isRetryableModelError(error)) throw error;
@@ -466,7 +509,7 @@ async function brew(count, preferences, asOfDate, provider = DEFAULT_PROVIDER) {
   if (selectedProvider === 'openai' && !config.OPENAI_API_KEY?.trim()) throw Object.assign(new Error('openai_api_key_missing'), { status: 503 });
   if (selectedProvider === 'codex' && process.env.VERCEL) throw Object.assign(new Error('codex_local_only'), { status: 503 });
   const key = selectedProvider === 'openai' ? config.OPENAI_API_KEY?.trim() : config.OPENROUTER_API_KEY?.trim();
-  const items = await mapConcurrent(count, slot => requestWithRetry(key, preferences, asOfDate, slot, selectedProvider));
+  const items = await mapConcurrent(count, slot => requestWithRetry(key, preferences, asOfDate, slot, selectedProvider, count));
   return items.map((item, index) => ({ ...item, n: String(index + 1).padStart(2, '0') }));
 }
 
@@ -529,6 +572,14 @@ const server = createServer(async (req, res) => {
     if (requestUrl.pathname === '/api/health' && req.method === 'GET') {
       return sendJson(res, 200, { ok: true, providers: providerStatus() });
     }
+    if (requestUrl.pathname === '/api/auth' && ['GET', 'POST', 'OPTIONS'].includes(req.method)) {
+      const body = req.method === 'POST' ? await readJsonBody(req) : {};
+      return sendApiResult(res, await authApi({ method: req.method, headers: req.headers, url: req.url, body, env: config }));
+    }
+    if (requestUrl.pathname === '/api/preferences' && ['GET', 'PUT', 'OPTIONS'].includes(req.method)) {
+      const body = req.method === 'PUT' ? await readJsonBody(req) : {};
+      return sendApiResult(res, await preferencesApi({ method: req.method, headers: req.headers, url: req.url, body, env: config }));
+    }
     if (requestUrl.pathname === '/api/archive' && req.method === 'GET') {
       const requestedDate = requestUrl.searchParams.get('date');
       if (requestedDate) {
@@ -573,10 +624,10 @@ const server = createServer(async (req, res) => {
     if (requestUrl.pathname === '/api/brew' && req.method === 'POST') {
       const body = JSON.parse(await readRequestBody(req) || '{}');
       const historicalDate = body.date ? normalizeTargetDate(body.date) : '';
-      const count = historicalDate ? 10 : Number(body.count);
-      const provider = normalizeProvider(body.provider || body.preferences?.provider || DEFAULT_PROVIDER);
-      if (!Number.isInteger(count) || count < 1 || count > 10) return sendJson(res, 400, { error: '篇數必須是 1 到 10 之間的整數。' });
       const preferences = sanitizePreferences(body.preferences);
+      const count = historicalDate ? 10 : Number(body.count ?? preferences.itemCount);
+      const provider = normalizeProvider(body.provider || body.preferences?.provider || DEFAULT_PROVIDER);
+      if (!Number.isInteger(count) || count < 1 || count > 15) return sendJson(res, 400, { error: '篇數必須是 1 到 15 之間的整數。' });
       if (historicalDate) {
         try {
           const edition = await readEdition(historicalDate);
@@ -595,7 +646,7 @@ const server = createServer(async (req, res) => {
   } catch (error) {
     const modelError = ['model_response_empty', 'model_response_error', 'model_json_missing', 'model_json_incomplete', 'model_items_missing', 'model_items_incomplete'].includes(error.message);
     const status = error.status || (isTimeoutError(error) ? 504 : error.message === 'request_too_large' ? 413 : error instanceof SyntaxError ? 400 : modelError ? 502 : 500);
-    const message = error.message === 'request_too_large' ? '請求內容太大，請縮短偏好設定後再試。' : error.message === 'invalid_date' ? '日期格式無效，請使用 YYYY-MM-DD。' : error.message === 'future_date' ? '歷史手沖只能生成今天或更早的日期。' : error.message === 'source_after_as_of_date' ? '模型回傳了公示日期之後的來源，這一批沒有保存。' : publicErrorMessage(error);
+    const message = error.message === 'request_too_large' ? '請求內容太大，請縮短偏好設定後再試。' : error.message === 'invalid_json' ? '請傳送有效的 JSON。' : error.message === 'invalid_date' ? '日期格式無效，請使用 YYYY-MM-DD。' : error.message === 'future_date' ? '歷史手沖只能生成今天或更早的日期。' : error.message === 'source_after_as_of_date' ? '模型回傳了公示日期之後的來源，這一批沒有保存。' : publicErrorMessage(error);
     console.error(`Request failed: ${error.message}`);
     return sendJson(res, status, { error: message });
   }
