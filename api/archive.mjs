@@ -33,7 +33,15 @@ export default async function handler(req, res) {
     .sort((a, b) => b.localeCompare(a));
   const summaries = await Promise.all(dates.map(async date => {
     const edition = await readEdition(date);
-    return { date, count: Array.isArray(edition.items) ? edition.items.length : 0, generated_at: edition.generated_at || '', mode: edition.mode || 'daily' };
+    return {
+      date,
+      count: Array.isArray(edition.items) ? edition.items.length : 0,
+      generated_at: edition.generated_at || '',
+      mode: edition.mode || 'daily',
+      has_recipe: Boolean(edition.generation_recipe),
+      recipe_version: edition.generation_recipe?.schema_version || '',
+      generation_run_id: edition.generation_run_id || ''
+    };
   }));
   return send(res, 200, { dates: summaries });
 }
