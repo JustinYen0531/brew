@@ -30,15 +30,19 @@ node server.mjs
 supabase/migrations/20260821134423_create_brew_preferences.sql
 supabase/migrations/20260821160000_create_brew_profiles.sql
 supabase/migrations/20260821190000_add_morning_brew_recipe_settings.sql
+supabase/migrations/20260822100000_create_personal_brew_data.sql
+supabase/migrations/20260822101000_add_personal_brew_fk_indexes.sql
+supabase/migrations/20260822102000_allow_review_queue_cleanup.sql
+supabase/migrations/20260822110000_add_morning_rhythm_preferences.sql
 ```
 
-第一階段的登入後流程會先請使用者選一份固定主配方，再選編輯語氣與沖煮方式，最後設定閱讀難度、每天篇數、閱讀時間、新鮮感與是否帶回收藏複習。目前提供五份科技方向：Vibe Coding 入門、AI 創作工作室、AI 工作流與自動化、AI 產品與設計、AI 工具與基礎素養。主配方決定「想讀什麼」，來源櫃決定「材料從哪裡來」。
+第一階段的登入後流程會先請使用者選一份固定主配方，再選編輯語氣與沖煮方式，最後設定閱讀難度、每天篇數、閱讀時間、新鮮感與是否帶回收藏複習。目前提供五份科技方向：Vibe Coding 入門、AI 創作工作室、AI 工作流與自動化、AI 產品與設計、AI 工具與基礎素養。主配方決定「想讀什麼」，來源櫃決定「材料從哪裡來」；來源櫃也能調整主題權重、輸出語言、晨報比例、時區與早晨時間。
 
 每份晨報配方都會把 `recipe_id`、`editorial_tone`、`brew_method`、來源語言、來源選擇、來源權重、指定社群、硬性網址與額外採編備註分開保存。API payload 不包含 API key；API key 只留在目前瀏覽器的本機設定裡。
 
 這個帳號是「目前瀏覽器裡的晨報身份」。清除瀏覽器資料、登出或換裝置後，單靠暱稱無法找回原本的配方；這是不用信箱換來的隱私邊界。
 
-每日自動生成會把當次的配方、提示詞版本、模型、搜尋規則、嘗試紀錄與輸出來源保存進 `daily/generation-runs/`，同時把配方副本嵌入當天的 edition。可以用 `/api/edition-recipe?date=YYYY-MM-DD` 讀取安全的公開版本；網站會在今日與過往日報顯示「查看本期配方」，提供公開配方與分享連結的複製操作。
+每日自動生成會把當次的配方、提示詞版本、模型、搜尋規則、來源連接器、候選池、URL 檢查、嘗試紀錄與輸出來源保存進 `daily/generation-runs/`，同時把配方副本嵌入當天的 edition。可以用 `/api/edition-recipe?date=YYYY-MM-DD` 讀取安全的公開版本；網站會在今日與過往日報顯示「查看本期配方」，提供公開配方與分享連結的複製操作。個人晨報則把同一份配方快照存入 Supabase 的個人 edition。
 
 生成結果會放在 `outputs/vibe-coding-daily-brew/daily/YYYY-MM-DD.json`，網站會優先讀取 `daily/latest.json`；同一天已有檔案時，重跑會安全跳過。需要重新生成時才使用 `--force`。
 
@@ -54,7 +58,7 @@ Invoke-RestMethod http://localhost:4173/api/recipe-catalog
 Invoke-RestMethod 'http://localhost:4173/api/source-recommendations?recipe_id=ai-creative&limit=10'
 ```
 
-來源探索資料庫位於 `data/vibe-coding-source-catalog.json`，目前有 10 個候選提供者；每份主配方會帶著自己的固定來源包。來源櫃開啟時會載入該主配方的 10 筆排序結果；輸入來源名稱、主題或社群後，先用資料庫別名與主題比對，符合項目不足 3 個時才嘗試即時搜尋。即時來源推薦會跟著 `OpenAI API`／`OpenRouter` provider 使用對應 key；選擇本機 Codex 時則仍可使用本地目錄與自訂 URL。每日手沖本身則依你選取的 provider 使用對應 key。
+來源探索資料庫位於 `data/vibe-coding-source-catalog.json`，目前有 10 個候選提供者；每份主配方會帶著自己的固定來源包。來源櫃開啟時會載入該主配方的 10 筆排序結果；輸入來源名稱、主題或社群後，先用資料庫別名與主題比對，符合項目不足 3 個時才嘗試即時搜尋。每日手沖前會由 `source-connectors.mjs` 收集公開 GitHub、Hacker News、Reddit RSS、DEV.to 與公開 RSS 候選，生成後再逐一確認 URL 是否可訪問。Facebook、LINE、ROBOCO 等沒有合法公開連接器的來源只會標示為 `unsupported`，需要官方 API、合法授權或手動匯入，不會假裝已經讀過。每日手沖本身則依你選取的 provider 使用對應 key。
 
 主配方目錄可由 `/api/recipe-catalog` 取得，這讓前端的五份選擇與伺服器採用同一份資料。每一期自動日報會保存當時的主配方、語氣、沖煮方式、來源設定與完整 Prompt；歷史手沖也會在 edition 裡保留 `manual_brew` 配方快照。
 
@@ -66,9 +70,11 @@ node --check api/source-recommendations.mjs
 node --input-type=module -e "import { readFile } from 'node:fs/promises'; const data = JSON.parse(await readFile('data/vibe-coding-source-catalog.json', 'utf8')); console.log(data.sources.length, data.defaultSourceIds.length)"
 ```
 
-配方細節中的「加入我的配方」與「新增來源」會保存在目前瀏覽器的 `localStorage`；它們是排序線索，不會降低每日內容的來源日期、作者、證據與可重複性要求。
+未登入時，配方細節中的「加入我的配方」與「新增來源」會先保存在目前瀏覽器的 `localStorage`；登入後，正式偏好會保存到 Supabase。API key 仍只留在目前瀏覽器的本機設定，不會寫入偏好、edition、生成履歷或公開配方；這些設定只是排序線索，不會降低每日內容的來源日期、作者、證據與可重複性要求。
 
-Vercel 的 `/api/brew` 可以回傳歷史模擬批次，但目前沒有接資料庫；前端會將本次生成保存在目前瀏覽器的 localStorage。要做跨瀏覽器、跨裝置的永久歷史庫，仍需要另接持久化儲存。
+Vercel 的 `/api/brew` 已能在帶有匿名 Supabase Access Token 時保存個人 daily、manual、historical edition；沒有登入的歷史模擬仍只回傳結果，不會寫入個人資料。要做跨瀏覽器、跨裝置找回匿名帳號，仍需要另設計使用者同意的正式登入方式。
+
+來源連接器與候選池都遵守同一條規則：來源收集只使用公開介面、RSS、使用者指定網址或合法授權；模型不能把沒有證據的網址、作者、日期或互動數據補成「看起來完整」。候選不足時，手沖會失敗並留下失敗原因，不會塞入假文章。
 
 ## Windows 自動排程
 

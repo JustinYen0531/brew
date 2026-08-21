@@ -22,6 +22,65 @@ function redactPublicText(value) {
     .replace(/\bBearer\s+[A-Za-z0-9._-]{16,}/gi, 'Bearer [已移除]');
 }
 
+function publicSourceCollection(recipe) {
+  const collection = recipe?.source_collection || recipe?.candidate_pool?.source_collection;
+  if (!collection || typeof collection !== 'object') return null;
+  return {
+    version: collection.version || '',
+    as_of_date: collection.as_of_date || '',
+    requested_source_ids: Array.isArray(collection.requested_source_ids) ? collection.requested_source_ids.slice(0, 20) : [],
+    hard_direct_url_scope: collection.hard_direct_url_scope === true,
+    custom_source_count: Number(collection.custom_source_count) || 0,
+    candidate_count: Number(collection.candidate_count) || 0,
+    fallback_to_model_search: collection.fallback_to_model_search === true,
+    connectors: Array.isArray(collection.connectors) ? collection.connectors.slice(0, 24).map(connector => ({
+      source_id: String(connector?.source_id || '').slice(0, 120),
+      status: String(connector?.status || '').slice(0, 40),
+      candidate_count: Number(connector?.candidate_count) || 0,
+      note: redactPublicText(connector?.note || ''),
+      error: redactPublicText(connector?.error || '')
+    })) : [],
+    policy: redactPublicText(collection.policy || '')
+  };
+}
+
+function publicCandidatePool(recipe) {
+  const pool = recipe?.candidate_pool;
+  if (!pool || typeof pool !== 'object') return null;
+  return {
+    version: pool.version || '',
+    as_of_date: pool.as_of_date || '',
+    requested_count: Number(pool.requested_count) || 0,
+    input_count: Number(pool.input_count) || 0,
+    eligible_count: Number(pool.eligible_count) || 0,
+    selected_count: Number(pool.selected_count) || 0,
+    rejected: pool.rejected && typeof pool.rejected === 'object' ? pool.rejected : {},
+    hard_rules: pool.hard_rules && typeof pool.hard_rules === 'object' ? pool.hard_rules : {},
+    ranking_signals: Array.isArray(pool.ranking_signals) ? pool.ranking_signals.slice(0, 24) : [],
+    selected: Array.isArray(pool.selected) ? pool.selected.slice(0, 20).map(candidate => ({
+      lesson_key: String(candidate?.lesson_key || '').slice(0, 240),
+      title: redactPublicText(candidate?.title || ''),
+      url: String(candidate?.url || '').slice(0, 1000),
+      source_family: String(candidate?.source_family || '').slice(0, 120),
+      source_type: String(candidate?.source_type || '').slice(0, 160),
+      published_at: String(candidate?.published_at || '').slice(0, 40),
+      difficulty: String(candidate?.difficulty || '').slice(0, 12),
+      score: Number(candidate?.score) || 0,
+      score_breakdown: candidate?.score_breakdown && typeof candidate.score_breakdown === 'object' ? candidate.score_breakdown : {},
+      source_weight: Number(candidate?.source_weight) || 0,
+      feedback_matches: Array.isArray(candidate?.feedback_matches) ? candidate.feedback_matches.slice(0, 12) : [],
+      url_accessible: candidate?.url_accessible !== false
+    })) : [],
+    source_collection: publicSourceCollection({ source_collection: pool.source_collection }),
+    url_checks: Array.isArray(pool.url_checks) ? pool.url_checks.slice(0, 40).map(check => ({
+      url: String(check?.url || '').slice(0, 1000),
+      accessible: check?.accessible === true,
+      status: Number(check?.status) || 0,
+      reason: redactPublicText(check?.reason || '')
+    })) : []
+  };
+}
+
 export function publicRecipe(recipe) {
   if (!recipe || recipe.kind !== 'automatic_daily_brew') return null;
   return {
@@ -36,6 +95,7 @@ export function publicRecipe(recipe) {
       source_language: recipe.preferences?.source_language || recipe.preferences?.language || 'zh-Hant',
       selected_source_ids: recipe.preferences?.selected_source_ids || [],
       source_weights: recipe.preferences?.source_weights || {},
+      topic_weights: recipe.preferences?.topic_weights || {},
       topics: recipe.preferences?.topics || [],
       source_lanes: recipe.preferences?.source_lanes || [],
       difficulty_levels: recipe.preferences?.difficulty_levels || [],
@@ -43,7 +103,11 @@ export function publicRecipe(recipe) {
       item_count: recipe.preferences?.item_count || 10,
       novelty_level: recipe.preferences?.novelty_level || 3,
       review_enabled: recipe.preferences?.review_enabled !== false,
-      blend: recipe.preferences?.blend || null
+      blend: recipe.preferences?.blend || recipe.preferences?.blend_ratios || null,
+      blend_ratios: recipe.preferences?.blend_ratios || recipe.preferences?.blend || null,
+      output_language: recipe.preferences?.output_language || recipe.preferences?.language || 'zh-Hant',
+      timezone: recipe.preferences?.timezone || 'Asia/Taipei',
+      morning_time: recipe.preferences?.morning_time || '07:00'
     },
     prompt: {
       version: recipe.prompt?.version || '',
@@ -51,7 +115,9 @@ export function publicRecipe(recipe) {
       text: redactPublicText(recipe.prompt?.text)
     },
     model: recipe.model || {},
-    search_rules: recipe.search_rules || {}
+    search_rules: recipe.search_rules || {},
+    source_collection: publicSourceCollection(recipe),
+    candidate_pool: publicCandidatePool(recipe)
   };
 }
 
