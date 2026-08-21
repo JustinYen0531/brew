@@ -2,6 +2,7 @@ import { sanitizePreferenceRecord } from './preferences.mjs';
 import { buildMorningBrewPrompt, buildMorningBrewRecipeSnapshot } from '../morning-brew-recipes.mjs';
 import { getAuthorizedContext, readPersonalEdition, readPersonalRecommendationSignals, sanitizeStoredJson, savePersonalEdition } from './edition-storage.mjs';
 import { filterAndRankCandidates } from '../candidate-pool.mjs';
+import { collectSourceCandidates } from '../source-connectors.mjs';
 
 const OPENROUTER_MODEL = process.env.OPENROUTER_MODEL || 'deepseek/deepseek-v4-flash-0731';
 const OPENAI_MODEL = process.env.OPENAI_MODEL || 'gpt-5.4';
@@ -426,11 +427,13 @@ export default async function handler(req, res) {
   if (!key) return res.status(503).json({ error: provider === 'openai' ? 'Vercel 尚未設定 OPENAI_API_KEY。' : 'Vercel 尚未設定 OPENROUTER_API_KEY。' });
 
   try {
+    const sourceCollection = await collectSourceCandidates(preferences, asOfDate);
+    const requestPreferences = { ...preferences, sourceCandidates: sourceCollection.candidates };
     async function requestWithRetry(slot) {
       let lastError;
       for (let attempt = 0; attempt < MAX_BREW_ATTEMPTS; attempt += 1) {
         try {
-          return await requestUpstream(key, 1, preferences, asOfDate, attempt, slot, provider, count);
+          return await requestUpstream(key, 1, requestPreferences, asOfDate, attempt, slot, provider, count);
         } catch (error) {
           lastError = error;
           if (attempt + 1 >= MAX_BREW_ATTEMPTS || !isRetryableModelError(error)) throw error;
@@ -451,6 +454,7 @@ export default async function handler(req, res) {
     }
     await Promise.all(Array.from({ length: Math.min(count, MAX_PARALLEL_BREWS) }, () => worker()));
     const ranked = filterAndRankCandidates(results.flat(), preferences, asOfDate, { count });
+    ranked.snapshot = { ...ranked.snapshot, source_collection: sourceCollection.snapshot };
     const items = ranked.items;
     if (personalContext) {
       const generatedAt = new Date().toISOString();

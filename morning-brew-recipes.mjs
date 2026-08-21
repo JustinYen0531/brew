@@ -161,6 +161,10 @@ export function buildMorningBrewPrompt(count, preferences = {}, asOfDate) {
   const blendText = `新發現 ${Number(blend.new_discoveries ?? 60)}%／收藏複習 ${Number(blend.saved_reviews ?? 20)}%／經典 ${Number(blend.classic ?? 10)}%／意外驚喜 ${Number(blend.surprise ?? 10)}%`;
   const timezone = preferences.timezone || 'Asia/Taipei';
   const morningTime = preferences.morningTime || preferences.morning_time || '07:00';
+  const collectedCandidates = Array.isArray(preferences.sourceCandidates) ? preferences.sourceCandidates.slice(0, 40) : [];
+  const candidateBrief = collectedCandidates.length
+    ? collectedCandidates.map((candidate, index) => `${index + 1}. ${candidate.title || '未命名'}｜${candidate.sourceType || candidate.source || '來源'}｜${candidate.date || '日期未知'}｜${candidate.url || ''}｜證據摘要：${candidate.evidence || '未提供'}`).join('\n')
+    : '這次沒有收集到公開候選；可以使用模型搜尋，但仍必須逐篇驗證 canonical URL、日期與證據。';
   const selectedSources = [...(preferences.selectedSources || []), ...(preferences.customSources || [])]
     .filter(source => source?.url)
     .map(source => `${source.name || source.platform || '未命名來源'} <${source.url}>`)
@@ -208,6 +212,10 @@ export function buildMorningBrewPrompt(count, preferences = {}, asOfDate) {
     '使用回饋時，Super Starred 代表優先找相似的問題深度、內容形式或實作脈絡；Starred 代表值得保留；not_interested、unstarred 或 exclude_source 代表降低相似訊號。只把它當成排序與採編方向，仍要重新驗證每篇來源，不要重複同一篇內容。',
     '硬性網址來源（若有，只能從這些網址或其頁面翻找）：',
     directSources,
+    '',
+    '【來源連接器先收集的候選內容】',
+    candidateBrief,
+    collectedCandidates.length ? '候選內容已先經公開連接器收集；優先從這份清單提煉，不能捏造清單外的 URL。若需要補充，必須仍通過相同的日期、canonical URL 與來源證據檢查。' : '目前沒有連接器候選；這是 fallback 狀態，不代表可以省略來源驗證。',
     '',
     '請把來源推薦與硬性網址分開理解：來源推薦是排序訊號；硬性網址是來源限制。每篇都要有可以開啟的 canonical URL、發布日期與來源證據，不要捏造作者、日期、互動數據或引文。不要做產品新聞、募資消息、空泛金句或只有功能清單的內容。每篇只教一個可轉移的 idea，並說明問題、原則、可操作範例、限制、練習題與編輯綜合。難度請依先備知識與實作風險判定：初學者＝具備基本閱讀與提問能力即可嘗試；普通＝需要基本程式碼、repository 或測試經驗；困難＝需要多步驟整合、架構／權限／部署判斷，或實際操作後才能安全掌握。',
     '',

@@ -16,6 +16,7 @@ import { buildEditionRecipeResponse } from './api/edition-recipe.mjs';
 import { buildMorningBrewPrompt, buildMorningBrewRecipeSnapshot, getMorningRecipe, publicMorningBrewCatalog } from './morning-brew-recipes.mjs';
 import { getAuthorizedContext, readPersonalEdition, readPersonalRecommendationSignals, sanitizeStoredJson, savePersonalEdition } from './api/edition-storage.mjs';
 import { filterAndRankCandidates } from './candidate-pool.mjs';
+import { collectSourceCandidates } from './source-connectors.mjs';
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const SITE_FILE = path.join(ROOT, 'outputs', 'vibe-coding-daily-brew', 'index.html');
@@ -543,8 +544,12 @@ async function brew(count, preferences, asOfDate, provider = DEFAULT_PROVIDER, r
   if (selectedProvider === 'openai' && !providedKey && !configuredKey) throw Object.assign(new Error('openai_api_key_missing'), { status: 503 });
   if (selectedProvider === 'codex' && process.env.VERCEL) throw Object.assign(new Error('codex_local_only'), { status: 503 });
   const key = providedKey || configuredKey;
-  const items = await mapConcurrent(count, slot => requestWithRetry(key, preferences, asOfDate, slot, selectedProvider, count));
-  return filterAndRankCandidates(items, preferences, asOfDate, { count });
+  const sourceCollection = await collectSourceCandidates(preferences, asOfDate);
+  const requestPreferences = { ...preferences, sourceCandidates: sourceCollection.candidates };
+  const items = await mapConcurrent(count, slot => requestWithRetry(key, requestPreferences, asOfDate, slot, selectedProvider, count));
+  const ranked = filterAndRankCandidates(items, preferences, asOfDate, { count });
+  ranked.snapshot = { ...ranked.snapshot, source_collection: sourceCollection.snapshot };
+  return ranked;
 }
 
 async function serveSite(res) {
