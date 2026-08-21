@@ -7,6 +7,7 @@ import {
   requestOriginInfo,
   supabaseRequest
 } from './auth.mjs';
+import { BREW_METHODS, BREW_TONES, MORNING_BREW_RECIPES } from '../morning-brew-recipes.mjs';
 
 const ARRAY_RULES = {
   topics: { limit: 12, maxLength: 80 },
@@ -18,6 +19,9 @@ const ARRAY_RULES = {
 const DIFFICULTY_LEVELS = ['初學者', '普通', '困難'];
 const ALLOWED_READING_MINUTES = [5, 10, 20];
 const ALLOWED_ITEM_COUNTS = [5, 10, 15];
+const ALLOWED_RECIPE_IDS = MORNING_BREW_RECIPES.map(recipe => recipe.id);
+const ALLOWED_TONE_IDS = BREW_TONES.map(tone => tone.id);
+const ALLOWED_METHOD_IDS = BREW_METHODS.map(method => method.id);
 
 function sourceRecord(raw = {}) {
   if (raw?.preferences && typeof raw.preferences === 'object' && !Array.isArray(raw.preferences)) return raw.preferences;
@@ -50,6 +54,39 @@ function normalizeBoolean(value, fallback) {
   return typeof value === 'boolean' ? value : fallback;
 }
 
+function normalizeChoice(value, choices, fallback) {
+  return choices.includes(value) ? value : fallback;
+}
+
+function normalizeSourceIds(value) {
+  return normalizeStringArray(value, { limit: 20, maxLength: 120 });
+}
+
+function normalizeUrlArray(value) {
+  if (!Array.isArray(value)) return [];
+  return [...new Set(value
+    .filter(item => typeof item === 'string' && /^https?:\/\//i.test(item.trim()))
+    .map(item => item.trim().slice(0, 500)))].slice(0, 10);
+}
+
+function normalizeSourceWeights(value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
+  return Object.fromEntries(Object.entries(value).slice(0, 20).flatMap(([key, raw]) => {
+    const name = String(key).trim().slice(0, 120);
+    const number = Number(raw);
+    return name && Number.isFinite(number) ? [[name, Math.min(5, Math.max(1, Math.round(number)))]] : [];
+  }));
+}
+
+function normalizeSpecificSources(value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
+  return Object.fromEntries(Object.entries(value).slice(0, 20).flatMap(([key, raw]) => {
+    const name = String(key).trim().slice(0, 120);
+    const valueText = typeof raw === 'string' ? raw.trim().slice(0, 160) : '';
+    return name && valueText ? [[name, valueText]] : [];
+  }));
+}
+
 export function sanitizePreferenceRecord(raw = {}) {
   const input = sourceRecord(raw);
   const topics = normalizeStringArray(firstDefined(input, 'topics', 'topics'), ARRAY_RULES.topics);
@@ -60,6 +97,9 @@ export function sanitizePreferenceRecord(raw = {}) {
     .filter(value => DIFFICULTY_LEVELS.includes(value));
 
   return {
+    recipe_id: normalizeChoice(firstDefined(input, 'recipe_id', 'recipeId'), ALLOWED_RECIPE_IDS, 'vibe-coding'),
+    editorial_tone: normalizeChoice(firstDefined(input, 'editorial_tone', 'editorialTone'), ALLOWED_TONE_IDS, 'hands-on-editor'),
+    brew_method: normalizeChoice(firstDefined(input, 'brew_method', 'brewMethod'), ALLOWED_METHOD_IDS, 'daily-pour'),
     topics,
     excluded_topics: excludedTopics,
     content_styles: contentStyles,
@@ -69,7 +109,13 @@ export function sanitizePreferenceRecord(raw = {}) {
     item_count: normalizeNumber(firstDefined(input, 'item_count', 'itemCount'), ALLOWED_ITEM_COUNTS, 10),
     novelty_level: Math.min(5, Math.max(1, Number.isFinite(Number(firstDefined(input, 'novelty_level', 'noveltyLevel'))) ? Math.round(Number(firstDefined(input, 'novelty_level', 'noveltyLevel'))) : 3)),
     review_enabled: normalizeBoolean(firstDefined(input, 'review_enabled', 'reviewEnabled'), true),
-    onboarding_completed: normalizeBoolean(firstDefined(input, 'onboarding_completed', 'onboardingCompleted'), false)
+    onboarding_completed: normalizeBoolean(firstDefined(input, 'onboarding_completed', 'onboardingCompleted'), false),
+    source_language: normalizeChoice(firstDefined(input, 'source_language', 'sourceLanguage') ?? input.language, ['zh-Hant', 'en'], 'zh-Hant'),
+    selected_source_ids: normalizeSourceIds(firstDefined(input, 'selected_source_ids', 'selectedSourceIds')),
+    source_weights: normalizeSourceWeights(firstDefined(input, 'source_weights', 'sourceWeights')),
+    specific_sources: normalizeSpecificSources(firstDefined(input, 'specific_sources', 'specificSources')),
+    direct_urls: normalizeUrlArray(firstDefined(input, 'direct_urls', 'directUrls')),
+    source_prompt: typeof firstDefined(input, 'source_prompt', 'sourcePrompt') === 'string' ? firstDefined(input, 'source_prompt', 'sourcePrompt').trim().slice(0, 1000) : ''
   };
 }
 

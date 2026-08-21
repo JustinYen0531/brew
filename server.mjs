@@ -9,6 +9,7 @@ import { authApi } from './api/auth.mjs';
 import { preferencesApi, sanitizePreferenceRecord } from './api/preferences.mjs';
 import { profileApi } from './api/profile.mjs';
 import { buildEditionRecipeResponse } from './api/edition-recipe.mjs';
+import { buildMorningBrewPrompt, getMorningRecipe, publicMorningBrewCatalog } from './morning-brew-recipes.mjs';
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const SITE_FILE = path.join(ROOT, 'outputs', 'vibe-coding-daily-brew', 'index.html');
@@ -161,6 +162,9 @@ function sanitizePreferences(raw = {}) {
   })) : [];
   return {
     ...profile,
+    recipeId: profile.recipe_id,
+    editorialTone: profile.editorial_tone,
+    brewMethod: profile.brew_method,
     topics: profile.topics,
     excludedTopics: profile.excluded_topics,
     contentStyles: profile.content_styles,
@@ -171,6 +175,12 @@ function sanitizePreferences(raw = {}) {
     noveltyLevel: profile.novelty_level,
     reviewEnabled: profile.review_enabled,
     onboardingCompleted: profile.onboarding_completed,
+    sourceLanguage: profile.source_language,
+    selectedSourceIds: profile.selected_source_ids,
+    sourceWeights: profile.source_weights,
+    specificSources: profile.specific_sources,
+    directUrls: profile.direct_urls,
+    sourcePrompt: profile.source_prompt,
     sourceWeights,
     specificSources,
     selectedSources,
@@ -338,7 +348,7 @@ function buildPrompt(count, preferences, asOfDate) {
 }
 
 function buildRequestPrompt(count, preferences, asOfDate, compact = false, slot = 0, batchCount = count) {
-  const prompt = buildPrompt(batchCount, preferences, asOfDate);
+  const prompt = buildMorningBrewPrompt(batchCount, preferences, asOfDate);
   const diversity = count === 1 ? `\n\n這是同一批中的第 ${slot + 1} 個獨立發現，請選擇與其他發現不同的實作主題，不要重複常見金句。` : '';
   const retry = compact ? `\n\n這是重試版本：每個欄位只寫 1 到 2 句，整篇控制在約 350 個中文字內，務必只完成這 1 篇。` : '';
   return `${prompt}${diversity}${retry}\n\n輸出欄位以 API 的 JSON Schema 為最高優先；source 只保留 url、platform、published_at，items 必須恰好包含 1 篇。`;
@@ -561,7 +571,75 @@ async function listArchive(month) {
   }));
 }
 
-function createEdition(date, items, mode = 'historical', provider = DEFAULT_PROVIDER) {
+function buildEditionRecipeSnapshot(date, itemCount, mode, provider, preferences = {}) {
+  const recipe = getMorningRecipe(preferences.recipeId || preferences.recipe_id);
+  const recipePreferences = {
+    recipeId: recipe.id,
+    editorialTone: preferences.editorialTone || preferences.editorial_tone || 'hands-on-editor',
+    brewMethod: preferences.brewMethod || preferences.brew_method || 'daily-pour',
+    topics: preferences.topics?.length ? preferences.topics : recipe.topics,
+    excludedTopics: preferences.excludedTopics?.length ? preferences.excludedTopics : recipe.excludedTopics,
+    contentStyles: preferences.contentStyles?.length ? preferences.contentStyles : recipe.defaultContentStyles,
+    sourceLanes: preferences.sourceLanes?.length ? preferences.sourceLanes : recipe.sourceLanes,
+    difficultyLevels: preferences.difficultyLevels?.length ? preferences.difficultyLevels : ['普通'],
+    readingMinutes: preferences.readingMinutes || 10,
+    itemCount,
+    noveltyLevel: preferences.noveltyLevel || 3,
+    reviewEnabled: preferences.reviewEnabled !== false,
+    sourceLanguage: preferences.sourceLanguage || 'zh-Hant',
+    selectedSourceIds: preferences.selectedSourceIds?.length ? preferences.selectedSourceIds : recipe.sourceIds,
+    sourceWeights: preferences.sourceWeights || {},
+    specificSources: preferences.specificSources || {},
+    directUrls: preferences.directUrls || [],
+    sourcePrompt: preferences.sourcePrompt || preferences.prompt || '',
+    prompt: preferences.prompt || '',
+    selectedSources: preferences.selectedSources || [],
+    customSources: preferences.customSources || []
+  };
+  const selectedProvider = normalizeProvider(provider);
+  return {
+    schema_version: 'live-recipe-v1',
+    kind: mode === 'daily' ? 'automatic_daily_brew' : 'manual_brew',
+    run_date: date,
+    as_of_date: date,
+    preferences: {
+      recipe_id: recipePreferences.recipeId,
+      editorial_tone: recipePreferences.editorialTone,
+      brew_method: recipePreferences.brewMethod,
+      source_language: recipePreferences.sourceLanguage,
+      selected_source_ids: recipePreferences.selectedSourceIds,
+      source_weights: recipePreferences.sourceWeights,
+      specific_sources: recipePreferences.specificSources,
+      direct_urls: recipePreferences.directUrls,
+      source_prompt: recipePreferences.sourcePrompt,
+      topics: recipePreferences.topics,
+      excluded_topics: recipePreferences.excludedTopics,
+      content_styles: recipePreferences.contentStyles,
+      source_lanes: recipePreferences.sourceLanes,
+      difficulty_levels: recipePreferences.difficultyLevels,
+      language: recipePreferences.sourceLanguage,
+      item_count: itemCount,
+      novelty_level: recipePreferences.noveltyLevel,
+      review_enabled: recipePreferences.reviewEnabled,
+      blend: { new_discoveries: 6, saved_reviews: 2, classic: 1, surprise: 1 }
+    },
+    prompt: {
+      version: 'live-prompt-v1',
+      system: '你是 Vibe Coding Daily Brew 的嚴謹中文編輯。只保留有證據、可轉移、可實作的做法。',
+      text: buildMorningBrewPrompt(itemCount, recipePreferences, date)
+    },
+    model: { provider: selectedProvider, name: modelForProvider(selectedProvider), generation_method: selectedProvider === 'codex' ? 'local_codex_exec' : 'provider_api' },
+    search_rules: {
+      version: 'live-search-v1',
+      web_search_required: true,
+      allowed_source_date_lte: date,
+      canonical_url_required: true,
+      evidence_required: true
+    }
+  };
+}
+
+function createEdition(date, items, mode = 'historical', provider = DEFAULT_PROVIDER, preferences = {}) {
   const selectedProvider = normalizeProvider(provider);
   return {
     run_date: date,
@@ -574,6 +652,7 @@ function createEdition(date, items, mode = 'historical', provider = DEFAULT_PROV
       ? `模擬網站在 ${date} 當天已存在時，從當時可見的發現中手沖十份可驗證、可轉移的 Vibe Coding 做法。`
       : '從當前社群討論中挑出十個可驗證、可轉移、值得留下的 Vibe Coding 做法。',
     generated_at: new Date().toISOString(),
+    generation_recipe: buildEditionRecipeSnapshot(date, items.length, mode, selectedProvider, preferences),
     items
   };
 }
@@ -619,6 +698,9 @@ const server = createServer(async (req, res) => {
         throw error;
       }
     }
+    if (requestUrl.pathname === '/api/recipe-catalog' && req.method === 'GET') {
+      return sendJson(res, 200, publicMorningBrewCatalog());
+    }
     const dailyFile = requestUrl.pathname.match(/^\/outputs\/vibe-coding-daily-brew\/daily\/(latest|\d{4}-\d{2}-\d{2})\.json$/);
     if (dailyFile && req.method === 'GET') {
       try {
@@ -631,7 +713,10 @@ const server = createServer(async (req, res) => {
       const query = (requestUrl.searchParams.get('query') || '').trim().slice(0, 160);
       const limit = Math.max(1, Math.min(10, Number(requestUrl.searchParams.get('limit')) || 10));
       const catalog = await readSourceCatalog();
-      const localSources = query.length >= 2 ? catalog.sources.filter(source => sourceMatchesQuery(source, query)) : [...catalog.sources];
+      const recipe = getMorningRecipe(requestUrl.searchParams.get('recipe_id') || requestUrl.searchParams.get('recipeId'));
+      const recipeSourceIds = new Set(recipe.sourceIds || []);
+      const scopedCatalog = catalog.sources.filter(source => recipeSourceIds.has(source.id));
+      const localSources = query.length >= 2 ? scopedCatalog.filter(source => sourceMatchesQuery(source, query)) : [...scopedCatalog];
       let sources = localSources;
       let live = false;
       const localMatches = localSources.length;
@@ -647,7 +732,7 @@ const server = createServer(async (req, res) => {
           if (!knownUrls.has(key)) { sources.push(source); knownUrls.add(key); live = true; }
         }
       }
-      return sendJson(res, 200, { query, sources: rankSources(sources, query, limit), catalog_sources: catalog.sources, live, ranking_version: SOURCE_RANKING_VERSION, catalog_version: catalog.catalogVersion, updated_at: catalog.updatedAt });
+      return sendJson(res, 200, { query, recipe_id: recipe.id, sources: rankSources(sources, query, limit), catalog_sources: scopedCatalog, live, ranking_version: SOURCE_RANKING_VERSION, catalog_version: catalog.catalogVersion, updated_at: catalog.updatedAt });
     }
     if (requestUrl.pathname === '/api/brew' && req.method === 'POST') {
       const body = JSON.parse(await readRequestBody(req) || '{}');
@@ -663,7 +748,7 @@ const server = createServer(async (req, res) => {
           return sendJson(res, 200, { edition, model: edition.model || modelForProvider(edition.provider || provider), provider: edition.provider || provider, reused: true });
         }
         catch (error) { if (error.code !== 'ENOENT') throw error; }
-        const edition = createEdition(historicalDate, await brew(10, preferences, historicalDate, provider, requestApiKey), 'historical', provider);
+        const edition = createEdition(historicalDate, await brew(10, preferences, historicalDate, provider, requestApiKey), 'historical', provider, preferences);
         await writeEdition(historicalDate, edition);
         return sendJson(res, 200, { edition, model: edition.model, provider, reused: false });
       }

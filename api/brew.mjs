@@ -1,4 +1,5 @@
 import { sanitizePreferenceRecord } from './preferences.mjs';
+import { buildMorningBrewPrompt } from '../morning-brew-recipes.mjs';
 
 const OPENROUTER_MODEL = process.env.OPENROUTER_MODEL || 'deepseek/deepseek-v4-flash-0731';
 const OPENAI_MODEL = process.env.OPENAI_MODEL || 'gpt-5.4';
@@ -111,6 +112,9 @@ function sanitizePreferences(raw = {}) {
   const directUrls = Array.isArray(raw.directUrls) ? raw.directUrls.filter(url => typeof url === 'string' && /^https?:\/\//i.test(url.trim())).map(url => url.trim().slice(0, 500)).slice(0, 10) : [];
   return {
     ...profile,
+    recipeId: profile.recipe_id,
+    editorialTone: profile.editorial_tone,
+    brewMethod: profile.brew_method,
     topics: profile.topics,
     excludedTopics: profile.excluded_topics,
     contentStyles: profile.content_styles,
@@ -121,6 +125,12 @@ function sanitizePreferences(raw = {}) {
     noveltyLevel: profile.novelty_level,
     reviewEnabled: profile.review_enabled,
     onboardingCompleted: profile.onboarding_completed,
+    sourceLanguage: profile.source_language,
+    selectedSourceIds: profile.selected_source_ids,
+    sourceWeights: profile.source_weights,
+    specificSources: profile.specific_sources,
+    directUrls: profile.direct_urls,
+    sourcePrompt: profile.source_prompt,
     sourceWeights,
     specificSources,
     selectedSources,
@@ -260,7 +270,7 @@ function buildPrompt(count, preferences, asOfDate) {
 }
 
 function buildRequestPrompt(count, preferences, asOfDate, compact = false, slot = 0, batchCount = count) {
-  const prompt = buildPrompt(batchCount, preferences, asOfDate);
+  const prompt = buildMorningBrewPrompt(batchCount, preferences, asOfDate);
   const diversity = count === 1 ? `\n\n這是同一批中的第 ${slot + 1} 個獨立發現，請選擇與其他發現不同的實作主題，不要重複常見金句。` : '';
   const retry = compact ? `\n\n這是重試版本：每個欄位只寫 1 到 2 句，整篇控制在約 350 個中文字內，務必只完成這 1 篇。` : '';
   return `${prompt}${diversity}${retry}\n\n輸出欄位以 API 的 JSON Schema 為最高優先；source 只保留 url、platform、published_at，items 必須恰好包含 1 篇。`;

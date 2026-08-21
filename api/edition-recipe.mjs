@@ -30,6 +30,12 @@ export function publicRecipe(recipe) {
     run_date: recipe.run_date,
     as_of_date: recipe.as_of_date,
     preferences: {
+      recipe_id: recipe.preferences?.recipe_id || 'vibe-coding',
+      editorial_tone: recipe.preferences?.editorial_tone || 'hands-on-editor',
+      brew_method: recipe.preferences?.brew_method || 'daily-pour',
+      source_language: recipe.preferences?.source_language || recipe.preferences?.language || 'zh-Hant',
+      selected_source_ids: recipe.preferences?.selected_source_ids || [],
+      source_weights: recipe.preferences?.source_weights || {},
       topics: recipe.preferences?.topics || [],
       source_lanes: recipe.preferences?.source_lanes || [],
       difficulty_levels: recipe.preferences?.difficulty_levels || [],

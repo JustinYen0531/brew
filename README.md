@@ -29,7 +29,12 @@ node server.mjs
 ```text
 supabase/migrations/20260821134423_create_brew_preferences.sql
 supabase/migrations/20260821160000_create_brew_profiles.sql
+supabase/migrations/20260821190000_add_morning_brew_recipe_settings.sql
 ```
+
+第一階段的登入後流程會先請使用者選一份固定主配方，再選編輯語氣與沖煮方式，最後設定閱讀難度、每天篇數、閱讀時間、新鮮感與是否帶回收藏複習。目前提供五份科技方向：Vibe Coding 入門、AI 創作工作室、AI 工作流與自動化、AI 產品與設計、AI 工具與基礎素養。主配方決定「想讀什麼」，來源櫃決定「材料從哪裡來」。
+
+每份晨報配方都會把 `recipe_id`、`editorial_tone`、`brew_method`、來源語言、來源選擇、來源權重、指定社群、硬性網址與額外採編備註分開保存。API payload 不包含 API key；API key 只留在目前瀏覽器的本機設定裡。
 
 這個帳號是「目前瀏覽器裡的晨報身份」。清除瀏覽器資料、登出或換裝置後，單靠暱稱無法找回原本的配方；這是不用信箱換來的隱私邊界。
 
@@ -43,10 +48,15 @@ supabase/migrations/20260821160000_create_brew_profiles.sql
 
 ```powershell
 node server.mjs
-# 接著用瀏覽器開啟 http://localhost:4173，進入「過往手沖」
+# 接著用 PowerShell 檢查 API
+Invoke-RestMethod http://localhost:4173/api/health
+Invoke-RestMethod http://localhost:4173/api/recipe-catalog
+Invoke-RestMethod 'http://localhost:4173/api/source-recommendations?recipe_id=ai-creative&limit=10'
 ```
 
-來源探索資料庫位於 `data/vibe-coding-source-catalog.json`，目前有 10 個候選提供者，預設選取 5 個：`vibecoding.tw`、GitHub Community、Hacker News、DEV Community、OpenAI Developer Community。配方細節開啟時會載入 10 筆排序結果；輸入來源名稱、主題或社群後，先用資料庫別名與主題比對，符合項目不足 3 個時才嘗試即時搜尋。即時來源推薦會跟著 `OpenAI API`／`OpenRouter` provider 使用對應 key；選擇本機 Codex 時則仍可使用本地目錄與自訂 URL。每日手沖本身則依你選取的 provider 使用對應 key。
+來源探索資料庫位於 `data/vibe-coding-source-catalog.json`，目前有 10 個候選提供者；每份主配方會帶著自己的固定來源包。來源櫃開啟時會載入該主配方的 10 筆排序結果；輸入來源名稱、主題或社群後，先用資料庫別名與主題比對，符合項目不足 3 個時才嘗試即時搜尋。即時來源推薦會跟著 `OpenAI API`／`OpenRouter` provider 使用對應 key；選擇本機 Codex 時則仍可使用本地目錄與自訂 URL。每日手沖本身則依你選取的 provider 使用對應 key。
+
+主配方目錄可由 `/api/recipe-catalog` 取得，這讓前端的五份選擇與伺服器採用同一份資料。每一期自動日報會保存當時的主配方、語氣、沖煮方式、來源設定與完整 Prompt；歷史手沖也會在 edition 裡保留 `manual_brew` 配方快照。
 
 來源推薦的排序與 endpoint 可單獨做靜態／命令列驗證，不需要瀏覽器：
 

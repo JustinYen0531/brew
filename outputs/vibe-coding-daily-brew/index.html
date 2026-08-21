@@ -314,6 +314,12 @@
     .preference-input, .preference-textarea { width: 100%; border: 1px solid var(--line); background: var(--paper); color: var(--ink); padding: 10px 11px; font: 13px/1.5 var(--sans); }
     .preference-textarea { min-height: 88px; resize: vertical; font-family: var(--mono); font-size: 11px; }
     .preference-input:focus, .preference-textarea:focus { border-color: var(--espresso); outline: 2px solid rgba(194,145,75,.25); outline-offset: 1px; }
+    .source-weight-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; }
+    .source-weight { display: block; }
+    .source-weight > span { display: block; color: var(--muted); font: 10px var(--mono); margin-bottom: 6px; }
+    .source-weight select { width: 100%; border: 1px solid var(--line); background: var(--paper); color: var(--ink); padding: 10px 8px; font: 10px var(--mono); }
+    .source-weight select:focus { border-color: var(--espresso); outline: 2px solid rgba(194,145,75,.25); outline-offset: 1px; }
+    .source-specific-grid { display: grid; grid-template-columns: 1fr; gap: 2px; margin-top: 7px; }
     .language-options { display: flex; gap: 8px; }
     .language-option { position: relative; }
     .language-option input { position: absolute; opacity: 0; pointer-events: none; }
@@ -425,6 +431,61 @@
     .onboarding-later { border: 1px solid var(--line); background: transparent; color: var(--muted); cursor: pointer; padding: 11px 14px; font: 10px var(--mono); }
     .onboarding-later:hover { border-color: var(--espresso); color: var(--ink); }
     .onboarding-account { color: var(--faint); font: 10px var(--mono); margin-left: auto; }
+    #onboarding-form > .onboarding-section, #onboarding-form > .onboarding-actions { display: none; }
+    .onboarding-flow { margin-top: 26px; }
+    .onboarding-stepper { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); margin-bottom: 2px; }
+    .onboarding-step { color: var(--faint); padding: 12px 10px; font: 9px var(--mono); letter-spacing: .08em; }
+    .onboarding-step + .onboarding-step { border-left: 1px solid var(--line); }
+    .onboarding-step.is-active { color: var(--espresso); background: var(--paper); }
+    .onboarding-flow-step { padding: 29px 0 24px; }
+    .onboarding-flow-step[hidden] { display: none; }
+    .onboarding-flow-heading { display: flex; gap: 16px; align-items: flex-start; margin-bottom: 22px; }
+    .onboarding-flow-number { color: var(--terracotta); font: 11px var(--mono); letter-spacing: .1em; padding-top: 7px; }
+    .onboarding-flow-heading h3 { color: var(--ink); font: 400 31px/.98 var(--serif); letter-spacing: -.04em; margin: 0 0 8px; }
+    .onboarding-flow-heading p { color: var(--muted); font: 13px/1.55 var(--serif); margin: 0; max-width: 560px; }
+    .recipe-choice-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .recipe-choice { position: relative; }
+    .recipe-choice input, .flow-pill input, .flow-choice-card input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+    .recipe-choice-card { display: block; min-height: 140px; border: 1px solid var(--line); background: transparent; cursor: pointer; padding: 17px 18px; transition: border-color .15s ease, background .15s ease, transform .15s ease; }
+    .recipe-choice-card:hover, .recipe-choice input:focus-visible + .recipe-choice-card { border-color: var(--espresso); transform: translateY(-1px); }
+    .recipe-choice input:checked + .recipe-choice-card { border-color: var(--espresso); background: var(--espresso); color: var(--paper-bright); }
+    .recipe-choice-kicker { display: block; color: var(--terracotta); font: 9px var(--mono); letter-spacing: .1em; margin-bottom: 12px; }
+    .recipe-choice input:checked + .recipe-choice-card .recipe-choice-kicker { color: var(--paper); }
+    .recipe-choice-card strong { display: block; font: 400 23px/1.05 var(--serif); letter-spacing: -.03em; margin-bottom: 9px; }
+    .recipe-choice-card p { color: var(--muted); font: 12px/1.5 var(--serif); margin: 0; }
+    .recipe-choice input:checked + .recipe-choice-card p { color: rgba(255,250,240,.78); }
+    .flow-choice-section { border-top: 1px solid var(--line); padding: 18px 0 4px; }
+    .flow-choice-label { display: block; color: var(--espresso); font: 9px var(--mono); letter-spacing: .12em; margin-bottom: 10px; }
+    .flow-choice-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; }
+    .flow-choice-card { position: relative; }
+    .flow-choice-card label { display: block; }
+    .flow-choice-card span { display: block; min-height: 82px; border: 1px solid var(--line); padding: 13px 14px; cursor: pointer; }
+    .flow-choice-card span strong { display: block; color: var(--ink); font: 19px/1.1 var(--serif); margin-bottom: 7px; }
+    .flow-choice-card span small { color: var(--muted); font: 10px/1.45 var(--mono); }
+    .flow-choice-card:hover span, .flow-choice-card input:focus-visible + span { border-color: var(--espresso); }
+    .flow-choice-card input:checked + span { border-color: var(--espresso); background: var(--espresso); }
+    .flow-choice-card input:checked + span strong, .flow-choice-card input:checked + span small { color: var(--paper-bright); }
+    .flow-setting-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 28px; }
+    .flow-setting { border-top: 1px solid var(--line); padding-top: 17px; }
+    .flow-pill-list { display: flex; flex-wrap: wrap; gap: 7px; }
+    .flow-pill { position: relative; }
+    .flow-pill span { display: block; border: 1px solid var(--line); color: var(--muted); cursor: pointer; padding: 9px 12px; font: 10px var(--mono); }
+    .flow-pill:hover span, .flow-pill input:focus-visible + span { border-color: var(--espresso); color: var(--espresso); }
+    .flow-pill input:checked + span { border-color: var(--espresso); background: var(--espresso); color: var(--paper-bright); }
+    .flow-pill-list-five { display: grid; grid-template-columns: repeat(5, 1fr); }
+    .flow-pill-list-five .flow-pill span { text-align: center; }
+    .flow-review-row { display: flex; align-items: center; gap: 14px; border-top: 1px solid var(--line); margin-top: 25px; padding-top: 18px; }
+    .flow-review-row small { color: var(--muted); font: 10px/1.5 var(--mono); }
+    .flow-excluded-editor { border-top: 1px solid var(--line); margin-top: 21px; padding-top: 18px; }
+    .onboarding-flow-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; border-top: 1px solid var(--line); padding-top: 20px; }
+    .onboarding-flow-actions .onboarding-account { margin-left: auto; }
+    @media (max-width: 680px) {
+      .recipe-choice-grid, .flow-choice-grid, .flow-setting-grid { grid-template-columns: 1fr; }
+      .onboarding-step { font-size: 8px; padding-left: 5px; padding-right: 5px; }
+      .onboarding-flow-heading h3 { font-size: 27px; }
+      .flow-review-row { align-items: flex-start; flex-direction: column; gap: 8px; }
+      .onboarding-flow-actions .onboarding-account { width: 100%; margin-left: 0; }
+    }
 
     @media (max-width: 850px) {
       .site-shell { width: min(100% - 36px, 680px); }
@@ -591,14 +652,14 @@
             <article class="recipe-summary-card"><strong>來源街道</strong><p id="recipe-sources">尚未設定</p><small>晨報會優先往哪裡走</small></article>
             <article class="recipe-summary-card"><strong>每天的節奏</strong><p id="recipe-rhythm">10 篇 · 10 分鐘</p><small id="recipe-rhythm-detail">新鮮度 3 · 會帶回複習</small></article>
           </div>
-          <div class="recipe-actions"><button class="recipe-action" id="recipe-edit-button" type="button">調整我的配方 →</button><button class="recipe-action is-secondary" id="recipe-detail-button" type="button">打開配方細節</button></div>
+          <div class="recipe-actions"><button class="recipe-action" id="recipe-edit-button" type="button">調整我的配方 →</button><button class="recipe-action is-secondary" id="recipe-detail-button" type="button">打開來源櫃</button></div>
           <p class="recipe-note" id="recipe-note">這些內容會保存給你的匿名帳號。暱稱是親切的顯示方式，真正把資料分開的是系統內部的帳號 ID。</p>
         </div>
       </section>
     </main>
   </div>
 
-  <div class="quiet-menu" id="quiet-menu" role="menu"><button class="quiet-menu-button" id="preferences-trigger" type="button" role="menuitem">調整配方細節</button></div>
+  <div class="quiet-menu" id="quiet-menu" role="menu"><button class="quiet-menu-button" id="preferences-trigger" type="button" role="menuitem">打開來源櫃</button></div>
 
   <div class="search-drawer" id="search-drawer" aria-label="搜尋學習">
     <label for="global-search">找一個有用的想法</label>
@@ -637,6 +698,34 @@
       </div>
       <div class="onboarding-recipe" aria-label="預設晨報配方"><span class="onboarding-recipe-label">第一壺的預設配方</span><p>6 篇新發現／2 篇收藏複習／1 篇經典／1 篇意外驚喜</p></div>
       <form id="onboarding-form">
+        <div class="onboarding-flow" id="onboarding-flow">
+          <div class="onboarding-stepper" aria-label="晨報配方進度">
+            <span class="onboarding-step is-active" data-flow-indicator="1">01 選一份報紙</span>
+            <span class="onboarding-step" data-flow-indicator="2">02 選咖啡師</span>
+            <span class="onboarding-step" data-flow-indicator="3">03 設定早晨</span>
+          </div>
+          <section class="onboarding-flow-step is-active" data-flow-step="1" aria-labelledby="flow-step-one-title">
+            <div class="onboarding-flow-heading"><span class="onboarding-flow-number">01</span><div><h3 id="flow-step-one-title">今天想訂哪份報紙？</h3><p>先選一個你想靠近的科技方向。每份報紙都有自己的編輯範圍與推薦來源。</p></div></div>
+            <div class="recipe-choice-grid" id="recipe-choice-list" role="radiogroup" aria-label="晨報主配方"></div>
+          </section>
+          <section class="onboarding-flow-step" data-flow-step="2" aria-labelledby="flow-step-two-title" hidden>
+            <div class="onboarding-flow-heading"><span class="onboarding-flow-number">02</span><div><h3 id="flow-step-two-title">想由哪種咖啡師替你整理？</h3><p>同一份報紙，可以有不同的說話方式。選一種你早上讀起來最舒服的節奏。</p></div></div>
+            <div class="flow-choice-section"><span class="flow-choice-label">表達語氣</span><div class="flow-choice-grid" id="tone-choice-list" role="radiogroup" aria-label="晨報表達語氣"></div></div>
+            <div class="flow-choice-section"><span class="flow-choice-label">沖煮方式</span><div class="flow-choice-grid" id="method-choice-list" role="radiogroup" aria-label="晨報沖煮方式"></div></div>
+          </section>
+          <section class="onboarding-flow-step" data-flow-step="3" aria-labelledby="flow-step-three-title" hidden>
+            <div class="onboarding-flow-heading"><span class="onboarding-flow-number">03</span><div><h3 id="flow-step-three-title">每天想喝多少？</h3><p>先把早晨留給真正讀得完的份量。之後仍然可以回來調整。</p></div></div>
+            <div class="flow-setting-grid">
+              <div class="flow-setting"><span class="flow-choice-label">閱讀深度</span><div class="flow-pill-list" role="radiogroup" aria-label="晨報難度"><label class="flow-pill"><input type="radio" name="flow_difficulty" data-flow-field="difficulty_levels" value="初學者"><span>初學者</span></label><label class="flow-pill"><input type="radio" name="flow_difficulty" data-flow-field="difficulty_levels" value="普通"><span>普通</span></label><label class="flow-pill"><input type="radio" name="flow_difficulty" data-flow-field="difficulty_levels" value="困難"><span>困難</span></label></div></div>
+              <div class="flow-setting"><span class="flow-choice-label">一早願意留幾分鐘</span><div class="flow-pill-list" role="radiogroup" aria-label="每日閱讀時間"><label class="flow-pill"><input type="radio" name="flow_minutes" data-flow-field="reading_minutes" value="5"><span>5 分鐘</span></label><label class="flow-pill"><input type="radio" name="flow_minutes" data-flow-field="reading_minutes" value="10"><span>10 分鐘</span></label><label class="flow-pill"><input type="radio" name="flow_minutes" data-flow-field="reading_minutes" value="20"><span>20 分鐘</span></label></div></div>
+              <div class="flow-setting"><span class="flow-choice-label">每天端上幾篇</span><div class="flow-pill-list" role="radiogroup" aria-label="每日文章篇數"><label class="flow-pill"><input type="radio" name="flow_count" data-flow-field="item_count" value="5"><span>5 篇</span></label><label class="flow-pill"><input type="radio" name="flow_count" data-flow-field="item_count" value="10"><span>10 篇</span></label><label class="flow-pill"><input type="radio" name="flow_count" data-flow-field="item_count" value="15"><span>15 篇</span></label></div></div>
+              <div class="flow-setting"><span class="flow-choice-label">想要多少新鮮轉香</span><div class="flow-pill-list flow-pill-list-five" role="radiogroup" aria-label="晨報新鮮度"><label class="flow-pill"><input type="radio" name="flow_novelty" data-flow-field="novelty_level" value="1"><span>1</span></label><label class="flow-pill"><input type="radio" name="flow_novelty" data-flow-field="novelty_level" value="2"><span>2</span></label><label class="flow-pill"><input type="radio" name="flow_novelty" data-flow-field="novelty_level" value="3"><span>3</span></label><label class="flow-pill"><input type="radio" name="flow_novelty" data-flow-field="novelty_level" value="4"><span>4</span></label><label class="flow-pill"><input type="radio" name="flow_novelty" data-flow-field="novelty_level" value="5"><span>5</span></label></div></div>
+            </div>
+            <div class="flow-review-row"><label class="onboarding-review"><input id="flow-review" type="checkbox" data-flow-field="review_enabled"><span>把收藏內容帶回後面的早晨</span></label><small>Starred 與 Super Starred 會成為之後的複習材料。</small></div>
+            <div class="flow-excluded-editor"><span class="flow-choice-label">暫時少看什麼（可留白）</span><div class="onboarding-excluded-editor"><div class="onboarding-excluded-tags" id="flow-excluded-tags" aria-live="polite"></div><label class="sr-only" for="onboarding-flow-excluded-input">新增想避開的主題</label><input class="onboarding-excluded-input" id="onboarding-flow-excluded-input" type="text" maxlength="80" autocomplete="off" placeholder="例如：純產品新聞、太多術語"></div></div>
+          </section>
+          <div class="onboarding-flow-actions"><button class="onboarding-later" id="onboarding-flow-back" type="button" hidden>← 上一步</button><button class="onboarding-later" id="onboarding-flow-close-later" type="button">先回到今天的報紙</button><button class="onboarding-save" id="onboarding-flow-next" type="button">下一步 →</button><button class="onboarding-save" id="onboarding-flow-save" type="submit" hidden>保存這份配方 →</button><span class="onboarding-status" id="onboarding-flow-status" role="status" aria-live="polite"></span><span class="onboarding-account" id="onboarding-flow-account"></span></div>
+        </div>
         <fieldset class="onboarding-section">
           <legend class="onboarding-legend">想讀的方向</legend>
           <p>選幾個你最近想靠近的主題，晨報會替你留意相關討論。</p>
@@ -737,18 +826,33 @@
   <div class="preferences-overlay" id="preferences-overlay" role="dialog" aria-modal="true" aria-labelledby="preferences-title">
     <aside class="preferences-sheet">
       <div class="preferences-header">
-        <div><div class="eyebrow">調一調你的晨報配方</div><h2 id="preferences-title">配方細節</h2><p>這裡放更細的配方材料：來源、提示詞、硬性網址與生成方式。每次手沖都會照目前保存的配方找路。</p></div>
+        <div><div class="eyebrow">走進採編室，挑選晨報材料</div><h2 id="preferences-title">來源櫃</h2><p>這裡只處理材料從哪裡來：推薦來源、指定社群、網址限制與給採編室的備註。主題與閱讀風格，回到「我的配方」調整。</p></div>
         <button class="preferences-close" id="preferences-close" aria-label="關閉配方細節">×</button>
       </div>
 
       <section class="preferences-section" aria-labelledby="source-discovery-title">
         <h3 id="source-discovery-title">來源探索資料庫</h3>
-        <p>打開這個配方細節就會先顯示 10 個推薦來源。輸入任何字，系統會用資料庫別名與即時網路搜尋猜你想找的提供者；你選取的是來源，不是把自己知道的名字硬塞進 prompt。</p>
+        <p id="source-discovery-copy">這份主配方有自己的十個推薦來源。輸入任何字，系統會先查來源資料庫，再視需要找新的提供者；你選取的是來源，不是把自己知道的名字硬塞進 prompt。</p>
         <label class="preference-field"><span>搜尋來源／主題／社群</span><input class="source-discovery-query" id="source-discovery-query" type="search" maxlength="160" autocomplete="off" placeholder="例如：Vibe Coding Taiwan、Claude Code、agent workflow"></label>
         <div class="source-discovery-status" id="source-discovery-status" role="status">載入推薦來源中…</div>
         <div class="source-recommendation-list" id="source-recommendation-list" aria-live="polite"></div>
         <div class="source-catalog-note" id="source-catalog-note">來源會顯示品質、影響力、訊號與可近性評分；這些是排序證據，不是永遠不變的排名。</div>
         <div class="selected-source-list" id="selected-source-list" aria-label="已選取的配方來源"></div>
+      </section>
+
+      <section class="preferences-section" aria-labelledby="source-weight-title">
+        <h3 id="source-weight-title">來源出現機會</h3>
+        <p>這是偏好，不是硬性命令。1 代表盡量少出現，3 是正常，5 代表希望多遇到這類來源。</p>
+        <div class="source-weight-grid" aria-label="來源出現機會設定">
+          <label class="source-weight"><span>GitHub</span><select data-source-weight="github"><option value="1">1 · 少一點</option><option value="2">2</option><option value="3" selected>3 · 正常</option><option value="4">4</option><option value="5">5 · 多一點</option></select></label>
+          <label class="source-weight"><span>Reddit</span><select data-source-weight="reddit"><option value="1">1 · 少一點</option><option value="2">2</option><option value="3" selected>3 · 正常</option><option value="4">4</option><option value="5">5 · 多一點</option></select></label>
+          <label class="source-weight"><span>Facebook</span><select data-source-weight="facebook"><option value="1">1 · 少一點</option><option value="2">2</option><option value="3" selected>3 · 正常</option><option value="4">4</option><option value="5">5 · 多一點</option></select></label>
+        </div>
+        <div class="source-specific-grid">
+          <label class="preference-field"><span>GitHub／其他社群的指定方向</span><input class="preference-input" data-specific-source="github" type="text" maxlength="160" placeholder="例如：AI coding agent、某個 repository"></label>
+          <label class="preference-field"><span>Reddit 討論區</span><input class="preference-input" data-specific-source="reddit" type="text" maxlength="160" placeholder="例如：r/vibecoding"></label>
+          <label class="preference-field"><span>Facebook 社團或公開頁面</span><input class="preference-input" data-specific-source="facebook" type="text" maxlength="160" placeholder="例如：Vibe Coding Taiwan"></label>
+        </div>
       </section>
 
       <section class="preferences-section" aria-labelledby="custom-source-title">
@@ -796,7 +900,7 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
         <p class="byok-security-note">選「本機 Codex（訂閱）」不需要填 Key。清除網站資料、換瀏覽器或換裝置後，這裡的 Key 不會自動跟著走。</p>
       </section>
 
-      <div class="preferences-actions"><button class="preferences-save" id="preferences-save" type="button">儲存配方細節</button><button class="preferences-reset" id="preferences-reset" type="button">恢復正常配方</button><span class="preferences-status" id="preferences-status" role="status"></span></div>
+      <div class="preferences-actions"><button class="preferences-save" id="preferences-save" type="button">收好這份來源櫃</button><button class="preferences-reset" id="preferences-reset" type="button">恢復預設來源</button><span class="preferences-status" id="preferences-status" role="status"></span></div>
     </aside>
   </div>
 
@@ -841,14 +945,27 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
     const categoryFilters = ['全部學習'];
     const difficultyFilters = ['全部難度', '初學者', '普通', '困難'];
     const preferenceStorageKey = 'vibe-coding-daily-brew:source-preferences';
-    const defaultSourceIds = ['vibecoding-tw', 'github-community', 'hacker-news', 'dev-community', 'openai-community'];
-    const defaultPreferences = { selectedSourceIds: [...defaultSourceIds], selectedSources: [], customSources: [], sourceWeights: {}, specificSources: {}, prompt: '', directUrls: [], language: 'zh-Hant', provider: 'openrouter', apiKeys: { openrouter: '', openai: '' } };
+    const defaultSourceIds = ['vibecoding-tw', 'github-community', 'hacker-news', 'dev-community', 'openai-community', 'awesome-vibecoding', 'reddit-vibecoding', 'line-vibecoding-weekly', 'roboco-manual', 'indie-hackers'];
+    const fallbackMorningRecipeCatalog = {
+      version: 'morning-recipe-v1',
+      recipes: [
+        { id: 'vibe-coding', name: 'Vibe Coding 入門', kicker: '一起把想法做出來', description: '用 AI 寫程式、和 Coding Agent 合作，逐步建立能重複使用的開發方法。', audience: '適合想開始做網站、工具或小型產品的人。', topics: ['Vibe Coding', 'Coding Agent', '提示設計', '上下文管理', '測試與驗證', '除錯與工作流程'], excludedTopics: ['產品新聞', '模型發布摘要', '募資消息', '流行金句'], sourceLanes: ['開發者討論', 'GitHub 實作', '技術文章', '建造者覆盤'], sourceIds: [...defaultSourceIds], defaultContentStyles: ['實戰案例', '失敗分析', '可重用規則'] },
+        { id: 'ai-creative', name: 'AI 創作工作室', kicker: '把靈感慢慢做成作品', description: '從圖像、動畫、影片、音樂到聲音，閱讀真正完成作品的創作流程。', audience: '適合想用 AI 做出視覺、影音或聲音作品的人。', topics: ['AI 圖像', '動畫與影片', 'AI 音樂', '聲音創作', '創作工作流', '作品案例'], excludedTopics: ['只有模型發布', '沒有作品的功能清單'], sourceLanes: ['創作者社群', '作品案例', '工具實作', '開源模型與工作流'], sourceIds: [...defaultSourceIds], defaultContentStyles: ['作品案例', '步驟拆解', '工具比較'] },
+        { id: 'ai-workflow', name: 'AI 工作流與自動化', kicker: '讓一天的工作少一點重複', description: '從 Agent、自動化、資料整理到研究流程，找出真的能省下時間的方法。', audience: '適合想把 AI 放進日常工作，又想保有檢查與掌控感的人。', topics: ['Agent 與自動化', '研究工作流', '文件處理', '資料整理', '個人效率', '團隊協作'], excludedTopics: ['只談效率口號', '沒有驗證方式的自動化'], sourceLanes: ['工程社群', '工作流案例', '開發者論壇', '建造者覆盤'], sourceIds: [...defaultSourceIds], defaultContentStyles: ['工作流拆解', '失敗分析', '可重用規則'] },
+        { id: 'ai-product-design', name: 'AI 產品與設計', kicker: '從一個念頭走到有人使用', description: '閱讀 AI 產品的構想、原型、介面、回饋與發布過程。', audience: '適合想把 AI 點子做成產品，或想更懂設計判斷的人。', topics: ['產品構想', '原型與介面', '使用者體驗', 'AI 功能設計', '回饋與迭代', '發布與展示'], excludedTopics: ['只有融資新聞', '沒有使用者脈絡的案例'], sourceLanes: ['建造者社群', '產品覆盤', '設計實作', '開發者討論'], sourceIds: [...defaultSourceIds], defaultContentStyles: ['產品案例', '設計拆解', '反直覺觀點'] },
+        { id: 'ai-foundations', name: 'AI 工具與基礎素養', kicker: '先把工具用得安心', description: '理解模型與工具的差異、Prompt 基礎、成本、隱私與可靠性。', audience: '適合剛進入 AI 世界，想建立判斷力的人。', topics: ['工具選擇', '模型差異', 'Prompt 基礎', '成本與限制', '隱私與安全', '可靠性判斷'], excludedTopics: ['只看排行榜', '把猜測當成事實'], sourceLanes: ['官方開發者社群', '技術文章', '公開工程討論', '實作手冊'], sourceIds: [...defaultSourceIds], defaultContentStyles: ['入門解釋', '工具比較', '可重用規則'] }
+      ],
+      tones: [{ id: 'gentle-guide', name: '陪你入門', description: '少一點術語，多補背景與例子。' }, { id: 'hands-on-editor', name: '實作導向', description: '先講能做什麼，再提供步驟與注意事項。' }, { id: 'curious-editor', name: '編輯精選', description: '保留事件脈絡、觀點與值得追問的地方。' }],
+      methods: [{ id: 'concentrated-brief', name: '濃縮快報', description: '篇幅短，早晨先掌握最重要的幾件事。' }, { id: 'daily-pour', name: '每日手沖', description: '摘要、例子與實作保持平衡。' }, { id: 'slow-special', name: '慢萃專題', description: '篇數少一點，每篇留下更完整的脈絡。' }]
+    };
+    let morningRecipeCatalog = fallbackMorningRecipeCatalog;
+    const defaultPreferences = { recipeId: 'vibe-coding', editorialTone: 'hands-on-editor', brewMethod: 'daily-pour', selectedSourceIds: [...defaultSourceIds], selectedSources: [], customSources: [], sourceWeights: {}, specificSources: {}, prompt: '', directUrls: [], language: 'zh-Hant', provider: 'openrouter', apiKeys: { openrouter: '', openai: '' } };
     const authStorageKey = 'vibe-coding-daily-brew:auth-session';
-    const onboardingDefaults = { topics: [], excluded_topics: [], content_styles: [], source_lanes: [], difficulty_levels: ['普通'], reading_minutes: 10, item_count: 10, novelty_level: 3, review_enabled: true, onboarding_completed: false };
+    const onboardingDefaults = { recipe_id: 'vibe-coding', editorial_tone: 'hands-on-editor', brew_method: 'daily-pour', topics: [...fallbackMorningRecipeCatalog.recipes[0].topics], excluded_topics: [], content_styles: [...fallbackMorningRecipeCatalog.recipes[0].defaultContentStyles], source_lanes: [...fallbackMorningRecipeCatalog.recipes[0].sourceLanes], difficulty_levels: ['初學者'], reading_minutes: 10, item_count: 10, novelty_level: 3, review_enabled: true, onboarding_completed: false };
     const onboardingOptions = {
-      topics: ['Agent 工作流', '提示設計', '上下文工程', '程式碼理解', '測試與驗證', '工具與自動化', '協作', '安全', '學習系統', '產品與設計'],
-      content_styles: ['實戰案例', '失敗分析', '程式碼範例', '可重用規則', '反直覺觀點'],
-      source_lanes: ['GitHub', 'Reddit', 'Hacker News', '技術部落格', '社群論壇'],
+      topics: [],
+      content_styles: [],
+      source_lanes: [],
       difficulty_levels: ['初學者', '普通', '困難']
     };
     let authSession = null;
@@ -857,6 +974,7 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
     let authPreferences = null;
     let authPreferenceSyncTimer = null;
     let onboardingExcludedTopics = [];
+    let onboardingStep = 1;
 
     function clampNumber(value, minimum, maximum, fallback) {
       const number = Number(value);
@@ -869,20 +987,63 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
       return { openrouter: normalize('openrouter'), openai: normalize('openai') };
     }
 
+    function clientMorningRecipe(id = 'vibe-coding') {
+      return morningRecipeCatalog.recipes.find(recipe => recipe.id === id) || morningRecipeCatalog.recipes[0] || fallbackMorningRecipeCatalog.recipes[0];
+    }
+
+    function clientChoice(list, id, fallback) {
+      return (Array.isArray(list) ? list : []).some(item => item.id === id) ? id : fallback;
+    }
+
+    function normalizeStringList(value, limit = 12, maxLength = 120) {
+      if (!Array.isArray(value)) return [];
+      return [...new Set(value.map(item => String(item || '').trim().slice(0, maxLength)).filter(Boolean))].slice(0, limit);
+    }
+
+    function normalizeSourceSettings(value = {}) {
+      const source = value && typeof value === 'object' ? value : {};
+      const selectedSourceIds = normalizeStringList(Array.isArray(source.selected_source_ids) ? source.selected_source_ids : source.selectedSourceIds, 20, 120);
+      const directUrls = [...new Set((Array.isArray(source.direct_urls) ? source.direct_urls : (Array.isArray(source.directUrls) ? source.directUrls : [])).filter(item => /^https?:\/\//i.test(String(item || '').trim())).map(item => String(item).trim().slice(0, 500)))].slice(0, 10);
+      const rawWeights = source.source_weights || source.sourceWeights;
+      const sourceWeights = rawWeights && typeof rawWeights === 'object' && !Array.isArray(rawWeights) ? Object.fromEntries(Object.entries(rawWeights).slice(0, 20).map(([key, item]) => [key, clampNumber(item, 1, 5, 3)])) : {};
+      const rawSpecific = source.specific_sources || source.specificSources;
+      const specificSources = rawSpecific && typeof rawSpecific === 'object' && !Array.isArray(rawSpecific) ? Object.fromEntries(Object.entries(rawSpecific).slice(0, 20).map(([key, item]) => [String(key).slice(0, 120), String(item || '').trim().slice(0, 160)]).filter(([, item]) => item)) : {};
+      const sourcePrompt = String(source.source_prompt ?? source.sourcePrompt ?? source.prompt ?? '').trim().slice(0, 1000);
+      return { selectedSourceIds, selectedSources: Array.isArray(source.selectedSources) ? source.selectedSources : [], sourceWeights, specificSources, directUrls, prompt: sourcePrompt, sourcePrompt, language: source.source_language === 'en' || source.sourceLanguage === 'en' || source.language === 'en' ? 'en' : 'zh-Hant' };
+    }
+
     function normalizeOnboardingPreferences(value = {}) {
       const source = value && typeof value === 'object' ? value : {};
-      const valuesFor = field => [...new Set((Array.isArray(source[field]) ? source[field] : []).filter(item => onboardingOptions[field]?.includes(item)))];
+      const recipeId = clientChoice(morningRecipeCatalog.recipes, source.recipe_id || source.recipeId, 'vibe-coding');
+      const recipe = clientMorningRecipe(recipeId);
+      const valuesFor = field => normalizeStringList(source[field], 12, field === 'source_lanes' ? 120 : 80);
       const excluded = [...new Set((Array.isArray(source.excluded_topics) ? source.excluded_topics : []).map(item => String(item || '').trim()).filter(Boolean).map(item => item.slice(0, 80)))];
       const readingMinutes = [5, 10, 20].includes(Number(source.reading_minutes)) ? Number(source.reading_minutes) : onboardingDefaults.reading_minutes;
       const itemCount = [5, 10, 15].includes(Number(source.item_count)) ? Number(source.item_count) : onboardingDefaults.item_count;
+      const difficulties = valuesFor('difficulty_levels').filter(value => onboardingOptions.difficulty_levels.includes(value));
+      const toneId = clientChoice(morningRecipeCatalog.tones, source.editorial_tone || source.editorialTone, 'hands-on-editor');
+      const methodId = clientChoice(morningRecipeCatalog.methods, source.brew_method || source.brewMethod, 'daily-pour');
+      const topics = valuesFor('topics').length ? valuesFor('topics') : [...(recipe.topics || [])];
+      const contentStyles = valuesFor('content_styles').length ? valuesFor('content_styles') : [...(recipe.defaultContentStyles || [])];
+      const sourceLanes = valuesFor('source_lanes').length ? valuesFor('source_lanes') : [...(recipe.sourceLanes || [])];
       return {
-        topics: valuesFor('topics'),
+        recipe_id: recipeId,
+        recipeId,
+        editorial_tone: toneId,
+        editorialTone: toneId,
+        brew_method: methodId,
+        brewMethod: methodId,
+        topics,
         excluded_topics: excluded,
-        content_styles: valuesFor('content_styles'),
-        source_lanes: valuesFor('source_lanes'),
-        difficulty_levels: valuesFor('difficulty_levels').length ? valuesFor('difficulty_levels') : [...onboardingDefaults.difficulty_levels],
+        content_styles: contentStyles,
+        contentStyles,
+        source_lanes: sourceLanes,
+        sourceLanes,
+        difficulty_levels: difficulties.length ? difficulties : [...onboardingDefaults.difficulty_levels],
         reading_minutes: readingMinutes,
+        readingMinutes,
         item_count: itemCount,
+        itemCount,
         novelty_level: clampNumber(source.novelty_level, 1, 5, onboardingDefaults.novelty_level),
         review_enabled: source.review_enabled !== false,
         onboarding_completed: source.onboarding_completed === true
@@ -891,8 +1052,10 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
 
     function freshAuthenticatedPreferences(value = {}) {
       const source = value && typeof value === 'object' ? value : {};
-      const localApiKeys = typeof brewPreferences !== 'undefined' ? brewPreferences.apiKeys : defaultPreferences.apiKeys;
-      return { ...defaultPreferences, selectedSourceIds: [...defaultSourceIds], selectedSources: [], customSources: [], ...source, ...normalizeOnboardingPreferences(source), selectedSourceIds: Array.isArray(source.selectedSourceIds) ? source.selectedSourceIds : [...defaultSourceIds], selectedSources: Array.isArray(source.selectedSources) ? source.selectedSources : [], customSources: Array.isArray(source.customSources) ? source.customSources : [], apiKeys: normalizeApiKeys(localApiKeys) };
+      const localApiKeys = source.apiKeys || defaultPreferences.apiKeys;
+      const onboarding = normalizeOnboardingPreferences(source);
+      const sourceSettings = normalizeSourceSettings(source);
+      return { ...defaultPreferences, ...source, ...onboarding, ...sourceSettings, selectedSourceIds: sourceSettings.selectedSourceIds.length ? sourceSettings.selectedSourceIds : [...defaultSourceIds], customSources: Array.isArray(source.customSources) ? source.customSources : [], recipeId: onboarding.recipeId, editorialTone: onboarding.editorialTone, brewMethod: onboarding.brewMethod, apiKeys: normalizeApiKeys(localApiKeys) };
     }
 
     function loadPreferences() {
@@ -900,7 +1063,7 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
         const saved = JSON.parse(localStorage.getItem(preferenceStorageKey) || '{}');
         const selectedSourceIds = Array.isArray(saved.selectedSourceIds) ? saved.selectedSourceIds.filter(value => typeof value === 'string').slice(0, 20) : [...defaultSourceIds];
         const provider = ['openrouter', 'openai', 'codex'].includes(saved.provider) ? saved.provider : defaultPreferences.provider;
-        return { ...defaultPreferences, ...saved, provider, apiKeys: normalizeApiKeys(saved.apiKeys), selectedSourceIds: selectedSourceIds.length ? selectedSourceIds : [...defaultSourceIds], selectedSources: Array.isArray(saved.selectedSources) ? saved.selectedSources : [], customSources: Array.isArray(saved.customSources) ? saved.customSources : [], sourceWeights: saved.sourceWeights && typeof saved.sourceWeights === 'object' ? saved.sourceWeights : {}, directUrls: Array.isArray(saved.directUrls) ? saved.directUrls : [] };
+        return { ...freshAuthenticatedPreferences({ ...saved, provider }), selectedSourceIds: selectedSourceIds.length ? selectedSourceIds : [...defaultSourceIds], apiKeys: normalizeApiKeys(saved.apiKeys) };
       } catch { return { ...defaultPreferences, selectedSourceIds: [...defaultSourceIds], selectedSources: [], customSources: [], sourceWeights: {}, directUrls: [], apiKeys: { openrouter: '', openai: '' } }; }
     }
     let brewPreferences = loadPreferences();
@@ -1081,10 +1244,13 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
         : (hasAccount ? '先替這個帳號補上一個報紙上的稱呼。' : '先用一個暱稱領回屬於你的晨報。');
       accountButton.textContent = hasAccount ? '查看帳號資料 →' : '取一個稱呼 →';
       if (!hasAccount) return;
-      const recipe = authPreferences ? normalizeOnboardingPreferences(authPreferences) : onboardingDefaults;
-      document.getElementById('recipe-topics').textContent = recipeText(recipe.topics);
-      document.getElementById('recipe-styles').textContent = recipeText(recipe.content_styles);
-      document.getElementById('recipe-sources').textContent = recipeText(recipe.source_lanes);
+      const recipe = authPreferences ? freshAuthenticatedPreferences(authPreferences) : freshAuthenticatedPreferences(onboardingDefaults);
+      const mainRecipe = clientMorningRecipe(recipe.recipeId);
+      const tone = morningRecipeCatalog.tones.find(item => item.id === recipe.editorialTone);
+      const method = morningRecipeCatalog.methods.find(item => item.id === recipe.brewMethod);
+      document.getElementById('recipe-topics').textContent = mainRecipe.name;
+      document.getElementById('recipe-styles').textContent = `${tone?.name || '實作導向'} · ${method?.name || '每日手沖'}`;
+      document.getElementById('recipe-sources').textContent = `${(recipe.selectedSourceIds || []).length || 10} 個來源 · ${recipeText(recipe.sourceLanes || recipe.source_lanes)}`;
       document.getElementById('recipe-rhythm').textContent = `${recipe.item_count} 篇 · ${recipe.reading_minutes} 分鐘`;
       document.getElementById('recipe-rhythm-detail').textContent = `新鮮度 ${recipe.novelty_level} · ${recipe.review_enabled ? '會帶回複習' : '暫不安排複習'}`;
       document.getElementById('recipe-note').textContent = authProfile
@@ -1133,12 +1299,13 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
     }
 
     function renderExcludedTopics() {
-      const container = document.getElementById('onboarding-excluded-tags');
+      const container = document.getElementById('flow-excluded-tags') || document.getElementById('onboarding-excluded-tags');
+      if (!container) return;
       container.innerHTML = onboardingExcludedTopics.map((topic, index) => `<span class="onboarding-excluded-chip">${escapeHtml(topic)}<button type="button" data-remove-excluded="${index}" aria-label="移除避開主題：${escapeHtml(topic)}">×</button></span>`).join('');
       container.querySelectorAll('[data-remove-excluded]').forEach(button => button.addEventListener('click', () => {
         onboardingExcludedTopics.splice(Number(button.dataset.removeExcluded), 1);
         renderExcludedTopics();
-        document.getElementById('onboarding-excluded-input').focus();
+        (document.getElementById('onboarding-flow-excluded-input') || document.getElementById('onboarding-excluded-input'))?.focus();
       }));
     }
 
@@ -1148,16 +1315,41 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
       renderExcludedTopics();
     }
 
+    function renderOnboardingChoices() {
+      const recipeList = document.getElementById('recipe-choice-list');
+      const toneList = document.getElementById('tone-choice-list');
+      const methodList = document.getElementById('method-choice-list');
+      if (recipeList) recipeList.innerHTML = morningRecipeCatalog.recipes.map(recipe => `<div class="recipe-choice"><input id="flow-recipe-${escapeHtml(recipe.id)}" type="radio" name="flow_recipe" data-flow-field="recipe_id" value="${escapeHtml(recipe.id)}"><label class="recipe-choice-card" for="flow-recipe-${escapeHtml(recipe.id)}"><span class="recipe-choice-kicker">${escapeHtml(recipe.kicker || '今日主配方')}</span><strong>${escapeHtml(recipe.name)}</strong><p>${escapeHtml(recipe.description)}</p></label></div>`).join('');
+      if (toneList) toneList.innerHTML = morningRecipeCatalog.tones.map(tone => `<div class="flow-choice-card"><label><input type="radio" name="flow_tone" data-flow-field="editorial_tone" value="${escapeHtml(tone.id)}"><span><strong>${escapeHtml(tone.name)}</strong><small>${escapeHtml(tone.description)}</small></span></label></div>`).join('');
+      if (methodList) methodList.innerHTML = morningRecipeCatalog.methods.map(method => `<div class="flow-choice-card"><label><input type="radio" name="flow_method" data-flow-field="brew_method" value="${escapeHtml(method.id)}"><span><strong>${escapeHtml(method.name)}</strong><small>${escapeHtml(method.description)}</small></span></label></div>`).join('');
+    }
+
+    function setOnboardingStep(step) {
+      onboardingStep = Math.max(1, Math.min(3, Number(step) || 1));
+      document.querySelectorAll('[data-flow-step]').forEach(section => {
+        const isActive = Number(section.dataset.flowStep) === onboardingStep;
+        section.hidden = !isActive;
+        section.classList.toggle('is-active', isActive);
+      });
+      document.querySelectorAll('[data-flow-indicator]').forEach(indicator => indicator.classList.toggle('is-active', Number(indicator.dataset.flowIndicator) === onboardingStep));
+      document.getElementById('onboarding-flow-back').hidden = onboardingStep <= 1;
+      document.getElementById('onboarding-flow-next').hidden = onboardingStep >= 3;
+      document.getElementById('onboarding-flow-save').hidden = onboardingStep !== 3;
+      setStatus(document.getElementById('onboarding-flow-status'), '');
+    }
+
     function fillOnboardingForm(value = {}) {
       const recipe = normalizeOnboardingPreferences(value);
       onboardingExcludedTopics = [...recipe.excluded_topics];
-      document.querySelectorAll('[data-onboarding-field]').forEach(input => {
-        const field = input.dataset.onboardingField;
-        if (input.type === 'checkbox') input.checked = Array.isArray(recipe[field]) ? recipe[field].includes(input.value) : Boolean(recipe[field]);
-        if (input.type === 'radio') input.checked = Number(input.value) === Number(recipe[field]);
+      renderOnboardingChoices();
+      document.querySelectorAll('[data-flow-field]').forEach(input => {
+        const field = input.dataset.flowField;
+        if (input.type === 'checkbox') input.checked = recipe[field] !== false;
+        if (input.type === 'radio') input.checked = Array.isArray(recipe[field]) ? recipe[field].includes(input.value) : String(recipe[field]) === String(input.value);
       });
       renderExcludedTopics();
-      document.getElementById('onboarding-account').textContent = recipeDisplayName() ? `配方會保存給「${recipeDisplayName()}」` : '配方會保存給目前的匿名帳號';
+      document.getElementById('onboarding-flow-account').textContent = recipeDisplayName() ? `配方會保存給「${recipeDisplayName()}」` : '配方會保存給目前的匿名帳號';
+      setOnboardingStep(1);
     }
 
     function openOnboarding(value = authPreferences || onboardingDefaults) {
@@ -1166,8 +1358,8 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
       closeAuthOverlay();
       document.getElementById('auth-trigger').setAttribute('aria-expanded', 'true');
       document.body.style.overflow = 'hidden';
-      setStatus(document.getElementById('onboarding-status'), '');
-      document.querySelector('[data-onboarding-field="topics"]')?.focus();
+      setStatus(document.getElementById('onboarding-flow-status'), '');
+      document.querySelector('[data-flow-field="recipe_id"]')?.focus();
     }
 
     function closeOnboarding() {
@@ -1177,20 +1369,26 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
     }
 
     function collectOnboardingPreferences() {
-      addExcludedTopics(document.getElementById('onboarding-excluded-input').value);
-      document.getElementById('onboarding-excluded-input').value = '';
-      const arrayField = field => [...document.querySelectorAll(`[data-onboarding-field="${field}"]:checked`)].map(input => input.value);
-      const scalarField = field => document.querySelector(`[data-onboarding-field="${field}"]:checked`)?.value;
+      const excludedInput = document.getElementById('onboarding-flow-excluded-input');
+      addExcludedTopics(excludedInput?.value || '');
+      if (excludedInput) excludedInput.value = '';
+      const arrayField = field => [...document.querySelectorAll(`[data-flow-field="${field}"]:checked`)].map(input => input.value);
+      const scalarField = field => document.querySelector(`[data-flow-field="${field}"]:checked`)?.value;
+      const recipeId = scalarField('recipe_id') || onboardingDefaults.recipe_id;
+      const recipe = clientMorningRecipe(recipeId);
       return normalizeOnboardingPreferences({
-        topics: arrayField('topics'),
+        recipe_id: recipeId,
+        editorial_tone: scalarField('editorial_tone'),
+        brew_method: scalarField('brew_method'),
+        topics: recipe.topics,
         excluded_topics: onboardingExcludedTopics,
-        content_styles: arrayField('content_styles'),
-        source_lanes: arrayField('source_lanes'),
+        content_styles: recipe.defaultContentStyles,
+        source_lanes: recipe.sourceLanes,
         difficulty_levels: arrayField('difficulty_levels'),
-        reading_minutes: Number(scalarField('reading_minutes')),
-        item_count: Number(scalarField('item_count')),
-        novelty_level: Number(scalarField('novelty_level')),
-        review_enabled: document.querySelector('[data-onboarding-field="review_enabled"]')?.checked !== false,
+        reading_minutes: Number(scalarField('reading_minutes')) || 10,
+        item_count: Number(scalarField('item_count')) || 10,
+        novelty_level: Number(scalarField('novelty_level')) || 3,
+        review_enabled: document.querySelector('[data-flow-field="review_enabled"]')?.checked !== false,
         onboarding_completed: true
       });
     }
@@ -1202,12 +1400,32 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
 
     async function saveAuthenticatedPreferences(value, statusElement) {
       if (!authUser || !authSession?.access_token) throw new Error('請先登入，再保存這份晨報配方。');
-      const remoteValue = { ...(value && typeof value === 'object' ? value : {}) };
-      delete remoteValue.apiKeys;
+      const normalized = freshAuthenticatedPreferences(value && typeof value === 'object' ? value : {});
+      const remoteValue = {
+        recipe_id: normalized.recipeId,
+        editorial_tone: normalized.editorialTone,
+        brew_method: normalized.brewMethod,
+        topics: normalized.topics,
+        excluded_topics: normalized.excluded_topics,
+        content_styles: normalized.content_styles,
+        source_lanes: normalized.source_lanes,
+        difficulty_levels: normalized.difficulty_levels,
+        reading_minutes: normalized.reading_minutes,
+        item_count: normalized.item_count,
+        novelty_level: normalized.novelty_level,
+        review_enabled: normalized.review_enabled,
+        onboarding_completed: normalized.onboarding_completed,
+        source_language: normalized.language,
+        selected_source_ids: normalized.selectedSourceIds,
+        source_weights: normalized.sourceWeights,
+        specific_sources: normalized.specificSources,
+        direct_urls: normalized.directUrls,
+        source_prompt: normalized.prompt
+      };
       const response = await authFetch('/api/preferences', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(remoteValue) });
       const payload = await responsePayload(response);
       if (!response.ok) throw apiError(payload, response.status, '晨報配方暫時保存不了。');
-      const saved = normalizeOnboardingPreferences({ ...value, ...(payload.preferences || {}) });
+      const saved = freshAuthenticatedPreferences({ ...(value || {}), ...(payload.preferences || {}), apiKeys: brewPreferences.apiKeys });
       authPreferences = saved;
       brewPreferences = { ...brewPreferences, ...saved };
       cacheAuthenticatedPreferences(saved);
@@ -1244,20 +1462,29 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
 
     async function handleOnboardingSubmit(event) {
       event.preventDefault();
-      const status = document.getElementById('onboarding-status');
-      const submit = document.getElementById('onboarding-save');
+      const status = document.getElementById('onboarding-flow-status');
+      const submit = document.getElementById('onboarding-flow-save');
+      if (onboardingStep < 3) {
+        if (onboardingStep === 1 && !document.querySelector('[data-flow-field="recipe_id"]:checked')) {
+          setStatus(status, '先選一份想在早晨打開的報紙。', true);
+          return;
+        }
+        setOnboardingStep(onboardingStep + 1);
+        return;
+      }
       let recipe;
       try { recipe = collectOnboardingPreferences(); } catch (error) { setStatus(status, error.message, true); return; }
-      if (!recipe.topics.length) {
-        setStatus(status, '先選幾個想在早晨讀到的方向。', true);
-        document.querySelector('[data-onboarding-field="topics"]')?.focus();
+      if (!recipe.recipeId) {
+        setStatus(status, '先選一份主配方。', true);
+        setOnboardingStep(1);
         return;
       }
       submit.disabled = true;
       submit.setAttribute('aria-busy', 'true');
       setStatus(status, '正在把這份配方送進你的晨報檔案…');
       try {
-        await saveAuthenticatedPreferences(recipe, status);
+        const mainRecipe = clientMorningRecipe(recipe.recipeId);
+        await saveAuthenticatedPreferences({ ...brewPreferences, ...recipe, selectedSourceIds: [...(mainRecipe.sourceIds || defaultSourceIds)], selectedSources: [] }, status);
         closeOnboarding();
         updateAuthPanels();
         setStatus(document.getElementById('auth-account-status'), '配方已保存，下一壺會照這個方向尋找。');
@@ -1289,8 +1516,8 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
         authUser = session.user || await fetchCurrentUser();
         authProfile = await saveRemoteProfile(nickname);
         const remote = await fetchRemotePreferences();
-        authPreferences = normalizeOnboardingPreferences(remote || {});
-        brewPreferences = freshAuthenticatedPreferences(remote || {});
+        authPreferences = freshAuthenticatedPreferences(remote || {});
+        brewPreferences = freshAuthenticatedPreferences({ ...(remote || {}), apiKeys: brewPreferences.apiKeys });
         updateAuthTrigger();
         updateAuthPanels();
         syncBrewCountInput();
@@ -1364,8 +1591,8 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
         authProfile = await fetchRemoteProfile();
         updateAuthTrigger();
         const remote = await fetchRemotePreferences();
-        authPreferences = normalizeOnboardingPreferences(remote || {});
-        brewPreferences = freshAuthenticatedPreferences(remote || {});
+        authPreferences = freshAuthenticatedPreferences(remote || {});
+        brewPreferences = freshAuthenticatedPreferences({ ...(remote || {}), apiKeys: brewPreferences.apiKeys });
         syncBrewCountInput();
         if (!remote || remote.onboarding_completed !== true) openOnboarding(authPreferences);
       } catch (error) {
@@ -1552,16 +1779,17 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
     async function loadSourceRecommendations(query = '') {
       const requestId = ++sourceRequestSerial;
       const status = document.getElementById('source-discovery-status');
-      status.textContent = query ? `正在猜測「${query}」可能想找的來源…` : '正在載入 10 個推薦來源…';
+      const selectedRecipe = clientMorningRecipe(brewPreferences.recipeId);
+      status.textContent = query ? `正在猜測「${query}」可能想找的來源…` : `正在載入「${selectedRecipe.name}」的 10 個推薦來源…`;
       try {
-        const response = await fetch(`/api/source-recommendations?query=${encodeURIComponent(query)}&limit=10&provider=${encodeURIComponent(brewPreferences.provider || 'openrouter')}`, { cache: 'no-store' });
+        const response = await fetch(`/api/source-recommendations?query=${encodeURIComponent(query)}&limit=10&recipe_id=${encodeURIComponent(brewPreferences.recipeId || 'vibe-coding')}&provider=${encodeURIComponent(brewPreferences.provider || 'openrouter')}`, { cache: 'no-store' });
         const payload = await response.json().catch(() => ({}));
         if (requestId !== sourceRequestSerial) return;
         if (!response.ok) throw new Error(payload.error || '來源推薦暫時無法使用。');
         if (Array.isArray(payload.catalog_sources)) sourceCatalog = payload.catalog_sources;
         else if (!query) sourceCatalog = payload.sources || [];
         renderSourceRecommendations(payload.sources || []);
-        status.textContent = payload.live ? `已加入即時搜尋候選 · ${payload.sources?.length || 0} 個來源` : `資料庫推薦 · ${payload.sources?.length || 0} 個來源 · 你可以輸入字詞縮小範圍`;
+        status.textContent = payload.live ? `已加入即時搜尋候選 · ${payload.sources?.length || 0} 個來源` : `「${selectedRecipe.name}」的資料庫推薦 · ${payload.sources?.length || 0} 個來源 · 你可以輸入字詞縮小範圍`;
         document.getElementById('source-catalog-note').textContent = `排序版本 ${payload.ranking_version || 'source-v1'} · 資料庫更新 ${payload.updated_at || 'unknown'} · 推薦是排序訊號，不是永遠不變的排名。`;
       } catch (error) {
         if (requestId !== sourceRequestSerial) return;
@@ -1613,6 +1841,8 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
     function populatePreferences() {
       document.getElementById('preference-prompt').value = brewPreferences.prompt || '';
       document.getElementById('preference-direct-urls').value = (brewPreferences.directUrls || []).join('\n');
+      document.querySelectorAll('[data-source-weight]').forEach(input => { input.value = String(clampNumber(brewPreferences.sourceWeights?.[input.dataset.sourceWeight], 1, 5, 3)); });
+      document.querySelectorAll('[data-specific-source]').forEach(input => { input.value = brewPreferences.specificSources?.[input.dataset.specificSource] || ''; });
       const apiKeys = normalizeApiKeys(brewPreferences.apiKeys);
       document.getElementById('preference-openrouter-key').value = apiKeys.openrouter;
       document.getElementById('preference-openai-key').value = apiKeys.openai;
@@ -1620,13 +1850,17 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
       if (language) language.checked = true;
       const provider = document.querySelector(`input[name="brew-provider"][value="${['openrouter', 'openai', 'codex'].includes(brewPreferences.provider) ? brewPreferences.provider : 'openrouter'}"]`);
       if (provider) provider.checked = true;
+      const mainRecipe = clientMorningRecipe(brewPreferences.recipeId);
+      document.getElementById('source-discovery-copy').textContent = `「${mainRecipe.name}」有自己的十個推薦來源。輸入任何字，系統會先查這份來源櫃，再視需要找新的提供者；你選取的是來源，不是把自己知道的名字硬塞進 prompt。`;
       renderSelectedSources();
     }
 
     function collectPreferences() {
       const selectedSourceIds = [...new Set(brewPreferences.selectedSourceIds || [])].slice(0, 20);
       const provider = document.querySelector('input[name="brew-provider"]:checked')?.value;
-      return { ...brewPreferences, selectedSourceIds, selectedSources: selectedSourceIds.map(sourceById).filter(Boolean), prompt: document.getElementById('preference-prompt').value.trim(), directUrls: document.getElementById('preference-direct-urls').value.split(/\r?\n/).map(url => url.trim()).filter(Boolean), language: document.querySelector('input[name="preference-language"]:checked')?.value === 'en' ? 'en' : 'zh-Hant', provider: ['openrouter', 'openai', 'codex'].includes(provider) ? provider : 'openrouter', apiKeys: normalizeApiKeys({ openrouter: document.getElementById('preference-openrouter-key').value, openai: document.getElementById('preference-openai-key').value }) };
+      const sourceWeights = Object.fromEntries([...document.querySelectorAll('[data-source-weight]')].map(input => [input.dataset.sourceWeight, clampNumber(input.value, 1, 5, 3)]));
+      const specificSources = Object.fromEntries([...document.querySelectorAll('[data-specific-source]')].map(input => [input.dataset.specificSource, input.value.trim().slice(0, 160)]).filter(([, value]) => value));
+      return { ...brewPreferences, selectedSourceIds, selectedSources: selectedSourceIds.map(sourceById).filter(Boolean), sourceWeights, specificSources, prompt: document.getElementById('preference-prompt').value.trim(), directUrls: document.getElementById('preference-direct-urls').value.split(/\r?\n/).map(url => url.trim()).filter(Boolean), language: document.querySelector('input[name="preference-language"]:checked')?.value === 'en' ? 'en' : 'zh-Hant', provider: ['openrouter', 'openai', 'codex'].includes(provider) ? provider : 'openrouter', apiKeys: normalizeApiKeys({ openrouter: document.getElementById('preference-openrouter-key').value, openai: document.getElementById('preference-openai-key').value }) };
     }
 
     function savePreferences(showStatus = true) {
@@ -1839,10 +2073,13 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
       const preferences = recipe.preferences || {};
       const blend = preferences.blend || {};
       const model = recipe.model || {};
+      const recipeName = morningRecipeCatalog.recipes.find(item => item.id === preferences.recipe_id)?.name || preferences.recipe_id || 'Vibe Coding 入門';
+      const toneName = morningRecipeCatalog.tones.find(item => item.id === preferences.editorial_tone)?.name || preferences.editorial_tone || '實作導向';
+      const methodName = morningRecipeCatalog.methods.find(item => item.id === preferences.brew_method)?.name || preferences.brew_method || '每日手沖';
       const attempts = Array.isArray(payload.generation?.attempts) ? payload.generation.attempts : [];
       const shareUrl = `${location.origin}${payload.share?.api_path || ''}`;
       const attemptsHtml = attempts.length ? attempts.map(attempt => `<details class="edition-recipe-attempt"><summary>第 ${escapeHtml(attempt.number)} 次嘗試 · ${escapeHtml(attempt.model || model.name || '模型未記錄')}</summary><div><h4>System Prompt</h4><pre>${escapeHtml(attempt.system || '這次沒有獨立 system prompt')}</pre><h4>完整 User Prompt</h4><pre>${escapeHtml(attempt.user || '')}</pre></div></details>`).join('') : '<p>這一期沒有留下逐次嘗試內容。</p>';
-      editionRecipeContent.innerHTML = `<div class="eyebrow">${escapeHtml(payload.edition?.run_date || '')} · 生成履歷</div><h2 id="edition-recipe-title">本期配方</h2><p class="edition-recipe-lead">這裡保存當時真正用過的材料與做法。之後調整自己的口味，不會改寫這一期。</p><div class="edition-recipe-grid"><article class="edition-recipe-card"><strong>晨報比例</strong><p>${escapeHtml(blend.new_discoveries ?? 0)} 新／${escapeHtml(blend.saved_reviews ?? 0)} 複習／${escapeHtml(blend.classic ?? 0)} 經典／${escapeHtml(blend.surprise ?? 0)} 驚喜</p></article><article class="edition-recipe-card"><strong>模型</strong><p>${escapeHtml(model.provider || '')}<br>${escapeHtml(model.name || '')}</p></article><article class="edition-recipe-card"><strong>偏好方向</strong><p>${escapeHtml(recipeList(preferences.topics))}</p></article><article class="edition-recipe-card"><strong>來源街道</strong><p>${escapeHtml(recipeList(preferences.source_lanes))}</p></article></div><section class="edition-recipe-section"><h3>當時的 Prompt</h3><p>版本：${escapeHtml(recipe.prompt?.version || '未記錄')}</p><pre>${escapeHtml(recipe.prompt?.text || '')}</pre></section><section class="edition-recipe-section"><h3>每一次模型嘗試</h3>${attemptsHtml}</section><section class="edition-recipe-section"><h3>搜尋與證據規則</h3><pre>${escapeHtml(JSON.stringify(recipe.search_rules || {}, null, 2))}</pre></section><section class="edition-recipe-section"><h3>這期留下的來源</h3><pre>${escapeHtml(JSON.stringify(payload.edition?.sources || [], null, 2))}</pre></section><div class="edition-recipe-actions"><button class="edition-recipe-action" id="edition-recipe-copy" type="button">複製公開配方</button><button class="edition-recipe-action is-secondary" id="edition-recipe-share" type="button">複製分享連結</button><span class="edition-recipe-copy-status" id="edition-recipe-copy-status" role="status"></span></div><p class="recipe-note">公開版本不包含 API Key、帳號 ID、排除主題與私人指定來源。相同配方會帶來相近的方法與品質，不保證每次得到完全相同的十篇。</p>`;
+      editionRecipeContent.innerHTML = `<div class="eyebrow">${escapeHtml(payload.edition?.run_date || '')} · 生成履歷</div><h2 id="edition-recipe-title">本期配方</h2><p class="edition-recipe-lead">這裡保存當時真正用過的材料與做法。之後調整自己的口味，不會改寫這一期。</p><div class="edition-recipe-grid"><article class="edition-recipe-card"><strong>主配方</strong><p>${escapeHtml(recipeName)}</p></article><article class="edition-recipe-card"><strong>編輯口感</strong><p>${escapeHtml(toneName)}</p></article><article class="edition-recipe-card"><strong>沖煮方式</strong><p>${escapeHtml(methodName)}</p></article><article class="edition-recipe-card"><strong>晨報比例</strong><p>${escapeHtml(blend.new_discoveries ?? 0)} 新／${escapeHtml(blend.saved_reviews ?? 0)} 複習／${escapeHtml(blend.classic ?? 0)} 經典／${escapeHtml(blend.surprise ?? 0)} 驚喜</p></article><article class="edition-recipe-card"><strong>模型</strong><p>${escapeHtml(model.provider || '')}<br>${escapeHtml(model.name || '')}</p></article><article class="edition-recipe-card"><strong>偏好方向</strong><p>${escapeHtml(recipeList(preferences.topics))}</p></article><article class="edition-recipe-card"><strong>來源街道</strong><p>${escapeHtml(recipeList(preferences.source_lanes))}</p></article></div><section class="edition-recipe-section"><h3>當時的 Prompt</h3><p>版本：${escapeHtml(recipe.prompt?.version || '未記錄')}</p><pre>${escapeHtml(recipe.prompt?.text || '')}</pre></section><section class="edition-recipe-section"><h3>每一次模型嘗試</h3>${attemptsHtml}</section><section class="edition-recipe-section"><h3>搜尋與證據規則</h3><pre>${escapeHtml(JSON.stringify(recipe.search_rules || {}, null, 2))}</pre></section><section class="edition-recipe-section"><h3>這期留下的來源</h3><pre>${escapeHtml(JSON.stringify(payload.edition?.sources || [], null, 2))}</pre></section><div class="edition-recipe-actions"><button class="edition-recipe-action" id="edition-recipe-copy" type="button">複製公開配方</button><button class="edition-recipe-action is-secondary" id="edition-recipe-share" type="button">複製分享連結</button><span class="edition-recipe-copy-status" id="edition-recipe-copy-status" role="status"></span></div><p class="recipe-note">公開版本不包含 API Key、帳號 ID、排除主題與私人指定來源。相同配方會帶來相近的方法與品質，不保證每次得到完全相同的十篇。</p>`;
       document.getElementById('edition-recipe-copy').addEventListener('click', () => copyRecipeText(`${payload.share?.copy_text || ''}\n\n${JSON.stringify(recipe, null, 2)}`, '公開配方已複製。'));
       document.getElementById('edition-recipe-share').addEventListener('click', () => copyRecipeText(shareUrl, '分享連結已複製。'));
     }
@@ -1982,8 +2219,18 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
     document.getElementById('onboarding-form').addEventListener('submit', handleOnboardingSubmit);
     document.getElementById('onboarding-close').addEventListener('click', closeOnboarding);
     document.getElementById('onboarding-close-later').addEventListener('click', closeOnboarding);
+    document.getElementById('onboarding-flow-back').addEventListener('click', () => setOnboardingStep(onboardingStep - 1));
+    document.getElementById('onboarding-flow-next').addEventListener('click', () => { void handleOnboardingSubmit({ preventDefault() {} }); });
+    document.getElementById('onboarding-flow-close-later').addEventListener('click', closeOnboarding);
     onboardingOverlay.addEventListener('click', event => { if (event.target === onboardingOverlay) closeOnboarding(); });
     document.getElementById('onboarding-excluded-input').addEventListener('keydown', event => {
+      if (event.key === 'Enter' || event.key === ',' || event.key === '，') {
+        event.preventDefault();
+        addExcludedTopics(event.currentTarget.value);
+        event.currentTarget.value = '';
+      }
+    });
+    document.getElementById('onboarding-flow-excluded-input').addEventListener('keydown', event => {
       if (event.key === 'Enter' || event.key === ',' || event.key === '，') {
         event.preventDefault();
         addExcludedTopics(event.currentTarget.value);
@@ -2079,11 +2326,24 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
       }
     });
 
+    async function loadMorningRecipeCatalog() {
+      if (location.protocol === 'file:') return;
+      try {
+        const response = await fetch('/api/recipe-catalog', { cache: 'no-store' });
+        const payload = await response.json().catch(() => null);
+        if (response.ok && Array.isArray(payload?.recipes) && payload.recipes.length === 5 && Array.isArray(payload.tones) && Array.isArray(payload.methods)) {
+          morningRecipeCatalog = payload;
+          if (onboardingOverlay.classList.contains('is-open')) fillOnboardingForm(authPreferences || onboardingDefaults);
+        }
+      } catch {}
+    }
+
     renderLessons();
     renderFilters();
     renderPantry();
     updateAuthTrigger();
     syncBrewCountInput();
+    void loadMorningRecipeCatalog();
     void restoreAuthState();
     loadDailyEdition();
     loadArchiveIndex();

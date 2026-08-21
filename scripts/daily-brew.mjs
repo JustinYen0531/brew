@@ -4,6 +4,7 @@ import { randomUUID } from 'node:crypto';
 import { mkdir, rename, writeFile, access } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { buildMorningBrewPrompt, getMorningRecipe } from '../morning-brew-recipes.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DEFAULT_OUTPUT_DIR = path.join(ROOT, 'outputs', 'vibe-coding-daily-brew', 'daily');
@@ -202,15 +203,48 @@ function selectedModel(provider) {
 export function buildRecipeSnapshot(runDate) {
   const provider = selectedProvider();
   const model = selectedModel(provider);
+  const morningRecipe = getMorningRecipe('vibe-coding');
+  const recipePreferences = {
+    recipeId: morningRecipe.id,
+    editorialTone: 'hands-on-editor',
+    brewMethod: 'daily-pour',
+    topics: [...morningRecipe.topics],
+    excludedTopics: [...morningRecipe.excludedTopics],
+    contentStyles: [...morningRecipe.defaultContentStyles],
+    sourceLanes: [...morningRecipe.sourceLanes],
+    difficultyLevels: [...DIFFICULTY_LEVELS],
+    readingMinutes: 10,
+    itemCount: COUNT,
+    noveltyLevel: 3,
+    reviewEnabled: true,
+    sourceLanguage: 'zh-Hant',
+    selectedSourceIds: [...morningRecipe.sourceIds],
+    sourceWeights: {},
+    specificSources: {},
+    directUrls: [],
+    sourcePrompt: '',
+    selectedSources: [],
+    customSources: []
+  };
   return {
     schema_version: RECIPE_SCHEMA_VERSION,
     kind: 'automatic_daily_brew',
     run_date: runDate,
     as_of_date: runDate,
     preferences: {
-      topics: ['Vibe Coding'],
-      excluded_topics: ['產品新聞', '模型發布摘要', '募資消息', '流行金句', '純功能清單'],
-      source_lanes: ['社群討論', '開發者論壇', 'GitHub Issues / Discussions', '技術文章與回覆'],
+      recipe_id: recipePreferences.recipeId,
+      editorial_tone: recipePreferences.editorialTone,
+      brew_method: recipePreferences.brewMethod,
+      source_language: recipePreferences.sourceLanguage,
+      selected_source_ids: recipePreferences.selectedSourceIds,
+      source_weights: recipePreferences.sourceWeights,
+      specific_sources: recipePreferences.specificSources,
+      direct_urls: recipePreferences.directUrls,
+      source_prompt: recipePreferences.sourcePrompt,
+      topics: recipePreferences.topics,
+      excluded_topics: recipePreferences.excludedTopics,
+      content_styles: recipePreferences.contentStyles,
+      source_lanes: recipePreferences.sourceLanes,
       difficulty_levels: [...DIFFICULTY_LEVELS],
       language: 'zh-Hant',
       item_count: COUNT,
@@ -221,7 +255,7 @@ export function buildRecipeSnapshot(runDate) {
     prompt: {
       version: PROMPT_VERSION,
       system: SYSTEM_PROMPT,
-      text: buildPrompt(runDate)
+      text: buildMorningBrewPrompt(COUNT, recipePreferences, runDate)
     },
     model: { provider, name: model, generation_method: provider === 'codex' ? 'local_codex_exec' : 'provider_api' },
     search_rules: {

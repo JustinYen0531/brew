@@ -7,9 +7,14 @@ assert.equal(recipe.schema_version, 'daily-recipe-v1');
 assert.equal(recipe.kind, 'automatic_daily_brew');
 assert.equal(recipe.as_of_date, '2026-08-21');
 assert.deepEqual(recipe.preferences.blend, { new_discoveries: 6, saved_reviews: 2, classic: 1, surprise: 1 });
+assert.equal(recipe.preferences.recipe_id, 'vibe-coding');
+assert.equal(recipe.preferences.editorial_tone, 'hands-on-editor');
+assert.equal(recipe.preferences.brew_method, 'daily-pour');
+assert.equal(recipe.preferences.selected_source_ids.length, 10);
 assert.equal(recipe.preferences.item_count, 10);
 assert.equal(recipe.prompt.version, 'daily-prompt-v1');
 assert.match(recipe.prompt.text, /資料截點也是 2026-08-21/);
+assert.match(recipe.prompt.text, /Vibe Coding 入門/);
 assert.match(promptForAttempt(recipe, 2), /第 2 次嘗試/);
 assert.equal(recipe.search_rules.ranking_formula_version, 'v1');
 
@@ -19,6 +24,8 @@ assert.doesNotMatch(serialized, /OPENROUTER_API_KEY|OPENAI_API_KEY|SUPABASE_|ser
 const shared = publicRecipe(recipe);
 assert.equal(shared.kind, 'automatic_daily_brew');
 assert.equal(shared.prompt.text, recipe.prompt.text);
+assert.equal(shared.preferences.recipe_id, 'vibe-coding');
+assert.equal(shared.preferences.editorial_tone, 'hands-on-editor');
 assert.equal('excluded_topics' in shared.preferences, false);
 assert.equal(publicRecipe({ ...recipe, kind: 'manual_brew' }), null);
 const response = buildEditionRecipeResponse({ id: 'edition-1', run_date: '2026-08-21', mode: 'daily', generated_at: '2026-08-21T06:00:00.000Z', generation_run_id: 'run-1', generation_run: { id: 'run-1', status: 'complete', attempts: [] }, items: [{ title: 'A', url: 'https://example.com/a', sourceType: 'Example' }], generation_recipe: recipe });
