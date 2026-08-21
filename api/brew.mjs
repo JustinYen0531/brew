@@ -1,5 +1,6 @@
 import { sanitizePreferenceRecord } from './preferences.mjs';
-import { buildMorningBrewPrompt } from '../morning-brew-recipes.mjs';
+import { buildMorningBrewPrompt, buildMorningBrewRecipeSnapshot } from '../morning-brew-recipes.mjs';
+import { getAuthorizedContext, readPersonalEdition, readPersonalRecommendationSignals, sanitizeStoredJson, savePersonalEdition } from './edition-storage.mjs';
 
 const OPENROUTER_MODEL = process.env.OPENROUTER_MODEL || 'deepseek/deepseek-v4-flash-0731';
 const OPENAI_MODEL = process.env.OPENAI_MODEL || 'gpt-5.4';
@@ -110,6 +111,7 @@ function sanitizePreferences(raw = {}) {
   const selectedSources = normalizeProviders(raw.selectedSources, 20);
   const customSources = normalizeProviders(raw.customSources, 10);
   const directUrls = Array.isArray(raw.directUrls) ? raw.directUrls.filter(url => typeof url === 'string' && /^https?:\/\//i.test(url.trim())).map(url => url.trim().slice(0, 500)).slice(0, 10) : [];
+  const feedbackSignals = Array.isArray(raw.feedbackSignals) ? raw.feedbackSignals.slice(0, 100).map(signal => sanitizeStoredJson(signal)).filter(Boolean) : [];
   return {
     ...profile,
     recipeId: profile.recipe_id,
@@ -137,7 +139,8 @@ function sanitizePreferences(raw = {}) {
     customSources,
     prompt: typeof raw.prompt === 'string' ? raw.prompt.trim().slice(0, 1000) : '',
     directUrls,
-    language: raw.language === 'en' ? 'en' : 'zh-Hant'
+    language: raw.language === 'en' ? 'en' : 'zh-Hant',
+    feedbackSignals
   };
 }
 
@@ -369,10 +372,6 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: '只接受 POST 請求。' });
   const provider = normalizeProvider(req.body?.provider || req.body?.preferences?.provider || DEFAULT_PROVIDER);
   if (provider === 'codex') return res.status(503).json({ error: '本機 Codex 只能由本機 server.mjs 執行，不能由 Vercel 代跑。' });
-  const providedKey = typeof req.body?.apiKey === 'string' ? req.body.apiKey.trim().slice(0, 512) : '';
-  const configuredKey = provider === 'openai' ? process.env.OPENAI_API_KEY?.trim() : process.env.OPENROUTER_API_KEY?.trim();
-  const key = providedKey || configuredKey;
-  if (!key) return res.status(503).json({ error: provider === 'openai' ? 'Vercel 尚未設定 OPENAI_API_KEY。' : 'Vercel 尚未設定 OPENROUTER_API_KEY。' });
 
   let historicalDate = '';
   try { historicalDate = req.body?.date ? normalizeTargetDate(req.body.date) : ''; }
@@ -384,6 +383,33 @@ export default async function handler(req, res) {
   const count = historicalDate ? 10 : Number(req.body?.count ?? preferences.itemCount);
   if (!Number.isInteger(count) || count < 1 || count > 15) return res.status(400).json({ error: '篇數必須是 1 到 15 之間的整數。' });
   const asOfDate = historicalDate || localDate();
+  const kind = historicalDate ? 'historical' : req.body?.kind === 'manual' ? 'manual' : 'daily';
+  let personalContext = null;
+  const authorization = req.headers?.authorization || req.headers?.Authorization || '';
+  if (authorization) {
+    try {
+      personalContext = await getAuthorizedContext({ headers: req.headers, url: req.url, env: process.env });
+    } catch (error) {
+      return res.status(error.status || 401).json({ error: error.safeMessage || '登入已失效，請重新取得你的晨報。' });
+    }
+  }
+
+  if (personalContext && kind === 'daily') {
+    const existing = await readPersonalEdition(personalContext, { date: asOfDate, kind: 'daily', potNumber: 1 });
+    if (existing) return res.status(200).json({ items: existing.items, edition: existing, model: existing.model, provider: existing.provider, persisted: true, reused: true });
+  }
+  if (personalContext) {
+    try {
+      preferences.feedbackSignals = await readPersonalRecommendationSignals(personalContext);
+    } catch (error) {
+      return res.status(error.status || 502).json({ error: error.safeMessage || '晨報回饋暫時無法讀取，請稍後再試。' });
+    }
+  }
+
+  const providedKey = typeof req.body?.apiKey === 'string' ? req.body.apiKey.trim().slice(0, 512) : '';
+  const configuredKey = provider === 'openai' ? process.env.OPENAI_API_KEY?.trim() : process.env.OPENROUTER_API_KEY?.trim();
+  const key = providedKey || configuredKey;
+  if (!key) return res.status(503).json({ error: provider === 'openai' ? 'Vercel 尚未設定 OPENAI_API_KEY。' : 'Vercel 尚未設定 OPENROUTER_API_KEY。' });
 
   try {
     async function requestWithRetry(slot) {
@@ -411,6 +437,25 @@ export default async function handler(req, res) {
     }
     await Promise.all(Array.from({ length: Math.min(count, MAX_PARALLEL_BREWS) }, () => worker()));
     const items = results.flat().map((item, index) => ({ ...item, n: String(index + 1).padStart(2, '0') }));
+    if (personalContext) {
+      const generatedAt = new Date().toISOString();
+      const edition = await savePersonalEdition(personalContext, {
+        kind,
+        runDate: asOfDate,
+        asOfDate,
+        provider,
+        model: modelForProvider(provider),
+        requestedCount: items.length,
+        title: 'Vibe Coding 每日手沖',
+        objective: kind === 'historical'
+          ? `從 ${asOfDate} 當時可見的發現中，保存一壺可驗證、可轉移的晨報。`
+          : '從當前社群討論中挑出值得留下、可以理解也可以實作的晨報內容。',
+        generatedAt,
+        generationRecipe: buildMorningBrewRecipeSnapshot({ date: asOfDate, itemCount: items.length, kind, provider, model: modelForProvider(provider), preferences }),
+        items
+      });
+      return res.status(200).json({ items: edition.items, edition, model: edition.model, provider, persisted: true, reused: false });
+    }
     const edition = historicalDate ? { run_date: historicalDate, mode: 'historical', provider, model: modelForProvider(provider), requested_count: 10, title: 'Vibe Coding 每日手沖', generated_at: new Date().toISOString(), items } : null;
     return res.status(200).json({ items, model: modelForProvider(provider), provider, ...(edition ? { edition, persisted: false } : {}) });
   } catch (error) {

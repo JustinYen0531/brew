@@ -162,6 +162,12 @@ export function buildMorningBrewPrompt(count, preferences = {}, asOfDate) {
   const specificSources = Object.entries(preferences.specificSources || {}).filter(([, value]) => value).map(([source, value]) => `${source}: ${value}`).join('；') || '沒有指定特定社群';
   const directSources = Array.isArray(preferences.directUrls) && preferences.directUrls.length ? preferences.directUrls.join('\n') : '沒有硬性網址限制';
   const extraPrompt = preferences.prompt || preferences.sourcePrompt || preferences.source_prompt || '沒有額外採編備註';
+  const feedbackSignals = Array.isArray(preferences.feedbackSignals) ? preferences.feedbackSignals.slice(0, 40).map(signal => {
+    const snapshot = signal?.payload?.source_snapshot || {};
+    const label = snapshot.title || signal?.lesson_key || '未命名內容';
+    const context = [snapshot.sourceType, snapshot.category, snapshot.difficulty].filter(Boolean).join(' · ');
+    return `${signal?.action || 'feedback'}：${label}${context ? `（${context}）` : ''}`;
+  }).join('；') : '';
   return [
     `資料截點是 ${asOfDate}，資料截點也是 ${asOfDate}。這一壺晨報本次實際必須產出 ${count} 篇，不能多也不能少。請使用可用的 web search，找出在 ${asOfDate} 當天或之前已經存在的、與「${recipe.name}」相關、具體且可重複的實作方法，並整理成繁體中文學習內容。嚴格禁止使用 ${asOfDate} 之後發布、更新或發生的發現，所有 source.published_at 必須小於或等於 ${asOfDate}。`,
     '',
@@ -189,6 +195,8 @@ export function buildMorningBrewPrompt(count, preferences = {}, asOfDate) {
     `來源資料庫中已選取的提供者：${selectedSources}`,
     `特定社群偏好：${specificSources}`,
     `額外採編備註：${extraPrompt}`,
+    `近期回饋訊號：${feedbackSignals || '目前還沒有可用的收藏回饋'}`,
+    '使用回饋時，Super Starred 代表優先找相似的問題深度、內容形式或實作脈絡；Starred 代表值得保留；not_interested、unstarred 或 exclude_source 代表降低相似訊號。只把它當成排序與採編方向，仍要重新驗證每篇來源，不要重複同一篇內容。',
     '硬性網址來源（若有，只能從這些網址或其頁面翻找）：',
     directSources,
     '',
@@ -198,4 +206,96 @@ export function buildMorningBrewPrompt(count, preferences = {}, asOfDate) {
     '{"items":[{"title":"...","category":"思考|提示設計|Agent 管理|上下文工程|程式碼理解|驗證|工作流程|工藝與心態|安全|協作|學習系統","tag":"新鮮實作|近期耐用|舊作高價值","difficulty":"初學者|普通|困難","takeaway":"...","problem":"...","principle":"...","try_it":"...","tradeoffs":"...","practice_prompt":"...","source_says":"...","editorial_synthesis":"...","source":{"url":"https://...","platform":"...","published_at":"YYYY-MM-DD","evidence_excerpt":"...","popularity_basis":"..."},"scores":{"timeless":1,"importance":1,"popularity":1}}]}',
     '評分必須是 1 到 5 的數字。來源 URL、日期與證據不確定時，請如實降低評分或排除，不要創造來源。'
   ].join('\n');
+}
+
+function redactRecipeText(value) {
+  return String(value || '')
+    .replace(/\bsk-(?:or-v1-|ant-|proj-)?[A-Za-z0-9_-]{12,}/gi, '[已移除 API Key]')
+    .replace(/\bsb_secret_[A-Za-z0-9_-]{10,}/gi, '[已移除 Supabase Secret]')
+    .replace(/\b(?:OPENROUTER|OPENAI|SUPABASE)_[A-Z0-9_]*(?:KEY|TOKEN|SECRET)\s*=\s*[^\s,;]+/gi, '[已移除環境變數]')
+    .replace(/\bBearer\s+[A-Za-z0-9._-]{16,}/gi, 'Bearer [已移除]');
+}
+
+function recipeArray(preferences, camelName, snakeName, fallback = []) {
+  const value = preferences?.[camelName] ?? preferences?.[snakeName];
+  const source = Array.isArray(value) && value.length ? value.slice(0, 20) : [...fallback];
+  return source.map(item => typeof item === 'string' ? redactRecipeText(item) : item);
+}
+
+function recipeObject(preferences, camelName, snakeName) {
+  const value = preferences?.[camelName] ?? preferences?.[snakeName];
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
+  return Object.fromEntries(Object.entries(value).slice(0, 40).flatMap(([key, entry]) => {
+    if (/(api[_-]?key|token|secret|password|authorization|bearer)/i.test(key)) return [];
+    return [[key.slice(0, 120), typeof entry === 'string' ? redactRecipeText(entry) : entry]];
+  }));
+}
+
+export function buildMorningBrewRecipeSnapshot({
+  date,
+  itemCount,
+  kind = 'daily',
+  provider = 'openrouter',
+  model = '',
+  preferences = {},
+  generationRunId = ''
+} = {}) {
+  const recipe = getMorningRecipe(preferences.recipeId || preferences.recipe_id);
+  const recipeId = recipe.id;
+  const editorialTone = preferences.editorialTone || preferences.editorial_tone || 'hands-on-editor';
+  const brewMethod = preferences.brewMethod || preferences.brew_method || 'daily-pour';
+  const sourceLanguage = preferences.sourceLanguage || preferences.source_language || 'zh-Hant';
+  const selectedSourceIds = recipeArray(preferences, 'selectedSourceIds', 'selected_source_ids', recipe.sourceIds);
+  const directUrls = recipeArray(preferences, 'directUrls', 'direct_urls').map(redactRecipeText);
+  const sourcePrompt = redactRecipeText(preferences.sourcePrompt || preferences.source_prompt || preferences.prompt || '');
+  const itemCountValue = Number(itemCount || preferences.itemCount || preferences.item_count || 10);
+  const asOfDate = date || '';
+  const recipePreferences = {
+    recipe_id: recipeId,
+    editorial_tone: editorialTone,
+    brew_method: brewMethod,
+    source_language: sourceLanguage,
+    selected_source_ids: selectedSourceIds,
+    source_weights: recipeObject(preferences, 'sourceWeights', 'source_weights'),
+    specific_sources: recipeObject(preferences, 'specificSources', 'specific_sources'),
+    direct_urls: directUrls,
+    source_prompt: sourcePrompt,
+    feedback_signals: Array.isArray(preferences.feedbackSignals) ? preferences.feedbackSignals.slice(0, 40) : [],
+    topics: recipeArray(preferences, 'topics', 'topics', recipe.topics),
+    excluded_topics: recipeArray(preferences, 'excludedTopics', 'excluded_topics', recipe.excludedTopics),
+    content_styles: recipeArray(preferences, 'contentStyles', 'content_styles', recipe.defaultContentStyles),
+    source_lanes: recipeArray(preferences, 'sourceLanes', 'source_lanes', recipe.sourceLanes),
+    difficulty_levels: recipeArray(preferences, 'difficultyLevels', 'difficulty_levels', ['普通']),
+    reading_minutes: Number(preferences.readingMinutes || preferences.reading_minutes || 10),
+    item_count: itemCountValue,
+    novelty_level: Number(preferences.noveltyLevel || preferences.novelty_level || 3),
+    review_enabled: preferences.reviewEnabled !== false && preferences.review_enabled !== false,
+    blend: { new_discoveries: 6, saved_reviews: 2, classic: 1, surprise: 1 }
+  };
+  const safePreferences = JSON.parse(redactRecipeText(JSON.stringify(recipePreferences)));
+  return {
+    schema_version: 'personal-recipe-v1',
+    kind: kind === 'daily' ? 'personal_daily_brew' : kind === 'manual' ? 'personal_manual_brew' : 'personal_historical_brew',
+    run_date: asOfDate,
+    as_of_date: asOfDate,
+    preferences: safePreferences,
+    prompt: {
+      version: `${MORNING_BREW_RECIPE_VERSION}-prompt`,
+      system: '你是 Vibe Coding Daily Brew 的嚴謹中文編輯。只保留有證據、可轉移、可實作的做法。',
+      text: redactRecipeText(buildMorningBrewPrompt(itemCountValue, preferences, asOfDate))
+    },
+    model: {
+      provider: String(provider || '').slice(0, 80),
+      name: String(model || '').slice(0, 160),
+      generation_method: provider === 'codex' ? 'local_codex_exec' : 'provider_api'
+    },
+    generation_run_id: String(generationRunId || '').slice(0, 160),
+    search_rules: {
+      version: 'personal-search-v1',
+      web_search_required: true,
+      allowed_source_date_lte: asOfDate,
+      canonical_url_required: true,
+      evidence_required: true
+    }
+  };
 }

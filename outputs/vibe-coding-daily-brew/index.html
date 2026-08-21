@@ -249,6 +249,7 @@
     .pantry-item .difficulty-chip { margin-left: 8px; vertical-align: middle; font: 9px var(--mono); }
     .pantry-favorite { color: var(--terracotta); font: 10px var(--mono); margin-left: 8px; }
     .pantry-favorite.super { color: var(--amber); }
+    .second-pour-note { color: var(--espresso); font: 11px var(--mono); margin: 16px 0 0; }
     .empty-state { color: var(--muted); padding: 30px 0; font: 12px var(--mono); }
 
     .detail-overlay { position: fixed; inset: 0; display: none; z-index: 20; background: rgba(41,35,31,.32); padding: 32px; }
@@ -616,7 +617,7 @@
       </section>
 
       <section class="view" id="pantry-view" aria-labelledby="pantry-title">
-        <div class="pantry-intro"><div class="eyebrow">把讀過的東西留在手邊</div><h1 id="pantry-title">知識儲藏室</h1><p>這些內容會慢慢長成你的知識庫。收藏、複習，等適合的早晨再回來。</p></div>
+        <div class="pantry-intro"><div class="eyebrow">把讀過的東西留在手邊</div><h1 id="pantry-title">知識儲藏室</h1><p>這些內容會慢慢長成你的知識庫。收藏、複習，等適合的早晨再回來。</p><p class="second-pour-note" id="second-pour-note">還沒有排好的 Second Pour；收藏一篇，讓它之後回到你的早晨。</p></div>
         <div class="pantry-toolbar"><div class="pantry-browser"><div class="pantry-browser-caption">瀏覽方式</div><div class="pantry-mode-switch" role="tablist" aria-label="知識儲藏室瀏覽方式"><button class="pantry-mode-button is-active" type="button" data-pantry-mode="favorites" role="tab" aria-selected="true">按收藏</button><button class="pantry-mode-button" type="button" data-pantry-mode="category" role="tab" aria-selected="false">按類別</button><button class="pantry-mode-button" type="button" data-pantry-mode="difficulty" role="tab" aria-selected="false">按難度</button></div><div class="filter-list" id="favorite-filter-list" aria-label="依收藏篩選學習"></div><div class="filter-list is-hidden" id="category-filter-list" aria-label="依類別篩選學習"></div><div class="filter-list is-hidden" id="difficulty-filter-list" aria-label="依難度篩選學習"></div></div><label><span class="sr-only">搜尋知識儲藏室</span><input class="pantry-search" id="pantry-search" type="search" placeholder="搜尋知識儲藏室…"></label></div>
         <div class="pantry-list" id="pantry-list"></div>
       </section>
@@ -1112,6 +1113,12 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
     let archiveEditions = {};
     let simulatedEditionDate = '';
     let currentEditionRecipeDate = '';
+    let currentEditionId = '';
+    let currentEditionKind = 'daily';
+    let currentEditionSnapshot = null;
+    let pantryLessons = [];
+    let pantryItemsByKey = new Map();
+    let reviewQueue = [];
     let activePublicRecipePayload = null;
 
     function escapeHtml(value) {
@@ -1595,9 +1602,16 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
         brewPreferences = freshAuthenticatedPreferences({ ...(remote || {}), apiKeys: brewPreferences.apiKeys });
         syncBrewCountInput();
         if (!remote || remote.onboarding_completed !== true) openOnboarding(authPreferences);
+        try { await hydratePersonalData(); await loadArchiveIndex(); } catch (error) { setStatus(document.getElementById('auth-account-status'), error.message || '個人晨報資料稍後再同步。', true); }
       } catch (error) {
         authUser = null;
         authProfile = null;
+        authPreferences = null;
+        currentEditionId = '';
+        currentEditionSnapshot = null;
+        pantryLessons = [];
+        pantryItemsByKey = new Map();
+        reviewQueue = [];
         clearAuthSession();
         updateAuthTrigger();
         openAuthOverlay();
@@ -1626,6 +1640,12 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
         authUser = null;
         authProfile = null;
         authPreferences = null;
+        currentEditionId = '';
+        currentEditionKind = 'daily';
+        currentEditionSnapshot = null;
+        pantryLessons = [];
+        pantryItemsByKey = new Map();
+        reviewQueue = [];
         brewPreferences = loadPreferences();
         updateAuthTrigger();
         updateAuthPanels();
@@ -1701,10 +1721,19 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
       }));
     }
 
+    function refreshPantryIndex(items = []) {
+      const normalized = Array.isArray(items) ? normalizeEditionItems({ run_date: localDateKey(), items }) : [];
+      const merged = new Map();
+      [...pantryLessons, ...normalized].forEach(item => merged.set(favoriteKey(item), item));
+      pantryLessons = [...merged.values()];
+      pantryItemsByKey = new Map(pantryLessons.map(item => [favoriteKey(item), item]));
+    }
+
     function applyEdition(edition) {
-      if (!edition || !Array.isArray(edition.items) || edition.items.length !== 10) return false;
+      if (!edition || !Array.isArray(edition.items) || edition.items.length < 1 || edition.items.length > 15) return false;
       lessons.splice(0, lessons.length, ...normalizeEditionItems(edition));
-      const label = edition.mode === 'historical' ? `歷史模擬 · ${edition.run_date} · ${edition.items.length} 個發現` : `每日選集 · ${edition.run_date} · ${edition.items.length} 個發現`;
+      const mode = edition.kind || edition.mode || 'daily';
+      const label = mode === 'historical' ? `歷史模擬 · ${edition.run_date} · ${edition.items.length} 個發現` : `每日選集 · ${edition.run_date} · ${edition.items.length} 個發現`;
       const providerLabels = { openrouter: 'OpenRouter', openai: 'OpenAI API', codex: '本機 Codex' };
       const editionDate = document.querySelector('.hero .eyebrow');
       const editionLine = document.querySelector('.edition-line');
@@ -1712,8 +1741,13 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
       if (editionLine) editionLine.textContent = `公示日期：${edition.run_date} · ${edition.items.length} 篇學習 · ${providerLabels[edition.provider] || '既有批次'} · 資料截點不晚於該日`;
       const metricValues = document.querySelectorAll('.metrics .metric-value');
       if (metricValues[0]) metricValues[0].textContent = String(edition.items.length);
-      currentEditionRecipeDate = edition.mode === 'daily' && edition.generation_recipe ? edition.run_date : '';
+      currentEditionId = edition.id || '';
+      currentEditionKind = mode;
+      currentEditionSnapshot = edition;
+      currentEditionRecipeDate = mode === 'daily' && edition.generation_recipe ? edition.run_date : '';
       todayRecipeButton.hidden = !currentEditionRecipeDate;
+      if (!authUser) pantryLessons = [];
+      refreshPantryIndex(lessons);
       renderLessons();
       renderFilters();
       renderPantry();
@@ -1885,13 +1919,31 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
       document.getElementById('preferences-close').focus();
     }
 
-    function favoriteKey(item) { return `${item.title}::${item.date || ''}`; }
-    function getFavoriteState(item) { return Number(favoriteStates[favoriteKey(item)] || 0); }
+    function favoriteKey(item) {
+      if (typeof item.lesson_key === 'string' && item.lesson_key.trim()) return item.lesson_key.trim();
+      const rawUrl = typeof item.url === 'string' ? item.url.trim() : '';
+      if (rawUrl && /^https?:\/\//i.test(rawUrl)) {
+        try {
+          const url = new URL(rawUrl);
+          url.hash = '';
+          url.search = '';
+          url.pathname = url.pathname.replace(/\/+$/, '') || '/';
+          return `url:${url.toString().toLowerCase()}`.slice(0, 240);
+        } catch {}
+      }
+      return `text:${item.title || ''}\n${item.date || ''}`;
+    }
+    function getFavoriteState(item) {
+      const key = favoriteKey(item);
+      if (favoriteStates[key] !== undefined) return Number(favoriteStates[key] || 0);
+      return Number(favoriteStates[`${item.title}::${item.date || ''}`] || 0);
+    }
     function favoriteLabel(state) { return ['未收藏', 'Starred', 'Super Starred'][state] || '未收藏'; }
     function favoriteSymbol(state) { return ['☆', '★', '✦'][state] || '☆'; }
     function favoriteButton(item, index, extraClass = '') {
       const state = getFavoriteState(item);
-      return `<button type="button" class="favorite-button favorite-state-${state} ${extraClass}" data-favorite="${index}" aria-pressed="${state > 0}" aria-label="${favoriteLabel(state)}：${escapeHtml(item.title)}"><span class="favorite-symbol" aria-hidden="true">${favoriteSymbol(state)}</span><span class="favorite-label">${favoriteLabel(state)}</span></button>`;
+      const target = index >= 0 ? `data-favorite="${index}"` : `data-favorite-key="${escapeHtml(favoriteKey(item))}"`;
+      return `<button type="button" class="favorite-button favorite-state-${state} ${extraClass}" ${target} aria-pressed="${state > 0}" aria-label="${favoriteLabel(state)}：${escapeHtml(item.title)}"><span class="favorite-symbol" aria-hidden="true">${favoriteSymbol(state)}</span><span class="favorite-label">${favoriteLabel(state)}</span></button>`;
     }
     function updateFavoriteButton(button, index) {
       const item = lessons[index];
@@ -1904,19 +1956,81 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
     }
     function bindFavoriteButtons() {
       document.querySelectorAll('[data-favorite]').forEach(button => {
+        if (button.dataset.favoriteBound === 'true') return;
+        button.dataset.favoriteBound = 'true';
         button.addEventListener('click', event => { event.stopPropagation(); cycleFavorite(Number(button.dataset.favorite)); });
       });
+      document.querySelectorAll('[data-favorite-key]').forEach(button => {
+        if (button.dataset.favoriteBound === 'true') return;
+        button.dataset.favoriteBound = 'true';
+        button.addEventListener('click', event => { event.stopPropagation(); cycleFavoriteItem(pantryItemsByKey.get(button.dataset.favoriteKey)); });
+      });
+    }
+    async function syncFavoriteFeedback(item, nextState) {
+      if (!authUser || !authSession?.access_token || location.protocol === 'file:') return;
+      const action = nextState === 1 ? 'starred' : nextState === 2 ? 'super_starred' : 'unstarred';
+      const response = await authFetch('/api/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          lesson_key: favoriteKey(item),
+          edition_id: item.edition_id || currentEditionId || null,
+          action,
+          source_snapshot: { title: item.title, url: item.url, date: item.date, category: item.category, difficulty: item.difficulty, sourceType: item.sourceType, takeaway: item.takeaway, principle: item.principle }
+        })
+      });
+      const payload = await responsePayload(response);
+      if (!response.ok) throw apiError(payload, response.status, '收藏同步失敗，請稍後再試。');
+      reviewQueue = Array.isArray(payload.review_queue) ? payload.review_queue : reviewQueue;
+      renderSecondPourNote();
+    }
+    async function syncReadFeedback(item) {
+      if (!authUser || !authSession?.access_token || !item?.edition_id || location.protocol === 'file:') return;
+      const response = await authFetch('/api/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          lesson_key: favoriteKey(item),
+          edition_id: item.edition_id,
+          action: 'read',
+          source_snapshot: { title: item.title, url: item.url, date: item.date, category: item.category, difficulty: item.difficulty, sourceType: item.sourceType, takeaway: item.takeaway, principle: item.principle }
+        })
+      });
+      const payload = await responsePayload(response);
+      if (!response.ok) throw apiError(payload, response.status, '閱讀紀錄同步失敗，請稍後再試。');
+      reviewQueue = Array.isArray(payload.review_queue) ? payload.review_queue : reviewQueue;
+      renderSecondPourNote();
     }
     function cycleFavorite(index) {
       const item = lessons[index];
+      cycleFavoriteItem(item);
+    }
+    function cycleFavoriteItem(item) {
       if (!item) return;
-      const nextState = (getFavoriteState(item) + 1) % 3;
+      const previousState = getFavoriteState(item);
+      const nextState = (previousState + 1) % 3;
       const key = favoriteKey(item);
       if (nextState === 0) delete favoriteStates[key]; else favoriteStates[key] = nextState;
       try { localStorage.setItem(favoriteStorageKey, JSON.stringify(favoriteStates)); } catch {}
       renderLessons();
       renderPantry();
       document.querySelectorAll('[data-favorite]').forEach(button => updateFavoriteButton(button, Number(button.dataset.favorite)));
+      document.querySelectorAll('[data-favorite-key]').forEach(button => {
+        const current = pantryItemsByKey.get(button.dataset.favoriteKey);
+        if (!current) return;
+        const state = getFavoriteState(current);
+        button.className = `favorite-button favorite-state-${state}${button.classList.contains('detail-favorite') ? ' detail-favorite' : ''}`;
+        button.setAttribute('aria-pressed', String(state > 0));
+        button.setAttribute('aria-label', `${favoriteLabel(state)}：${current.title}`);
+        button.innerHTML = `<span class="favorite-symbol" aria-hidden="true">${favoriteSymbol(state)}</span><span class="favorite-label">${favoriteLabel(state)}</span>`;
+      });
+      void syncFavoriteFeedback(item, nextState).catch(error => {
+        if (nextState === 0) favoriteStates[key] = previousState; else if (previousState === 0) delete favoriteStates[key]; else favoriteStates[key] = previousState;
+        try { localStorage.setItem(favoriteStorageKey, JSON.stringify(favoriteStates)); } catch {}
+        renderLessons();
+        renderPantry();
+        setStatus(document.getElementById('auth-account-status'), error.message || '收藏同步失敗，請稍後再試。', true);
+      });
     }
 
     function dots(value, label, important = false) {
@@ -1932,7 +2046,8 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
 
     function renderFilters() {
       document.getElementById('favorite-filter-list').innerHTML = favoriteFilters.map((filter, i) => `<button class="filter-button ${i === 0 ? 'is-active' : ''}" data-favorite-filter="${escapeHtml(filter)}">${escapeHtml(filter)}</button>`).join('');
-      const categoryOptions = [...categoryFilters, ...new Set(lessons.map(item => item.category).filter(Boolean))];
+      const pantrySource = pantryLessons.length ? pantryLessons : lessons;
+      const categoryOptions = [...categoryFilters, ...new Set(pantrySource.map(item => item.category).filter(Boolean))];
       document.getElementById('category-filter-list').innerHTML = categoryOptions.map((filter, i) => `<button class="filter-button ${i === 0 ? 'is-active' : ''}" data-category-filter="${escapeHtml(filter)}">${escapeHtml(filter)}</button>`).join('');
       document.getElementById('difficulty-filter-list').innerHTML = difficultyFilters.map((filter, i) => `<button class="filter-button ${i === 0 ? 'is-active' : ''}" data-difficulty-filter="${escapeHtml(filter)}">${escapeHtml(filter)}</button>`).join('');
       document.querySelectorAll('[data-pantry-mode]').forEach(button => button.addEventListener('click', () => {
@@ -1970,10 +2085,24 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
       renderPantry();
     }
 
+    function renderSecondPourNote() {
+      const note = document.getElementById('second-pour-note');
+      if (!note) return;
+      if (!authUser) {
+        note.textContent = '登入後，收藏的內容會在合適的早晨回來；那就是你的 Second Pour。';
+        return;
+      }
+      note.textContent = reviewQueue.length
+        ? `今天有 ${reviewQueue.length} 篇 Second Pour 在等你；先回想，再打開原文。`
+        : '還沒有到期的 Second Pour；收藏一篇，讓它之後回到你的早晨。';
+    }
+
     function renderPantry(filter, query = '') {
       const currentFilter = filter || (pantryMode === 'favorites' ? activeFavoriteFilter : pantryMode === 'category' ? activeCategoryFilter : activeDifficultyFilter);
       const normalized = (query || document.getElementById('pantry-search').value).trim().toLowerCase();
-      const matches = lessons.filter(item => {
+      const pantrySource = pantryLessons.length ? pantryLessons : lessons;
+      pantryItemsByKey = new Map(pantrySource.map(item => [favoriteKey(item), item]));
+      const matches = pantrySource.filter(item => {
         const state = getFavoriteState(item);
         const favoriteMatch = currentFilter === '全部內容' || (currentFilter === '未收藏' && state === 0) || (currentFilter === 'Starred 以上' && state >= 1) || (currentFilter === '僅 Super Starred' && state === 2);
         const categoryMatch = currentFilter === '全部學習' || item.category === currentFilter;
@@ -1982,8 +2111,9 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
         return pantryMode === 'favorites' ? favoriteMatch && textMatch : pantryMode === 'category' ? categoryMatch && textMatch : difficultyMatch && textMatch;
       });
       const emptyMessage = pantryMode === 'favorites' ? '目前沒有符合這個收藏條件的內容。' : pantryMode === 'category' ? '找不到學習內容，試試更寬的搜尋範圍。' : '目前沒有符合這個難度的內容。';
-      pantryList.innerHTML = matches.length ? matches.map(item => { const state = getFavoriteState(item); const marker = state ? `<span class="pantry-favorite ${state === 2 ? 'super' : ''}">${favoriteSymbol(state)} ${favoriteLabel(state)}</span>` : ''; return `<button class="pantry-item" data-open-lesson="${lessons.indexOf(item)}"><div><h3>${escapeHtml(item.title)}${difficultyBadge(item)}${marker}</h3><p>${escapeHtml(item.category)} · ${escapeHtml(item.time)} · ${escapeHtml(item.sourceType)}</p></div><div class="ratings">長久度 ${item.timeless.toFixed(1)} · 重要性 ${item.importance.toFixed(1)}</div><div class="date">${escapeHtml(new Date(item.date).toLocaleDateString('zh-TW', { month:'short', day:'numeric', year:'numeric' }))}</div></button>`; }).join('') : `<p class="empty-state">${emptyMessage}</p>`;
-      pantryList.querySelectorAll('[data-open-lesson]').forEach(button => button.addEventListener('click', () => openLesson(Number(button.dataset.openLesson))));
+      pantryList.innerHTML = matches.length ? matches.map(item => { const state = getFavoriteState(item); const marker = state ? `<span class="pantry-favorite ${state === 2 ? 'super' : ''}">${favoriteSymbol(state)} ${favoriteLabel(state)}</span>` : ''; return `<button class="pantry-item" data-open-pantry="${escapeHtml(favoriteKey(item))}"><div><h3>${escapeHtml(item.title)}${difficultyBadge(item)}${marker}</h3><p>${escapeHtml(item.category)} · ${escapeHtml(item.time)} · ${escapeHtml(item.sourceType)}</p></div><div class="ratings">長久度 ${item.timeless.toFixed(1)} · 重要性 ${item.importance.toFixed(1)}</div><div class="date">${escapeHtml(new Date(item.date).toLocaleDateString('zh-TW', { month:'short', day:'numeric', year:'numeric' }))}</div></button>`; }).join('') : `<p class="empty-state">${emptyMessage}</p>`;
+      pantryList.querySelectorAll('[data-open-pantry]').forEach(button => button.addEventListener('click', () => openLessonItem(pantryItemsByKey.get(button.dataset.openPantry))));
+      renderSecondPourNote();
     }
 
     function renderArchiveCalendar() {
@@ -2034,6 +2164,14 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
 
     async function fetchEdition(date = 'latest') {
       if (location.protocol === 'file:') return null;
+      if (authUser) {
+        try {
+          const personalDate = date === 'latest' ? localDateKey() : date;
+          const personalKind = date === 'latest' ? 'daily' : 'historical';
+          const personal = await fetchPersonalEdition(personalDate, personalKind);
+          if (personal) return personal;
+        } catch {}
+      }
       const encodedDate = encodeURIComponent(date);
       const endpoints = date === 'latest'
         ? ['/api/archive?date=latest', '/outputs/vibe-coding-daily-brew/daily/latest.json']
@@ -2057,6 +2195,22 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
       editionRecipeOverlay.classList.remove('is-open');
       activePublicRecipePayload = null;
       document.body.style.overflow = '';
+    }
+
+    function privateRecipePayload(edition) {
+      return {
+        edition: {
+          id: edition.id || '',
+          run_date: edition.run_date || '',
+          generated_at: edition.generated_at || '',
+          generation_run_id: edition.generation_run_id || '',
+          item_count: Array.isArray(edition.items) ? edition.items.length : 0,
+          sources: (edition.items || []).map(item => ({ title: item.title, url: item.url, platform: item.sourceType || '' }))
+        },
+        generation: { id: edition.generation_run_id || '', status: edition.status || 'complete', started_at: '', completed_at: edition.generated_at || '', attempts: [] },
+        recipe: edition.generation_recipe || {},
+        share: { copy_text: '這是我這一壺晨報實際使用的個人配方。', api_path: '' }
+      };
     }
 
     async function copyRecipeText(text, successMessage) {
@@ -2129,7 +2283,9 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
       archiveOpenButton.hidden = true;
       archiveSelectionStatus.textContent = `正在以 ${date} 為公示日期，手沖 10 份發現…`;
       try {
-        const response = await fetch('/api/brew', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(buildBrewRequestBody({ count: 10, date })) });
+        const response = authUser
+          ? await authFetch('/api/brew', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(buildBrewRequestBody({ count: 10, date })) })
+          : await fetch('/api/brew', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(buildBrewRequestBody({ count: 10, date })) });
         const payload = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(payload.error || '歷史手沖服務暫時無法使用。');
         const edition = payload.edition || { run_date: date, mode: 'historical', requested_count: 10, generated_at: new Date().toISOString(), items: payload.items };
@@ -2150,7 +2306,7 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
     async function loadArchiveIndex() {
       loadArchiveCache();
       try {
-        const response = await fetch('/api/archive', { cache: 'no-store' });
+        const response = authUser ? await authFetch('/api/editions', { cache: 'no-store' }) : await fetch('/api/archive', { cache: 'no-store' });
         if (response.ok) {
           const payload = await response.json();
           (payload.dates || []).forEach(record => { archiveRecords[record.date] = record; });
@@ -2168,13 +2324,17 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
       selectArchiveDate(localDateKey());
     }
 
-    function openLesson(index) {
-      const item = lessons[index];
-      detailContent.innerHTML = `<div class="eyebrow">第 ${escapeHtml(item.n)} 篇 · ${escapeHtml(item.category)} · ${escapeHtml(normalizeDifficulty(item.difficulty))} · ${escapeHtml(item.time)}</div><h2 id="detail-title">${escapeHtml(item.title)}</h2><p class="detail-lead">${escapeHtml(item.takeaway)}</p><div class="detail-scoreboard"><span>長久度 <strong>${item.timeless.toFixed(1)} / 5</strong></span><span>重要性 <strong>${item.importance.toFixed(1)} / 5</strong></span><span>熱度 <strong>${item.heat.toFixed(1)} / 5</strong></span></div>${favoriteButton(item, index, 'detail-favorite')}<section class="reading-section" id="idea"><h3>核心想法</h3><p>${escapeHtml(item.principle)}</p><div class="callout"><strong>關鍵想法</strong><p>目的不是讓 Agent 聽起來很確定，而是讓下一個有用的決定更容易被看見。</p></div></section><section class="reading-section" id="why"><h3>為什麼有效</h3><p>${escapeHtml(item.problem)}</p></section><section class="reading-section" id="mental-model"><h3>心智模型</h3><div class="flow"><span>問題</span><i>→</i><span>上下文</span><i>→</i><span>Agent</span><i>→</i><span>驗證</span><i>→</i><span>修訂</span></div><p>每一個箭頭都是人類可以檢查工作狀態的地方。當狀態可見，速度就更容易被信任。</p></section><section class="reading-section" id="example"><h3>範例</h3><p>${escapeHtml(item.tryIt)}</p></section><section class="reading-section" id="try-it"><h3>試試看</h3><ul class="checklist"><li>替目前的一個任務寫出這個做法的最小版本。</li><li>執行一次可觀察的檢查，並把結果放在變更旁邊。</li><li>記錄什麼變得更容易決定、驗證或交接。</li><li>只有在它能替下次省下注意力時，才留下這個 artifact。</li></ul><p class="detail-lead" style="font-size:16px;margin:22px 0 0;color:var(--ink)"><em>練習題：${escapeHtml(item.prompt)}</em></p></section><section class="reading-section" id="limits"><h3>何時不要用</h3><p>${escapeHtml(item.tradeoffs)}</p></section><section class="reading-section" id="evidence"><h3>社群證據</h3><p>${escapeHtml(item.evidence)}</p></section><section class="reading-section" id="sources"><h3>來源</h3><div class="source-box"><a href="${safeUrl(item.url)}" target="_blank" rel="noreferrer">${escapeHtml(item.source)}</a><br>發布日期：${escapeHtml(item.date)} · ${escapeHtml(item.sourceType)}<br><span>原型狀態：來源完整性、互動數據與 canonical evidence 仍需在正式發布前驗證。</span></div></section>`;
+    function openLesson(index) { return openLessonItem(lessons[index], index); }
+
+    function openLessonItem(item, index = -1) {
+      if (!item) return;
+      const favoriteIndex = index >= 0 ? index : lessons.indexOf(item);
+      detailContent.innerHTML = `<div class="eyebrow">第 ${escapeHtml(item.n)} 篇 · ${escapeHtml(item.category)} · ${escapeHtml(normalizeDifficulty(item.difficulty))} · ${escapeHtml(item.time)}</div><h2 id="detail-title">${escapeHtml(item.title)}</h2><p class="detail-lead">${escapeHtml(item.takeaway)}</p><div class="detail-scoreboard"><span>長久度 <strong>${item.timeless.toFixed(1)} / 5</strong></span><span>重要性 <strong>${item.importance.toFixed(1)} / 5</strong></span><span>熱度 <strong>${item.heat.toFixed(1)} / 5</strong></span></div>${favoriteButton(item, favoriteIndex, 'detail-favorite')}<section class="reading-section" id="idea"><h3>核心想法</h3><p>${escapeHtml(item.principle)}</p><div class="callout"><strong>關鍵想法</strong><p>目的不是讓 Agent 聽起來很確定，而是讓下一個有用的決定更容易被看見。</p></div></section><section class="reading-section" id="why"><h3>為什麼有效</h3><p>${escapeHtml(item.problem)}</p></section><section class="reading-section" id="mental-model"><h3>心智模型</h3><div class="flow"><span>問題</span><i>→</i><span>上下文</span><i>→</i><span>Agent</span><i>→</i><span>驗證</span><i>→</i><span>修訂</span></div><p>每一個箭頭都是人類可以檢查工作狀態的地方。當狀態可見，速度就更容易被信任。</p></section><section class="reading-section" id="example"><h3>範例</h3><p>${escapeHtml(item.tryIt)}</p></section><section class="reading-section" id="try-it"><h3>試試看</h3><ul class="checklist"><li>替目前的一個任務寫出這個做法的最小版本。</li><li>執行一次可觀察的檢查，並把結果放在變更旁邊。</li><li>記錄什麼變得更容易決定、驗證或交接。</li><li>只有在它能替下次省下注意力時，才留下這個 artifact。</li></ul><p class="detail-lead" style="font-size:16px;margin:22px 0 0;color:var(--ink)"><em>練習題：${escapeHtml(item.prompt)}</em></p></section><section class="reading-section" id="limits"><h3>何時不要用</h3><p>${escapeHtml(item.tradeoffs)}</p></section><section class="reading-section" id="evidence"><h3>社群證據</h3><p>${escapeHtml(item.evidence)}</p></section><section class="reading-section" id="sources"><h3>來源</h3><div class="source-box"><a href="${safeUrl(item.url)}" target="_blank" rel="noreferrer">${escapeHtml(item.source)}</a><br>發布日期：${escapeHtml(item.date)} · ${escapeHtml(item.sourceType)}<br><span>原型狀態：來源完整性、互動數據與 canonical evidence 仍需在正式發布前驗證。</span></div></section>`;
       bindFavoriteButtons();
       detailOverlay.classList.add('is-open');
       document.body.style.overflow = 'hidden';
       document.getElementById('detail-close').focus();
+      void syncReadFeedback(item).catch(() => {});
     }
 
     function closeLesson() { detailOverlay.classList.remove('is-open'); document.body.style.overflow = ''; }
@@ -2188,7 +2348,17 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
     archiveOpenButton.addEventListener('click', () => { if (archiveSelectedDate) openArchiveEdition(archiveSelectedDate); });
     archiveRecipeButton.addEventListener('click', () => { if (archiveSelectedDate) openEditionRecipe(archiveSelectedDate); });
     archiveGenerateButton.addEventListener('click', () => { if (archiveSelectedDate) generateArchiveEdition(archiveSelectedDate); });
-    todayRecipeButton.addEventListener('click', () => { if (currentEditionRecipeDate) openEditionRecipe(currentEditionRecipeDate); });
+    todayRecipeButton.addEventListener('click', () => {
+      if (!currentEditionRecipeDate) return;
+      if (authUser && currentEditionSnapshot?.id) {
+        renderEditionRecipe(privateRecipePayload(currentEditionSnapshot));
+        editionRecipeOverlay.classList.add('is-open');
+        document.body.style.overflow = 'hidden';
+        document.getElementById('edition-recipe-close').focus();
+        return;
+      }
+      openEditionRecipe(currentEditionRecipeDate);
+    });
     document.getElementById('edition-recipe-close').addEventListener('click', closeEditionRecipe);
     editionRecipeOverlay.addEventListener('click', event => { if (event.target === editionRecipeOverlay) closeEditionRecipe(); });
     simulationBannerReturn.addEventListener('click', async () => {
@@ -2271,7 +2441,63 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
     });
 
     document.getElementById('pantry-search').addEventListener('input', event => { renderPantry(undefined, event.target.value); });
+
+    async function fetchPersonalEdition(date = localDateKey(), kind = 'daily', pot = '') {
+      if (!authUser || !authSession?.access_token || location.protocol === 'file:') return null;
+      const query = new URLSearchParams({ date, kind });
+      if (pot) query.set('pot', pot);
+      const response = await authFetch(`/api/edition?${query.toString()}`, { cache: 'no-store' });
+      const payload = await responsePayload(response);
+      if (!response.ok) throw apiError(payload, response.status, '目前讀不到這一壺個人晨報。');
+      return payload.edition || null;
+    }
+
+    async function hydratePersonalSignals() {
+      if (!authUser || !authSession?.access_token || location.protocol === 'file:') return;
+      const response = await authFetch('/api/feedback?all=true', { cache: 'no-store' });
+      const payload = await responsePayload(response);
+      if (!response.ok) throw apiError(payload, response.status, '目前讀不到你的收藏與複習。');
+      (payload.marks || []).forEach(mark => {
+        if (!mark?.lesson_key) return;
+        if (Number(mark.favorite_state) > 0) favoriteStates[mark.lesson_key] = Number(mark.favorite_state);
+        else delete favoriteStates[mark.lesson_key];
+      });
+      reviewQueue = Array.isArray(payload.review_queue) ? payload.review_queue : [];
+      try { localStorage.setItem(favoriteStorageKey, JSON.stringify(favoriteStates)); } catch {}
+      renderLessons();
+      renderPantry();
+    }
+
+    async function hydratePersonalPantry() {
+      if (!authUser || !authSession?.access_token || location.protocol === 'file:') return;
+      const response = await authFetch('/api/pantry', { cache: 'no-store' });
+      const payload = await responsePayload(response);
+      if (!response.ok) throw apiError(payload, response.status, '目前讀不到你的知識儲藏室。');
+      pantryLessons = [];
+      refreshPantryIndex(Array.isArray(payload.items) ? payload.items : []);
+      renderFilters();
+      renderPantry();
+    }
+
+    async function hydratePersonalData() {
+      if (!authUser) return;
+      const todayEdition = await fetchPersonalEdition(localDateKey(), 'daily');
+      if (todayEdition) applyEdition(todayEdition);
+      await Promise.all([hydratePersonalSignals(), hydratePersonalPantry()]);
+      renderFilters();
+      renderPantry();
+    }
+
     async function loadDailyEdition() {
+      if (authUser) {
+        try {
+          const personal = await fetchPersonalEdition(localDateKey(), 'daily');
+          if (personal && applyEdition(personal)) {
+            clearSimulationMode();
+            return true;
+          }
+        } catch {}
+      }
       const edition = await fetchEdition('latest');
       if (edition && applyEdition(edition)) {
         clearSimulationMode();
@@ -2306,15 +2532,27 @@ https://www.reddit.com/r/vibecoding/"></textarea></label>
       let i = 0;
       const timer = setInterval(() => { stage.textContent = stages[Math.min(i, stages.length - 1)]; i += 1; }, 650);
       try {
-        const response = await fetch('/api/brew', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(buildBrewRequestBody({ count })) });
+        const requestBody = buildBrewRequestBody(authUser ? { count, kind: 'manual' } : { count });
+        const response = authUser
+          ? await authFetch('/api/brew', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(requestBody) })
+          : await fetch('/api/brew', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(requestBody) });
         const payload = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(payload.error || '手沖服務暫時無法使用。');
         const incoming = Array.isArray(payload.items) ? payload.items : [];
-        const startNumber = lessons.length + 1;
-        lessons.push(...incoming.map((item, index) => ({ ...item, n: String(startNumber + index).padStart(2, '0'), difficulty: normalizeDifficulty(item.difficulty), timeless: Number(item.timeless) || 3, importance: Number(item.importance) || 3, heat: Number(item.heat) || 2 })));
-        renderLessons();
-        renderPantry();
-        message.textContent = `已完成：新增 ${incoming.length} 篇即時學習`;
+        if (authUser && payload.edition) {
+          applyEdition(payload.edition);
+          refreshPantryIndex(payload.edition.items || incoming);
+          renderFilters();
+          renderPantry();
+          message.textContent = `已完成：收好第 ${payload.edition.pot_number || '下一'} 壺個人晨報，共 ${incoming.length} 篇`;
+        } else {
+          const startNumber = lessons.length + 1;
+          lessons.push(...incoming.map((item, index) => ({ ...item, n: String(startNumber + index).padStart(2, '0'), difficulty: normalizeDifficulty(item.difficulty), timeless: Number(item.timeless) || 3, importance: Number(item.importance) || 3, heat: Number(item.heat) || 2 })));
+          refreshPantryIndex(incoming);
+          renderLessons();
+          renderPantry();
+          message.textContent = `已完成：新增 ${incoming.length} 篇即時學習`;
+        }
         const providerLabels = { openrouter: 'OpenRouter', openai: 'OpenAI API', codex: '本機 Codex' };
         stage.textContent = `${providerLabels[payload.provider] || '模型'}：${payload.model || '未提供'} · 來源已整理`;
       } catch (error) {

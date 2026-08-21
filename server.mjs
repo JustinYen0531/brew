@@ -8,8 +8,13 @@ import { discoverSources, rankSources, readSourceCatalog, sourceMatchesQuery, SO
 import { authApi } from './api/auth.mjs';
 import { preferencesApi, sanitizePreferenceRecord } from './api/preferences.mjs';
 import { profileApi } from './api/profile.mjs';
+import { editionApi } from './api/edition.mjs';
+import { editionsApi } from './api/editions.mjs';
+import { feedbackApi } from './api/feedback.mjs';
+import { pantryApi } from './api/pantry.mjs';
 import { buildEditionRecipeResponse } from './api/edition-recipe.mjs';
-import { buildMorningBrewPrompt, getMorningRecipe, publicMorningBrewCatalog } from './morning-brew-recipes.mjs';
+import { buildMorningBrewPrompt, buildMorningBrewRecipeSnapshot, getMorningRecipe, publicMorningBrewCatalog } from './morning-brew-recipes.mjs';
+import { getAuthorizedContext, readPersonalEdition, readPersonalRecommendationSignals, sanitizeStoredJson, savePersonalEdition } from './api/edition-storage.mjs';
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const SITE_FILE = path.join(ROOT, 'outputs', 'vibe-coding-daily-brew', 'index.html');
@@ -160,6 +165,7 @@ function sanitizePreferences(raw = {}) {
     url: source.url.trim().slice(0, 500),
     kind: '使用者新增'
   })) : [];
+  const feedbackSignals = Array.isArray(raw.feedbackSignals) ? raw.feedbackSignals.slice(0, 100).map(signal => sanitizeStoredJson(signal)).filter(Boolean) : [];
   return {
     ...profile,
     recipeId: profile.recipe_id,
@@ -187,7 +193,8 @@ function sanitizePreferences(raw = {}) {
     customSources,
     prompt: typeof raw.prompt === 'string' ? raw.prompt.trim().slice(0, 1000) : '',
     directUrls,
-    language: raw.language === 'en' ? 'en' : 'zh-Hant'
+    language: raw.language === 'en' ? 'en' : 'zh-Hant',
+    feedbackSignals
   };
 }
 
@@ -675,6 +682,19 @@ const server = createServer(async (req, res) => {
       const body = req.method === 'PUT' ? await readJsonBody(req) : {};
       return sendApiResult(res, await profileApi({ method: req.method, headers: req.headers, url: req.url, body, env: config }));
     }
+    if (requestUrl.pathname === '/api/edition' && ['GET', 'OPTIONS'].includes(req.method)) {
+      return sendApiResult(res, await editionApi({ method: req.method, headers: req.headers, url: req.url, env: config }));
+    }
+    if (requestUrl.pathname === '/api/editions' && ['GET', 'OPTIONS'].includes(req.method)) {
+      return sendApiResult(res, await editionsApi({ method: req.method, headers: req.headers, url: req.url, env: config }));
+    }
+    if (requestUrl.pathname === '/api/feedback' && ['GET', 'POST', 'OPTIONS'].includes(req.method)) {
+      const body = req.method === 'POST' ? await readJsonBody(req) : {};
+      return sendApiResult(res, await feedbackApi({ method: req.method, headers: req.headers, url: req.url, body, env: config }));
+    }
+    if (requestUrl.pathname === '/api/pantry' && ['GET', 'OPTIONS'].includes(req.method)) {
+      return sendApiResult(res, await pantryApi({ method: req.method, headers: req.headers, url: req.url, env: config }));
+    }
     if (requestUrl.pathname === '/api/archive' && req.method === 'GET') {
       const requestedDate = requestUrl.searchParams.get('date');
       if (requestedDate) {
@@ -742,17 +762,54 @@ const server = createServer(async (req, res) => {
       const provider = normalizeProvider(body.provider || body.preferences?.provider || DEFAULT_PROVIDER);
       const requestApiKey = typeof body.apiKey === 'string' ? body.apiKey.trim().slice(0, 512) : '';
       if (!Number.isInteger(count) || count < 1 || count > 15) return sendJson(res, 400, { error: '篇數必須是 1 到 15 之間的整數。' });
-      if (historicalDate) {
+      const kind = historicalDate ? 'historical' : body.kind === 'manual' ? 'manual' : 'daily';
+      const authorization = req.headers?.authorization || req.headers?.Authorization || '';
+      const personalContext = authorization ? await getAuthorizedContext({ headers: req.headers, url: req.url, env: config }) : null;
+      const asOfDate = historicalDate || localDate();
+      if (personalContext && kind === 'daily') {
+        const existing = await readPersonalEdition(personalContext, { date: asOfDate, kind: 'daily', potNumber: 1 });
+        if (existing) return sendJson(res, 200, { items: existing.items, edition: existing, model: existing.model, provider: existing.provider, persisted: true, reused: true });
+      }
+      if (personalContext) {
         try {
-          const edition = await readEdition(historicalDate);
-          return sendJson(res, 200, { edition, model: edition.model || modelForProvider(edition.provider || provider), provider: edition.provider || provider, reused: true });
+          preferences.feedbackSignals = await readPersonalRecommendationSignals(personalContext);
+        } catch (error) {
+          return sendJson(res, error.status || 502, { error: error.safeMessage || '晨報回饋暫時無法讀取，請稍後再試。' });
         }
-        catch (error) { if (error.code !== 'ENOENT') throw error; }
-        const edition = createEdition(historicalDate, await brew(10, preferences, historicalDate, provider, requestApiKey), 'historical', provider, preferences);
+      }
+      if (historicalDate) {
+        if (!personalContext) {
+          try {
+            const edition = await readEdition(historicalDate);
+            return sendJson(res, 200, { edition, model: edition.model || modelForProvider(edition.provider || provider), provider: edition.provider || provider, reused: true });
+          }
+          catch (error) { if (error.code !== 'ENOENT') throw error; }
+        }
+      }
+      const items = await brew(historicalDate ? 10 : count, preferences, asOfDate, provider, requestApiKey);
+      if (personalContext) {
+        const generatedAt = new Date().toISOString();
+        const edition = await savePersonalEdition(personalContext, {
+          kind,
+          runDate: asOfDate,
+          asOfDate,
+          provider,
+          model: modelForProvider(provider),
+          title: 'Vibe Coding 每日手沖',
+          objective: kind === 'historical'
+            ? `從 ${asOfDate} 當時可見的發現中，保存一壺可驗證、可轉移的晨報。`
+            : '從當前社群討論中挑出值得留下、可以理解也可以實作的晨報內容。',
+          generatedAt,
+          generationRecipe: buildMorningBrewRecipeSnapshot({ date: asOfDate, itemCount: items.length, kind, provider, model: modelForProvider(provider), preferences }),
+          items
+        });
+        return sendJson(res, 200, { items: edition.items, edition, model: edition.model, provider, persisted: true, reused: false });
+      }
+      if (historicalDate) {
+        const edition = createEdition(historicalDate, items, 'historical', provider, preferences);
         await writeEdition(historicalDate, edition);
         return sendJson(res, 200, { edition, model: edition.model, provider, reused: false });
       }
-      const items = await brew(count, preferences, localDate(), provider, requestApiKey);
       return sendJson(res, 200, { items, model: modelForProvider(provider), provider });
     }
     if (req.method === 'GET' && (requestUrl.pathname === '/' || requestUrl.pathname === '/index.html')) return serveSite(res);

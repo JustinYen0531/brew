@@ -13,8 +13,11 @@ export class ApiError extends Error {
 
 function headerValue(headers = {}, name) {
   const value = headers[name] ?? headers[name.toLowerCase()] ?? headers[name.toUpperCase()];
-  if (Array.isArray(value)) return value[0] || '';
-  return typeof value === 'string' ? value.trim() : '';
+  const fallback = value === undefined
+    ? Object.entries(headers).find(([key]) => key.toLowerCase() === name.toLowerCase())?.[1]
+    : value;
+  if (Array.isArray(fallback)) return fallback[0] || '';
+  return typeof fallback === 'string' ? fallback.trim() : '';
 }
 
 function firstForwardedValue(value) {
