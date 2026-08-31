@@ -1,0 +1,315 @@
+{
+  "id": "185bba1a-d3d3-4392-9e17-89522f2ceccf",
+  "edition_run_date": "2026-08-31",
+  "mode": "daily",
+  "status": "failed",
+  "started_at": "2026-08-31T06:20:31.254Z",
+  "completed_at": "2026-08-31T06:24:21.290Z",
+  "recipe_snapshot": {
+    "schema_version": "daily-recipe-v1",
+    "kind": "automatic_daily_brew",
+    "run_date": "2026-08-31",
+    "as_of_date": "2026-08-31",
+    "preferences": {
+      "recipe_id": "vibe-coding",
+      "editorial_tone": "hands-on-editor",
+      "brew_method": "daily-pour",
+      "source_language": "zh-Hant",
+      "output_language": "zh-Hant",
+      "selected_source_ids": [
+        "vibecoding-tw",
+        "github-community",
+        "hacker-news",
+        "dev-community",
+        "openai-community",
+        "awesome-vibecoding",
+        "reddit-vibecoding",
+        "line-vibecoding-weekly",
+        "roboco-manual",
+        "indie-hackers"
+      ],
+      "source_weights": {},
+      "topic_weights": {},
+      "blend_ratios": {
+        "new_discoveries": 60,
+        "saved_reviews": 20,
+        "classic": 10,
+        "surprise": 10
+      },
+      "timezone": "Asia/Taipei",
+      "morning_time": "07:00",
+      "specific_sources": {},
+      "direct_urls": [],
+      "source_prompt": "",
+      "topics": [
+        "Vibe Coding",
+        "Coding Agent",
+        "提示設計",
+        "上下文管理",
+        "測試與驗證",
+        "除錯與工作流程"
+      ],
+      "excluded_topics": [
+        "產品新聞",
+        "模型發布摘要",
+        "募資消息",
+        "流行金句",
+        "純功能清單"
+      ],
+      "content_styles": [
+        "實戰案例",
+        "失敗分析",
+        "可重用規則"
+      ],
+      "source_lanes": [
+        "開發者討論",
+        "GitHub 實作",
+        "技術文章",
+        "建造者覆盤"
+      ],
+      "difficulty_levels": [
+        "初學者",
+        "普通",
+        "困難"
+      ],
+      "language": "zh-Hant",
+      "item_count": 10,
+      "novelty_level": 3,
+      "review_enabled": true,
+      "blend": {
+        "new_discoveries": 60,
+        "saved_reviews": 20,
+        "classic": 10,
+        "surprise": 10
+      }
+    },
+    "prompt": {
+      "version": "daily-prompt-v1",
+      "system": "你是遵守 vibe-coding-curator skill 的嚴謹繁體中文編輯。只保留有來源、有證據、可轉移、可實作的做法。10 篇必須有 10 個不同 canonical URL，且 primary category 不得超過 2 篇。只輸出合法 JSON object。",
+      "text": "資料截點是 2026-08-31，資料截點也是 2026-08-31。這一壺晨報本次實際必須產出 10 篇，不能多也不能少。請使用可用的 web search，找出在 2026-08-31 當天或之前已經存在的、與「Vibe Coding 入門」相關、具體且可重複的實作方法，並整理成繁體中文學習內容。嚴格禁止使用 2026-08-31 之後發布、更新或發生的發現，所有 source.published_at 必須小於或等於 2026-08-31。\n\n【這一壺的主配方】\n主題：Vibe Coding 入門\n主題說明：用 AI 寫程式、和 Coding Agent 合作，逐步建立能重複使用的開發方法。\n適合讀者：想開始做網站、工具或小型產品，也想慢慢理解開發流程的人。\n內容範圍：Vibe Coding、Coding Agent、提示設計、上下文管理、測試與驗證、除錯與工作流程\n來源方向：優先找真實 repository、issue、討論、失敗分析與可以重複的開發方法。\n\n【編輯的沖煮方式】\n語氣：實作導向。請像一位做過這件事的實作編輯，先說清楚用途，再給可執行步驟、範例與容易踩到的限制。\n編排：每日手沖。每篇保持摘要、具體例子、可轉移原則與練習問題的平衡，讓讀者讀完能理解也能動手。\n\n【使用者的晨報配方】\n想讀的方向：Vibe Coding、Coding Agent、提示設計、上下文管理、測試與驗證、除錯與工作流程\n暫時避開：產品新聞、模型發布摘要、募資消息、流行金句、純功能清單\n偏好的內容形式：實戰案例、失敗分析、可重用規則\n偏好的來源路徑：開發者討論、GitHub 實作、技術文章、建造者覆盤\n難度：初學者、普通、困難\n閱讀時間：10 分鐘；希望篇數：10 篇；新鮮度：3/5；複習：開啟\n主題權重：尚未調整主題權重\n晨報比例：新發現 60%／收藏複習 20%／經典 10%／意外驚喜 10%；實際篇數請依比例取整，但必須剛好產出 10 篇。\n來源語言偏好：繁體中文\n輸出語言：繁體中文\n偏好早晨：Asia/Taipei 07:00\n來源權重：尚未調整來源權重\n來源資料庫中已選取的提供者：使用「Vibe Coding 入門」的預設來源包：vibecoding-tw、github-community、hacker-news、dev-community、openai-community、awesome-vibecoding、reddit-vibecoding、line-vibecoding-weekly、roboco-manual、indie-hackers\n特定社群偏好：沒有指定特定社群\n額外採編備註：沒有額外採編備註\n近期回饋訊號：目前還沒有可用的收藏回饋\n使用回饋時，Super Starred 代表優先找相似的問題深度、內容形式或實作脈絡；Starred 代表值得保留；not_interested、unstarred 或 exclude_source 代表降低相似訊號。只把它當成排序與採編方向，仍要重新驗證每篇來源，不要重複同一篇內容。\n硬性網址來源（若有，只能從這些網址或其頁面翻找）：\n沒有硬性網址限制\n\n【來源連接器先收集的候選內容】\n1. Forge: a Claude Code plugin for agentic development workflow｜Reddit｜2026-08-30｜https://www.reddit.com/r/vibecoding/comments/1w2wmu8/forge_a_claude_code_plugin_for_agentic｜證據摘要：This post was written using application of kinetic force to the rectangular protrusions on my silicon chip container. Shocking, I know. In my day job, we use a sophisticated AI development workflow, inspired by James Bloom’s AI workflow developed for his open source project, Mockserver ( https://github.com/mock-server/mockserver-monorepo ). For reasons that have little to do with AI and everything to do with corporate policy, very reasonably applied in my view, James’s workflow could not be used at work directly. But in my personal work, I am not so constrained - and I also thought I could improve on it. Hubris runs in my genes :) Over the last few weeks I have been building and dogfooding a\n2. Just released my first App (Apple)!｜Reddit｜2026-08-30｜https://www.reddit.com/r/vibecoding/comments/1w2rsag/just_released_my_first_app_apple｜證據摘要：After many failed internal app ideas, I'm very proud to present my very first released App! For context: Used to be a hotel manager for many years and always have been very technical, but never learned to code myself. Once Sonnet 3.5 was released in late 2024, I got into “vibe coding”. While Conduck is my first publicly released project, its definitely not my first attempt. The road is paved with many failed attempts, haha. So what did I built? Conduck is an Apple Native client for your self hosted AI and fully open-source! It has some unique features: - Support of iPhone, iPad, Mac, Apple Watch & CarPlay - You can connect ANY AI backend to it and configure it the way you want! Use it for sa\n3. Ported an Entire WordPress & Elementor Site to Astro Islands in 15 Minutes (100% Vibe Coding)｜Reddit｜2026-08-30｜https://www.reddit.com/r/vibecoding/comments/1w2imwq/ported_an_entire_wordpress_elementor_site_to｜證據摘要：I had a raw cPanel backup of an old WordPress/Elementor site sitting in a folder: • A raw 3.7MB MySQL dump (softsql.sql) • Nearly 300 image uploads (wp-content/uploads/) • A mountain of messy Elementor shortcodes, serialized data, and theme files Normally, migrating this by hand is a multi-day nightmare of copying text from WP admin, hunting down asset paths, re-coding sliders and flip boxes, setting up modern tooling, and hooking up hosting. Instead, I decided to test the limits of pure vibe coding with an autonomous agent. Here was my exact prompt: │ \"do a complete port of this website using astro js and make custom astro islands\" ────── ### What the Agent Did (Without Me Touching the Code\n4. I vibe coded apps nobody used. Then figured out distribution and hit 39k downloads. Here's everything I learned in marketing:｜Reddit｜2026-08-30｜https://www.reddit.com/r/vibecoding/comments/1w2hd0v/i_vibe_coded_apps_nobody_used_then_figured_out｜證據摘要：Vibe coding collapsed the barrier to entry in building apps but it also pushed competition to an all time high because the number of app builders increased by a LOT. This made learning marketing very important since building an app is the easier part now but getting users/customers is becoming a lot harder. Most of these strategies are for iOS apps but 2 of them are applicable to android and web apps. 1. App Store Boost (iOS) When an app is just launched on the App Store, Apple usually give a boost for a few days where your app name will get recommended in the autocomplete of the App Store search bar so make sure to target a keyword with good amount of popularity. So for example your app is \n5. Prediction : In few years no one will be downloading software anymore｜Reddit｜2026-08-30｜https://www.reddit.com/r/vibecoding/comments/1w2g51g/prediction_in_few_years_no_one_will_be｜證據摘要：I know this sounds absurd but hear me out, there's a potential in vibe coding that I feel like not much people talked about, most stuff I hear about vibe coding is about replacing programmers or \"how to make BIG BUCKS with this simple trick !!11!\", but I feel like the biggest deal about all of this is to be able to summon super specific tools out of nowhere precisely designed to fit individual user's need. So here's my take of what I believe will have the biggest impact, when this will happen you'll remember this post : By 2030, app stores will be dead, downloading installers will be pointless, instead anyone will have pre-integrated coding agents to their OS. Need an app ? Like you want to \n6. Most of the skills in my folder were doing nothing. Deleted half of them.｜Reddit｜2026-08-30｜https://www.reddit.com/r/vibecoding/comments/1w2fjsa/most_of_the_skills_in_my_folder_were_doing｜證據摘要：Been on a stacking spree with Claude Code skills for a few months. Every time I saw someone post \"here's my skill for X\" I grabbed it. Folder got huge. Never actually checked if any of it helped. Finally ran a dumb test: for each skill, imagine deleting it and ask what the model would actually lose. Turns out most of it was stuff the model already does without being told, \"write clean code,\" \"think step by step,\" or worse, someone's paraphrase of a library's docs that the model could just pull fresh with a web search anyway. None of that earns a permanent spot in context, it's just weight the agent drags around every session. The ones that survived were the boring, ugly ones. I've got a mess\n7. How do I give away apps that need a database?｜Reddit｜2026-08-30｜https://www.reddit.com/r/vibecoding/comments/1w25kan/how_do_i_give_away_apps_that_need_a_database｜證據摘要：I have an app with both an Android and a desktop version . It needs to have a common database. I'd like to give the app away. How can I set it up so that it has a database they share? Even if I was charging a small amount for the app, I wouldn't want to get into database costs. Update 8-30-26 9:20 AM EST : I posted this when tired and frustrated last night and was not real clear. My apologies. I have been working for some time on a Personal Knowledge Management System of my own. In some ways, this started in 1981. Seriously, one of the first programming tasks I had working on my TRS-80 with dual floppies, but that is immaterial. It's gone through many iterations since then. My point being, t\n8. I dont need social media, I vibe code from my phone !｜Reddit｜2026-08-29｜https://www.reddit.com/r/vibecoding/comments/1w1xddw/i_dont_need_social_media_i_vibe_code_from_my_phone｜證據摘要：Since I have done my vps set up and push the code directly from phone, I’m more addicted than ever ! 😅   submitted by   /u/Goubik [link]   [comments]\n候選內容已先經公開連接器收集；優先從這份清單提煉，不能捏造清單外的 URL。若需要補充，必須仍通過相同的日期、canonical URL 與來源證據檢查。\n\n請把來源推薦與硬性網址分開理解：來源推薦是排序訊號；硬性網址是來源限制。每篇都要有可以開啟的 canonical URL、發布日期與來源證據，不要捏造作者、日期、互動數據或引文。不要做產品新聞、募資消息、空泛金句或只有功能清單的內容。每篇只教一個可轉移的 idea，並說明問題、原則、可操作範例、限制、練習題與編輯綜合。難度請依先備知識與實作風險判定：初學者＝具備基本閱讀與提問能力即可嘗試；普通＝需要基本程式碼、repository 或測試經驗；困難＝需要多步驟整合、架構／權限／部署判斷，或實際操作後才能安全掌握。\n\n請只回傳 JSON object，不要 Markdown，不要前言，格式必須是：\n{\"items\":[{\"title\":\"...\",\"category\":\"思考|提示設計|Agent 管理|上下文工程|程式碼理解|驗證|工作流程|工藝與心態|安全|協作|學習系統\",\"tag\":\"新鮮實作|近期耐用|舊作高價值\",\"difficulty\":\"初學者|普通|困難\",\"takeaway\":\"...\",\"problem\":\"...\",\"principle\":\"...\",\"try_it\":\"...\",\"tradeoffs\":\"...\",\"practice_prompt\":\"...\",\"source_says\":\"...\",\"editorial_synthesis\":\"...\",\"source\":{\"url\":\"https://...\",\"platform\":\"...\",\"published_at\":\"YYYY-MM-DD\",\"evidence_excerpt\":\"...\",\"popularity_basis\":\"...\"},\"scores\":{\"timeless\":1,\"importance\":1,\"popularity\":1}}]}\n評分必須是 1 到 5 的數字。來源 URL、日期與證據不確定時，請如實降低評分或排除，不要創造來源。"
+    },
+    "source_collection": {
+      "version": "source-collection-v1",
+      "as_of_date": "2026-08-31",
+      "requested_source_ids": [
+        "github-community",
+        "hacker-news",
+        "reddit-vibecoding",
+        "dev-community"
+      ],
+      "hard_direct_url_scope": false,
+      "custom_source_count": 0,
+      "candidate_count": 8,
+      "connectors": [
+        {
+          "source_id": "dev-community",
+          "status": "empty",
+          "candidate_count": 0
+        },
+        {
+          "source_id": "github-community",
+          "status": "empty",
+          "candidate_count": 0
+        },
+        {
+          "source_id": "hacker-news",
+          "status": "empty",
+          "candidate_count": 0
+        },
+        {
+          "source_id": "reddit-vibecoding",
+          "status": "ok",
+          "candidate_count": 8
+        }
+      ],
+      "fallback_to_model_search": false,
+      "policy": "只使用公開介面、RSS、使用者指定網址或合法授權；無法讀取時明確標記。",
+      "candidates": [
+        {
+          "title": "Forge: a Claude Code plugin for agentic development workflow",
+          "url": "https://www.reddit.com/r/vibecoding/comments/1w2wmu8/forge_a_claude_code_plugin_for_agentic",
+          "date": "2026-08-30",
+          "sourceType": "Reddit",
+          "source": "Reddit",
+          "category": "來源探索",
+          "difficulty": "普通",
+          "evidence": "This post was written using application of kinetic force to the rectangular protrusions on my silicon chip container. Shocking, I know. In my day job, we use a sophisticated AI development workflow, inspired by James Bloom’s AI workflow developed for his open source project, Mockserver ( https://github.com/mock-server/mockserver-monorepo ). For reasons that have little to do with AI and everything to do with corporate policy, very reasonably applied in my view, James’s workflow could not be used at work directly. But in my personal work, I am not so constrained - and I also thought I could improve on it. Hubris runs in my genes :) Over the last few weeks I have been building and dogfooding a",
+          "takeaway": "This post was written using application of kinetic force to the rectangular protrusions on my silicon chip container. Shocking, I know. In my day job, we use a sophisticated AI development workflow, inspired by James Bloom’s AI workflow developed for his open source project, Mockserver ( https://github.com/mock-server/mockserver-monorepo ). For reasons that have little to do with AI and everything to do with corporate policy, very reasonably applied in my view, James’s workflow could not be used at work directly. But in my personal work, I am not so constrained - and I also thought I could improve on it. Hubris runs in my genes :) Over the last few weeks I have been building and dogfooding a",
+          "problem": "",
+          "principle": "",
+          "tryIt": "",
+          "tradeoffs": "",
+          "timeless": 3,
+          "importance": 3,
+          "heat": 2
+        },
+        {
+          "title": "Just released my first App (Apple)!",
+          "url": "https://www.reddit.com/r/vibecoding/comments/1w2rsag/just_released_my_first_app_apple",
+          "date": "2026-08-30",
+          "sourceType": "Reddit",
+          "source": "Reddit",
+          "category": "來源探索",
+          "difficulty": "普通",
+          "evidence": "After many failed internal app ideas, I'm very proud to present my very first released App! For context: Used to be a hotel manager for many years and always have been very technical, but never learned to code myself. Once Sonnet 3.5 was released in late 2024, I got into “vibe coding”. While Conduck is my first publicly released project, its definitely not my first attempt. The road is paved with many failed attempts, haha. So what did I built? Conduck is an Apple Native client for your self hosted AI and fully open-source! It has some unique features: - Support of iPhone, iPad, Mac, Apple Watch & CarPlay - You can connect ANY AI backend to it and configure it the way you want! Use it for sa",
+          "takeaway": "After many failed internal app ideas, I'm very proud to present my very first released App! For context: Used to be a hotel manager for many years and always have been very technical, but never learned to code myself. Once Sonnet 3.5 was released in late 2024, I got into “vibe coding”. While Conduck is my first publicly released project, its definitely not my first attempt. The road is paved with many failed attempts, haha. So what did I built? Conduck is an Apple Native client for your self hosted AI and fully open-source! It has some unique features: - Support of iPhone, iPad, Mac, Apple Watch & CarPlay - You can connect ANY AI backend to it and configure it the way you want! Use it for sa",
+          "problem": "",
+          "principle": "",
+          "tryIt": "",
+          "tradeoffs": "",
+          "timeless": 3,
+          "importance": 3,
+          "heat": 2
+        },
+        {
+          "title": "Ported an Entire WordPress & Elementor Site to Astro Islands in 15 Minutes (100% Vibe Coding)",
+          "url": "https://www.reddit.com/r/vibecoding/comments/1w2imwq/ported_an_entire_wordpress_elementor_site_to",
+          "date": "2026-08-30",
+          "sourceType": "Reddit",
+          "source": "Reddit",
+          "category": "來源探索",
+          "difficulty": "普通",
+          "evidence": "I had a raw cPanel backup of an old WordPress/Elementor site sitting in a folder: • A raw 3.7MB MySQL dump (softsql.sql) • Nearly 300 image uploads (wp-content/uploads/) • A mountain of messy Elementor shortcodes, serialized data, and theme files Normally, migrating this by hand is a multi-day nightmare of copying text from WP admin, hunting down asset paths, re-coding sliders and flip boxes, setting up modern tooling, and hooking up hosting. Instead, I decided to test the limits of pure vibe coding with an autonomous agent. Here was my exact prompt: │ \"do a complete port of this website using astro js and make custom astro islands\" ────── ### What the Agent Did (Without Me Touching the Code",
+          "takeaway": "I had a raw cPanel backup of an old WordPress/Elementor site sitting in a folder: • A raw 3.7MB MySQL dump (softsql.sql) • Nearly 300 image uploads (wp-content/uploads/) • A mountain of messy Elementor shortcodes, serialized data, and theme files Normally, migrating this by hand is a multi-day nightmare of copying text from WP admin, hunting down asset paths, re-coding sliders and flip boxes, setting up modern tooling, and hooking up hosting. Instead, I decided to test the limits of pure vibe coding with an autonomous agent. Here was my exact prompt: │ \"do a complete port of this website using astro js and make custom astro islands\" ────── ### What the Agent Did (Without Me Touching the Code",
+          "problem": "",
+          "principle": "",
+          "tryIt": "",
+          "tradeoffs": "",
+          "timeless": 3,
+          "importance": 3,
+          "heat": 2
+        },
+        {
+          "title": "I vibe coded apps nobody used. Then figured out distribution and hit 39k downloads. Here's everything I learned in marketing:",
+          "url": "https://www.reddit.com/r/vibecoding/comments/1w2hd0v/i_vibe_coded_apps_nobody_used_then_figured_out",
+          "date": "2026-08-30",
+          "sourceType": "Reddit",
+          "source": "Reddit",
+          "category": "來源探索",
+          "difficulty": "普通",
+          "evidence": "Vibe coding collapsed the barrier to entry in building apps but it also pushed competition to an all time high because the number of app builders increased by a LOT. This made learning marketing very important since building an app is the easier part now but getting users/customers is becoming a lot harder. Most of these strategies are for iOS apps but 2 of them are applicable to android and web apps. 1. App Store Boost (iOS) When an app is just launched on the App Store, Apple usually give a boost for a few days where your app name will get recommended in the autocomplete of the App Store search bar so make sure to target a keyword with good amount of popularity. So for example your app is ",
+          "takeaway": "Vibe coding collapsed the barrier to entry in building apps but it also pushed competition to an all time high because the number of app builders increased by a LOT. This made learning marketing very important since building an app is the easier part now but getting users/customers is becoming a lot harder. Most of these strategies are for iOS apps but 2 of them are applicable to android and web apps. 1. App Store Boost (iOS) When an app is just launched on the App Store, Apple usually give a boost for a few days where your app name will get recommended in the autocomplete of the App Store search bar so make sure to target a keyword with good amount of popularity. So for example your app is ",
+          "problem": "",
+          "principle": "",
+          "tryIt": "",
+          "tradeoffs": "",
+          "timeless": 3,
+          "importance": 3,
+          "heat": 2
+        },
+        {
+          "title": "Prediction : In few years no one will be downloading software anymore",
+          "url": "https://www.reddit.com/r/vibecoding/comments/1w2g51g/prediction_in_few_years_no_one_will_be",
+          "date": "2026-08-30",
+          "sourceType": "Reddit",
+          "source": "Reddit",
+          "category": "來源探索",
+          "difficulty": "普通",
+          "evidence": "I know this sounds absurd but hear me out, there's a potential in vibe coding that I feel like not much people talked about, most stuff I hear about vibe coding is about replacing programmers or \"how to make BIG BUCKS with this simple trick !!11!\", but I feel like the biggest deal about all of this is to be able to summon super specific tools out of nowhere precisely designed to fit individual user's need. So here's my take of what I believe will have the biggest impact, when this will happen you'll remember this post : By 2030, app stores will be dead, downloading installers will be pointless, instead anyone will have pre-integrated coding agents to their OS. Need an app ? Like you want to ",
+          "takeaway": "I know this sounds absurd but hear me out, there's a potential in vibe coding that I feel like not much people talked about, most stuff I hear about vibe coding is about replacing programmers or \"how to make BIG BUCKS with this simple trick !!11!\", but I feel like the biggest deal about all of this is to be able to summon super specific tools out of nowhere precisely designed to fit individual user's need. So here's my take of what I believe will have the biggest impact, when this will happen you'll remember this post : By 2030, app stores will be dead, downloading installers will be pointless, instead anyone will have pre-integrated coding agents to their OS. Need an app ? Like you want to ",
+          "problem": "",
+          "principle": "",
+          "tryIt": "",
+          "tradeoffs": "",
+          "timeless": 3,
+          "importance": 3,
+          "heat": 2
+        },
+        {
+          "title": "Most of the skills in my folder were doing nothing. Deleted half of them.",
+          "url": "https://www.reddit.com/r/vibecoding/comments/1w2fjsa/most_of_the_skills_in_my_folder_were_doing",
+          "date": "2026-08-30",
+          "sourceType": "Reddit",
+          "source": "Reddit",
+          "category": "來源探索",
+          "difficulty": "普通",
+          "evidence": "Been on a stacking spree with Claude Code skills for a few months. Every time I saw someone post \"here's my skill for X\" I grabbed it. Folder got huge. Never actually checked if any of it helped. Finally ran a dumb test: for each skill, imagine deleting it and ask what the model would actually lose. Turns out most of it was stuff the model already does without being told, \"write clean code,\" \"think step by step,\" or worse, someone's paraphrase of a library's docs that the model could just pull fresh with a web search anyway. None of that earns a permanent spot in context, it's just weight the agent drags around every session. The ones that survived were the boring, ugly ones. I've got a mess",
+          "takeaway": "Been on a stacking spree with Claude Code skills for a few months. Every time I saw someone post \"here's my skill for X\" I grabbed it. Folder got huge. Never actually checked if any of it helped. Finally ran a dumb test: for each skill, imagine deleting it and ask what the model would actually lose. Turns out most of it was stuff the model already does without being told, \"write clean code,\" \"think step by step,\" or worse, someone's paraphrase of a library's docs that the model could just pull fresh with a web search anyway. None of that earns a permanent spot in context, it's just weight the agent drags around every session. The ones that survived were the boring, ugly ones. I've got a mess",
+          "problem": "",
+          "principle": "",
+          "tryIt": "",
+          "tradeoffs": "",
+          "timeless": 3,
+          "importance": 3,
+          "heat": 2
+        },
+        {
+          "title": "How do I give away apps that need a database?",
+          "url": "https://www.reddit.com/r/vibecoding/comments/1w25kan/how_do_i_give_away_apps_that_need_a_database",
+          "date": "2026-08-30",
+          "sourceType": "Reddit",
+          "source": "Reddit",
+          "category": "來源探索",
+          "difficulty": "普通",
+          "evidence": "I have an app with both an Android and a desktop version . It needs to have a common database. I'd like to give the app away. How can I set it up so that it has a database they share? Even if I was charging a small amount for the app, I wouldn't want to get into database costs. Update 8-30-26 9:20 AM EST : I posted this when tired and frustrated last night and was not real clear. My apologies. I have been working for some time on a Personal Knowledge Management System of my own. In some ways, this started in 1981. Seriously, one of the first programming tasks I had working on my TRS-80 with dual floppies, but that is immaterial. It's gone through many iterations since then. My point being, t",
+          "takeaway": "I have an app with both an Android and a desktop version . It needs to have a common database. I'd like to give the app away. How can I set it up so that it has a database they share? Even if I was charging a small amount for the app, I wouldn't want to get into database costs. Update 8-30-26 9:20 AM EST : I posted this when tired and frustrated last night and was not real clear. My apologies. I have been working for some time on a Personal Knowledge Management System of my own. In some ways, this started in 1981. Seriously, one of the first programming tasks I had working on my TRS-80 with dual floppies, but that is immaterial. It's gone through many iterations since then. My point being, t",
+          "problem": "",
+          "principle": "",
+          "tryIt": "",
+          "tradeoffs": "",
+          "timeless": 3,
+          "importance": 3,
+          "heat": 2
+        },
+        {
+          "title": "I dont need social media, I vibe code from my phone !",
+          "url": "https://www.reddit.com/r/vibecoding/comments/1w1xddw/i_dont_need_social_media_i_vibe_code_from_my_phone",
+          "date": "2026-08-29",
+          "sourceType": "Reddit",
+          "source": "Reddit",
+          "category": "來源探索",
+          "difficulty": "普通",
+          "evidence": "Since I have done my vps set up and push the code directly from phone, I’m more addicted than ever ! 😅   submitted by   /u/Goubik [link]   [comments]",
+          "takeaway": "Since I have done my vps set up and push the code directly from phone, I’m more addicted than ever ! 😅   submitted by   /u/Goubik [link]   [comments]",
+          "problem": "",
+          "principle": "",
+          "tryIt": "",
+          "tradeoffs": "",
+          "timeless": 3,
+          "importance": 3,
+          "heat": 2
+        }
+      ]
+    },
+    "model": {
+      "provider": "openrouter",
+      "name": "deepseek/deepseek-v4-flash-0731",
+      "generation_method": "provider_api"
+    },
+    "search_rules": {
+      "version": "daily-search-v1",
+      "web_search_required": true,
+      "allowed_source_date_lte": "2026-08-31",
+      "minimum_distinct_platforms": 3,
+      "maximum_items_per_primary_category": 2,
+      "maximum_classic_items": 2,
+      "canonical_url_required": true,
+      "evidence_required": true,
+      "ranking_formula_version": "v1",
+      "ranking_formula": "0.52 * recency + 0.25 * importance + 0.13 * timeless + 0.10 * popularity"
+    }
+  },
+  "attempts": [
+    {
+      "number": 1,
+      "started_at": "2026-08-31T06:20:31.257Z",
+      "system": "你是遵守 vibe-coding-curator skill 的嚴謹繁體中文編輯。只保留有來源、有證據、可轉移、可實作的做法。10 篇必須有 10 個不同 canonical URL，且 primary category 不得超過 2 篇。只輸出合法 JSON object。",
+      "user": "資料截點是 2026-08-31，資料截點也是 2026-08-31。這一壺晨報本次實際必須產出 10 篇，不能多也不能少。請使用可用的 web search，找出在 2026-08-31 當天或之前已經存在的、與「Vibe Coding 入門」相關、具體且可重複的實作方法，並整理成繁體中文學習內容。嚴格禁止使用 2026-08-31 之後發布、更新或發生的發現，所有 source.published_at 必須小於或等於 2026-08-31。\n\n【這一壺的主配方】\n主題：Vibe Coding 入門\n主題說明：用 AI 寫程式、和 Coding Agent 合作，逐步建立能重複使用的開發方法。\n適合讀者：想開始做網站、工具或小型產品，也想慢慢理解開發流程的人。\n內容範圍：Vibe Coding、Coding Agent、提示設計、上下文管理、測試與驗證、除錯與工作流程\n來源方向：優先找真實 repository、issue、討論、失敗分析與可以重複的開發方法。\n\n【編輯的沖煮方式】\n語氣：實作導向。請像一位做過這件事的實作編輯，先說清楚用途，再給可執行步驟、範例與容易踩到的限制。\n編排：每日手沖。每篇保持摘要、具體例子、可轉移原則與練習問題的平衡，讓讀者讀完能理解也能動手。\n\n【使用者的晨報配方】\n想讀的方向：Vibe Coding、Coding Agent、提示設計、上下文管理、測試與驗證、除錯與工作流程\n暫時避開：產品新聞、模型發布摘要、募資消息、流行金句、純功能清單\n偏好的內容形式：實戰案例、失敗分析、可重用規則\n偏好的來源路徑：開發者討論、GitHub 實作、技術文章、建造者覆盤\n難度：初學者、普通、困難\n閱讀時間：10 分鐘；希望篇數：10 篇；新鮮度：3/5；複習：開啟\n主題權重：尚未調整主題權重\n晨報比例：新發現 60%／收藏複習 20%／經典 10%／意外驚喜 10%；實際篇數請依比例取整，但必須剛好產出 10 篇。\n來源語言偏好：繁體中文\n輸出語言：繁體中文\n偏好早晨：Asia/Taipei 07:00\n來源權重：尚未調整來源權重\n來源資料庫中已選取的提供者：使用「Vibe Coding 入門」的預設來源包：vibecoding-tw、github-community、hacker-news、dev-community、openai-community、awesome-vibecoding、reddit-vibecoding、line-vibecoding-weekly、roboco-manual、indie-hackers\n特定社群偏好：沒有指定特定社群\n額外採編備註：沒有額外採編備註\n近期回饋訊號：目前還沒有可用的收藏回饋\n使用回饋時，Super Starred 代表優先找相似的問題深度、內容形式或實作脈絡；Starred 代表值得保留；not_interested、unstarred 或 exclude_source 代表降低相似訊號。只把它當成排序與採編方向，仍要重新驗證每篇來源，不要重複同一篇內容。\n硬性網址來源（若有，只能從這些網址或其頁面翻找）：\n沒有硬性網址限制\n\n【來源連接器先收集的候選內容】\n1. Forge: a Claude Code plugin for agentic development workflow｜Reddit｜2026-08-30｜https://www.reddit.com/r/vibecoding/comments/1w2wmu8/forge_a_claude_code_plugin_for_agentic｜證據摘要：This post was written using application of kinetic force to the rectangular protrusions on my silicon chip container. Shocking, I know. In my day job, we use a sophisticated AI development workflow, inspired by James Bloom’s AI workflow developed for his open source project, Mockserver ( https://github.com/mock-server/mockserver-monorepo ). For reasons that have little to do with AI and everything to do with corporate policy, very reasonably applied in my view, James’s workflow could not be used at work directly. But in my personal work, I am not so constrained - and I also thought I could improve on it. Hubris runs in my genes :) Over the last few weeks I have been building and dogfooding a\n2. Just released my first App (Apple)!｜Reddit｜2026-08-30｜https://www.reddit.com/r/vibecoding/comments/1w2rsag/just_released_my_first_app_apple｜證據摘要：After many failed internal app ideas, I'm very proud to present my very first released App! For context: Used to be a hotel manager for many years and always have been very technical, but never learned to code myself. Once Sonnet 3.5 was released in late 2024, I got into “vibe coding”. While Conduck is my first publicly released project, its definitely not my first attempt. The road is paved with many failed attempts, haha. So what did I built? Conduck is an Apple Native client for your self hosted AI and fully open-source! It has some unique features: - Support of iPhone, iPad, Mac, Apple Watch & CarPlay - You can connect ANY AI backend to it and configure it the way you want! Use it for sa\n3. Ported an Entire WordPress & Elementor Site to Astro Islands in 15 Minutes (100% Vibe Coding)｜Reddit｜2026-08-30｜https://www.reddit.com/r/vibecoding/comments/1w2imwq/ported_an_entire_wordpress_elementor_site_to｜證據摘要：I had a raw cPanel backup of an old WordPress/Elementor site sitting in a folder: • A raw 3.7MB MySQL dump (softsql.sql) • Nearly 300 image uploads (wp-content/uploads/) • A mountain of messy Elementor shortcodes, serialized data, and theme files Normally, migrating this by hand is a multi-day nightmare of copying text from WP admin, hunting down asset paths, re-coding sliders and flip boxes, setting up modern tooling, and hooking up hosting. Instead, I decided to test the limits of pure vibe coding with an autonomous agent. Here was my exact prompt: │ \"do a complete port of this website using astro js and make custom astro islands\" ────── ### What the Agent Did (Without Me Touching the Code\n4. I vibe coded apps nobody used. Then figured out distribution and hit 39k downloads. Here's everything I learned in marketing:｜Reddit｜2026-08-30｜https://www.reddit.com/r/vibecoding/comments/1w2hd0v/i_vibe_coded_apps_nobody_used_then_figured_out｜證據摘要：Vibe coding collapsed the barrier to entry in building apps but it also pushed competition to an all time high because the number of app builders increased by a LOT. This made learning marketing very important since building an app is the easier part now but getting users/customers is becoming a lot harder. Most of these strategies are for iOS apps but 2 of them are applicable to android and web apps. 1. App Store Boost (iOS) When an app is just launched on the App Store, Apple usually give a boost for a few days where your app name will get recommended in the autocomplete of the App Store search bar so make sure to target a keyword with good amount of popularity. So for example your app is \n5. Prediction : In few years no one will be downloading software anymore｜Reddit｜2026-08-30｜https://www.reddit.com/r/vibecoding/comments/1w2g51g/prediction_in_few_years_no_one_will_be｜證據摘要：I know this sounds absurd but hear me out, there's a potential in vibe coding that I feel like not much people talked about, most stuff I hear about vibe coding is about replacing programmers or \"how to make BIG BUCKS with this simple trick !!11!\", but I feel like the biggest deal about all of this is to be able to summon super specific tools out of nowhere precisely designed to fit individual user's need. So here's my take of what I believe will have the biggest impact, when this will happen you'll remember this post : By 2030, app stores will be dead, downloading installers will be pointless, instead anyone will have pre-integrated coding agents to their OS. Need an app ? Like you want to \n6. Most of the skills in my folder were doing nothing. Deleted half of them.｜Reddit｜2026-08-30｜https://www.reddit.com/r/vibecoding/comments/1w2fjsa/most_of_the_skills_in_my_folder_were_doing｜證據摘要：Been on a stacking spree with Claude Code skills for a few months. Every time I saw someone post \"here's my skill for X\" I grabbed it. Folder got huge. Never actually checked if any of it helped. Finally ran a dumb test: for each skill, imagine deleting it and ask what the model would actually lose. Turns out most of it was stuff the model already does without being told, \"write clean code,\" \"think step by step,\" or worse, someone's paraphrase of a library's docs that the model could just pull fresh with a web search anyway. None of that earns a permanent spot in context, it's just weight the agent drags around every session. The ones that survived were the boring, ugly ones. I've got a mess\n7. How do I give away apps that need a database?｜Reddit｜2026-08-30｜https://www.reddit.com/r/vibecoding/comments/1w25kan/how_do_i_give_away_apps_that_need_a_database｜證據摘要：I have an app with both an Android and a desktop version . It needs to have a common database. I'd like to give the app away. How can I set it up so that it has a database they share? Even if I was charging a small amount for the app, I wouldn't want to get into database costs. Update 8-30-26 9:20 AM EST : I posted this when tired and frustrated last night and was not real clear. My apologies. I have been working for some time on a Personal Knowledge Management System of my own. In some ways, this started in 1981. Seriously, one of the first programming tasks I had working on my TRS-80 with dual floppies, but that is immaterial. It's gone through many iterations since then. My point being, t\n8. I dont need social media, I vibe code from my phone !｜Reddit｜2026-08-29｜https://www.reddit.com/r/vibecoding/comments/1w1xddw/i_dont_need_social_media_i_vibe_code_from_my_phone｜證據摘要：Since I have done my vps set up and push the code directly from phone, I’m more addicted than ever ! 😅   submitted by   /u/Goubik [link]   [comments]\n候選內容已先經公開連接器收集；優先從這份清單提煉，不能捏造清單外的 URL。若需要補充，必須仍通過相同的日期、canonical URL 與來源證據檢查。\n\n請把來源推薦與硬性網址分開理解：來源推薦是排序訊號；硬性網址是來源限制。每篇都要有可以開啟的 canonical URL、發布日期與來源證據，不要捏造作者、日期、互動數據或引文。不要做產品新聞、募資消息、空泛金句或只有功能清單的內容。每篇只教一個可轉移的 idea，並說明問題、原則、可操作範例、限制、練習題與編輯綜合。難度請依先備知識與實作風險判定：初學者＝具備基本閱讀與提問能力即可嘗試；普通＝需要基本程式碼、repository 或測試經驗；困難＝需要多步驟整合、架構／權限／部署判斷，或實際操作後才能安全掌握。\n\n請只回傳 JSON object，不要 Markdown，不要前言，格式必須是：\n{\"items\":[{\"title\":\"...\",\"category\":\"思考|提示設計|Agent 管理|上下文工程|程式碼理解|驗證|工作流程|工藝與心態|安全|協作|學習系統\",\"tag\":\"新鮮實作|近期耐用|舊作高價值\",\"difficulty\":\"初學者|普通|困難\",\"takeaway\":\"...\",\"problem\":\"...\",\"principle\":\"...\",\"try_it\":\"...\",\"tradeoffs\":\"...\",\"practice_prompt\":\"...\",\"source_says\":\"...\",\"editorial_synthesis\":\"...\",\"source\":{\"url\":\"https://...\",\"platform\":\"...\",\"published_at\":\"YYYY-MM-DD\",\"evidence_excerpt\":\"...\",\"popularity_basis\":\"...\"},\"scores\":{\"timeless\":1,\"importance\":1,\"popularity\":1}}]}\n評分必須是 1 到 5 的數字。來源 URL、日期與證據不確定時，請如實降低評分或排除，不要創造來源。\n\n這是第 1 次嘗試。請先在內部完成檢查，再一次性輸出完整 JSON；不要輸出分析、Markdown、引用標記或 JSON 以外的文字。",
+      "provider": "openrouter",
+      "model": "deepseek/deepseek-v4-flash-0731"
+    },
+    {
+      "number": 2,
+      "started_at": "2026-08-31T06:22:21.271Z",
+      "system": "你是遵守 vibe-coding-curator skill 的嚴謹繁體中文編輯。只保留有來源、有證據、可轉移、可實作的做法。10 篇必須有 10 個不同 canonical URL，且 primary category 不得超過 2 篇。只輸出合法 JSON object。",
+      "user": "資料截點是 2026-08-31，資料截點也是 2026-08-31。這一壺晨報本次實際必須產出 10 篇，不能多也不能少。請使用可用的 web search，找出在 2026-08-31 當天或之前已經存在的、與「Vibe Coding 入門」相關、具體且可重複的實作方法，並整理成繁體中文學習內容。嚴格禁止使用 2026-08-31 之後發布、更新或發生的發現，所有 source.published_at 必須小於或等於 2026-08-31。\n\n【這一壺的主配方】\n主題：Vibe Coding 入門\n主題說明：用 AI 寫程式、和 Coding Agent 合作，逐步建立能重複使用的開發方法。\n適合讀者：想開始做網站、工具或小型產品，也想慢慢理解開發流程的人。\n內容範圍：Vibe Coding、Coding Agent、提示設計、上下文管理、測試與驗證、除錯與工作流程\n來源方向：優先找真實 repository、issue、討論、失敗分析與可以重複的開發方法。\n\n【編輯的沖煮方式】\n語氣：實作導向。請像一位做過這件事的實作編輯，先說清楚用途，再給可執行步驟、範例與容易踩到的限制。\n編排：每日手沖。每篇保持摘要、具體例子、可轉移原則與練習問題的平衡，讓讀者讀完能理解也能動手。\n\n【使用者的晨報配方】\n想讀的方向：Vibe Coding、Coding Agent、提示設計、上下文管理、測試與驗證、除錯與工作流程\n暫時避開：產品新聞、模型發布摘要、募資消息、流行金句、純功能清單\n偏好的內容形式：實戰案例、失敗分析、可重用規則\n偏好的來源路徑：開發者討論、GitHub 實作、技術文章、建造者覆盤\n難度：初學者、普通、困難\n閱讀時間：10 分鐘；希望篇數：10 篇；新鮮度：3/5；複習：開啟\n主題權重：尚未調整主題權重\n晨報比例：新發現 60%／收藏複習 20%／經典 10%／意外驚喜 10%；實際篇數請依比例取整，但必須剛好產出 10 篇。\n來源語言偏好：繁體中文\n輸出語言：繁體中文\n偏好早晨：Asia/Taipei 07:00\n來源權重：尚未調整來源權重\n來源資料庫中已選取的提供者：使用「Vibe Coding 入門」的預設來源包：vibecoding-tw、github-community、hacker-news、dev-community、openai-community、awesome-vibecoding、reddit-vibecoding、line-vibecoding-weekly、roboco-manual、indie-hackers\n特定社群偏好：沒有指定特定社群\n額外採編備註：沒有額外採編備註\n近期回饋訊號：目前還沒有可用的收藏回饋\n使用回饋時，Super Starred 代表優先找相似的問題深度、內容形式或實作脈絡；Starred 代表值得保留；not_interested、unstarred 或 exclude_source 代表降低相似訊號。只把它當成排序與採編方向，仍要重新驗證每篇來源，不要重複同一篇內容。\n硬性網址來源（若有，只能從這些網址或其頁面翻找）：\n沒有硬性網址限制\n\n【來源連接器先收集的候選內容】\n1. Forge: a Claude Code plugin for agentic development workflow｜Reddit｜2026-08-30｜https://www.reddit.com/r/vibecoding/comments/1w2wmu8/forge_a_claude_code_plugin_for_agentic｜證據摘要：This post was written using application of kinetic force to the rectangular protrusions on my silicon chip container. Shocking, I know. In my day job, we use a sophisticated AI development workflow, inspired by James Bloom’s AI workflow developed for his open source project, Mockserver ( https://github.com/mock-server/mockserver-monorepo ). For reasons that have little to do with AI and everything to do with corporate policy, very reasonably applied in my view, James’s workflow could not be used at work directly. But in my personal work, I am not so constrained - and I also thought I could improve on it. Hubris runs in my genes :) Over the last few weeks I have been building and dogfooding a\n2. Just released my first App (Apple)!｜Reddit｜2026-08-30｜https://www.reddit.com/r/vibecoding/comments/1w2rsag/just_released_my_first_app_apple｜證據摘要：After many failed internal app ideas, I'm very proud to present my very first released App! For context: Used to be a hotel manager for many years and always have been very technical, but never learned to code myself. Once Sonnet 3.5 was released in late 2024, I got into “vibe coding”. While Conduck is my first publicly released project, its definitely not my first attempt. The road is paved with many failed attempts, haha. So what did I built? Conduck is an Apple Native client for your self hosted AI and fully open-source! It has some unique features: - Support of iPhone, iPad, Mac, Apple Watch & CarPlay - You can connect ANY AI backend to it and configure it the way you want! Use it for sa\n3. Ported an Entire WordPress & Elementor Site to Astro Islands in 15 Minutes (100% Vibe Coding)｜Reddit｜2026-08-30｜https://www.reddit.com/r/vibecoding/comments/1w2imwq/ported_an_entire_wordpress_elementor_site_to｜證據摘要：I had a raw cPanel backup of an old WordPress/Elementor site sitting in a folder: • A raw 3.7MB MySQL dump (softsql.sql) • Nearly 300 image uploads (wp-content/uploads/) • A mountain of messy Elementor shortcodes, serialized data, and theme files Normally, migrating this by hand is a multi-day nightmare of copying text from WP admin, hunting down asset paths, re-coding sliders and flip boxes, setting up modern tooling, and hooking up hosting. Instead, I decided to test the limits of pure vibe coding with an autonomous agent. Here was my exact prompt: │ \"do a complete port of this website using astro js and make custom astro islands\" ────── ### What the Agent Did (Without Me Touching the Code\n4. I vibe coded apps nobody used. Then figured out distribution and hit 39k downloads. Here's everything I learned in marketing:｜Reddit｜2026-08-30｜https://www.reddit.com/r/vibecoding/comments/1w2hd0v/i_vibe_coded_apps_nobody_used_then_figured_out｜證據摘要：Vibe coding collapsed the barrier to entry in building apps but it also pushed competition to an all time high because the number of app builders increased by a LOT. This made learning marketing very important since building an app is the easier part now but getting users/customers is becoming a lot harder. Most of these strategies are for iOS apps but 2 of them are applicable to android and web apps. 1. App Store Boost (iOS) When an app is just launched on the App Store, Apple usually give a boost for a few days where your app name will get recommended in the autocomplete of the App Store search bar so make sure to target a keyword with good amount of popularity. So for example your app is \n5. Prediction : In few years no one will be downloading software anymore｜Reddit｜2026-08-30｜https://www.reddit.com/r/vibecoding/comments/1w2g51g/prediction_in_few_years_no_one_will_be｜證據摘要：I know this sounds absurd but hear me out, there's a potential in vibe coding that I feel like not much people talked about, most stuff I hear about vibe coding is about replacing programmers or \"how to make BIG BUCKS with this simple trick !!11!\", but I feel like the biggest deal about all of this is to be able to summon super specific tools out of nowhere precisely designed to fit individual user's need. So here's my take of what I believe will have the biggest impact, when this will happen you'll remember this post : By 2030, app stores will be dead, downloading installers will be pointless, instead anyone will have pre-integrated coding agents to their OS. Need an app ? Like you want to \n6. Most of the skills in my folder were doing nothing. Deleted half of them.｜Reddit｜2026-08-30｜https://www.reddit.com/r/vibecoding/comments/1w2fjsa/most_of_the_skills_in_my_folder_were_doing｜證據摘要：Been on a stacking spree with Claude Code skills for a few months. Every time I saw someone post \"here's my skill for X\" I grabbed it. Folder got huge. Never actually checked if any of it helped. Finally ran a dumb test: for each skill, imagine deleting it and ask what the model would actually lose. Turns out most of it was stuff the model already does without being told, \"write clean code,\" \"think step by step,\" or worse, someone's paraphrase of a library's docs that the model could just pull fresh with a web search anyway. None of that earns a permanent spot in context, it's just weight the agent drags around every session. The ones that survived were the boring, ugly ones. I've got a mess\n7. How do I give away apps that need a database?｜Reddit｜2026-08-30｜https://www.reddit.com/r/vibecoding/comments/1w25kan/how_do_i_give_away_apps_that_need_a_database｜證據摘要：I have an app with both an Android and a desktop version . It needs to have a common database. I'd like to give the app away. How can I set it up so that it has a database they share? Even if I was charging a small amount for the app, I wouldn't want to get into database costs. Update 8-30-26 9:20 AM EST : I posted this when tired and frustrated last night and was not real clear. My apologies. I have been working for some time on a Personal Knowledge Management System of my own. In some ways, this started in 1981. Seriously, one of the first programming tasks I had working on my TRS-80 with dual floppies, but that is immaterial. It's gone through many iterations since then. My point being, t\n8. I dont need social media, I vibe code from my phone !｜Reddit｜2026-08-29｜https://www.reddit.com/r/vibecoding/comments/1w1xddw/i_dont_need_social_media_i_vibe_code_from_my_phone｜證據摘要：Since I have done my vps set up and push the code directly from phone, I’m more addicted than ever ! 😅   submitted by   /u/Goubik [link]   [comments]\n候選內容已先經公開連接器收集；優先從這份清單提煉，不能捏造清單外的 URL。若需要補充，必須仍通過相同的日期、canonical URL 與來源證據檢查。\n\n請把來源推薦與硬性網址分開理解：來源推薦是排序訊號；硬性網址是來源限制。每篇都要有可以開啟的 canonical URL、發布日期與來源證據，不要捏造作者、日期、互動數據或引文。不要做產品新聞、募資消息、空泛金句或只有功能清單的內容。每篇只教一個可轉移的 idea，並說明問題、原則、可操作範例、限制、練習題與編輯綜合。難度請依先備知識與實作風險判定：初學者＝具備基本閱讀與提問能力即可嘗試；普通＝需要基本程式碼、repository 或測試經驗；困難＝需要多步驟整合、架構／權限／部署判斷，或實際操作後才能安全掌握。\n\n請只回傳 JSON object，不要 Markdown，不要前言，格式必須是：\n{\"items\":[{\"title\":\"...\",\"category\":\"思考|提示設計|Agent 管理|上下文工程|程式碼理解|驗證|工作流程|工藝與心態|安全|協作|學習系統\",\"tag\":\"新鮮實作|近期耐用|舊作高價值\",\"difficulty\":\"初學者|普通|困難\",\"takeaway\":\"...\",\"problem\":\"...\",\"principle\":\"...\",\"try_it\":\"...\",\"tradeoffs\":\"...\",\"practice_prompt\":\"...\",\"source_says\":\"...\",\"editorial_synthesis\":\"...\",\"source\":{\"url\":\"https://...\",\"platform\":\"...\",\"published_at\":\"YYYY-MM-DD\",\"evidence_excerpt\":\"...\",\"popularity_basis\":\"...\"},\"scores\":{\"timeless\":1,\"importance\":1,\"popularity\":1}}]}\n評分必須是 1 到 5 的數字。來源 URL、日期與證據不確定時，請如實降低評分或排除，不要創造來源。\n\n這是第 2 次嘗試。請先在內部完成檢查，再一次性輸出完整 JSON；不要輸出分析、Markdown、引用標記或 JSON 以外的文字。",
+      "provider": "openrouter",
+      "model": "deepseek/deepseek-v4-flash-0731"
+    }
+  ],
+  "output_item_count": 0,
+  "output_sources": [],
+  "error": {
+    "code": "model_json_missing"
+  }
+}
