@@ -1,0 +1,315 @@
+{
+  "id": "14d5ad26-fe77-4c95-8589-902b3751b157",
+  "edition_run_date": "2026-09-04",
+  "mode": "daily",
+  "status": "failed",
+  "started_at": "2026-09-04T00:35:25.003Z",
+  "completed_at": "2026-09-04T00:39:25.041Z",
+  "recipe_snapshot": {
+    "schema_version": "daily-recipe-v1",
+    "kind": "automatic_daily_brew",
+    "run_date": "2026-09-04",
+    "as_of_date": "2026-09-04",
+    "preferences": {
+      "recipe_id": "vibe-coding",
+      "editorial_tone": "hands-on-editor",
+      "brew_method": "daily-pour",
+      "source_language": "zh-Hant",
+      "output_language": "zh-Hant",
+      "selected_source_ids": [
+        "vibecoding-tw",
+        "github-community",
+        "hacker-news",
+        "dev-community",
+        "openai-community",
+        "awesome-vibecoding",
+        "reddit-vibecoding",
+        "line-vibecoding-weekly",
+        "roboco-manual",
+        "indie-hackers"
+      ],
+      "source_weights": {},
+      "topic_weights": {},
+      "blend_ratios": {
+        "new_discoveries": 60,
+        "saved_reviews": 20,
+        "classic": 10,
+        "surprise": 10
+      },
+      "timezone": "Asia/Taipei",
+      "morning_time": "07:00",
+      "specific_sources": {},
+      "direct_urls": [],
+      "source_prompt": "",
+      "topics": [
+        "Vibe Coding",
+        "Coding Agent",
+        "提示設計",
+        "上下文管理",
+        "測試與驗證",
+        "除錯與工作流程"
+      ],
+      "excluded_topics": [
+        "產品新聞",
+        "模型發布摘要",
+        "募資消息",
+        "流行金句",
+        "純功能清單"
+      ],
+      "content_styles": [
+        "實戰案例",
+        "失敗分析",
+        "可重用規則"
+      ],
+      "source_lanes": [
+        "開發者討論",
+        "GitHub 實作",
+        "技術文章",
+        "建造者覆盤"
+      ],
+      "difficulty_levels": [
+        "初學者",
+        "普通",
+        "困難"
+      ],
+      "language": "zh-Hant",
+      "item_count": 10,
+      "novelty_level": 3,
+      "review_enabled": true,
+      "blend": {
+        "new_discoveries": 60,
+        "saved_reviews": 20,
+        "classic": 10,
+        "surprise": 10
+      }
+    },
+    "prompt": {
+      "version": "daily-prompt-v1",
+      "system": "你是遵守 vibe-coding-curator skill 的嚴謹繁體中文編輯。只保留有來源、有證據、可轉移、可實作的做法。10 篇必須有 10 個不同 canonical URL，且 primary category 不得超過 2 篇。只輸出合法 JSON object。",
+      "text": "資料截點是 2026-09-04，資料截點也是 2026-09-04。這一壺晨報本次實際必須產出 10 篇，不能多也不能少。請使用可用的 web search，找出在 2026-09-04 當天或之前已經存在的、與「Vibe Coding 入門」相關、具體且可重複的實作方法，並整理成繁體中文學習內容。嚴格禁止使用 2026-09-04 之後發布、更新或發生的發現，所有 source.published_at 必須小於或等於 2026-09-04。\n\n【這一壺的主配方】\n主題：Vibe Coding 入門\n主題說明：用 AI 寫程式、和 Coding Agent 合作，逐步建立能重複使用的開發方法。\n適合讀者：想開始做網站、工具或小型產品，也想慢慢理解開發流程的人。\n內容範圍：Vibe Coding、Coding Agent、提示設計、上下文管理、測試與驗證、除錯與工作流程\n來源方向：優先找真實 repository、issue、討論、失敗分析與可以重複的開發方法。\n\n【編輯的沖煮方式】\n語氣：實作導向。請像一位做過這件事的實作編輯，先說清楚用途，再給可執行步驟、範例與容易踩到的限制。\n編排：每日手沖。每篇保持摘要、具體例子、可轉移原則與練習問題的平衡，讓讀者讀完能理解也能動手。\n\n【使用者的晨報配方】\n想讀的方向：Vibe Coding、Coding Agent、提示設計、上下文管理、測試與驗證、除錯與工作流程\n暫時避開：產品新聞、模型發布摘要、募資消息、流行金句、純功能清單\n偏好的內容形式：實戰案例、失敗分析、可重用規則\n偏好的來源路徑：開發者討論、GitHub 實作、技術文章、建造者覆盤\n難度：初學者、普通、困難\n閱讀時間：10 分鐘；希望篇數：10 篇；新鮮度：3/5；複習：開啟\n主題權重：尚未調整主題權重\n晨報比例：新發現 60%／收藏複習 20%／經典 10%／意外驚喜 10%；實際篇數請依比例取整，但必須剛好產出 10 篇。\n來源語言偏好：繁體中文\n輸出語言：繁體中文\n偏好早晨：Asia/Taipei 07:00\n來源權重：尚未調整來源權重\n來源資料庫中已選取的提供者：使用「Vibe Coding 入門」的預設來源包：vibecoding-tw、github-community、hacker-news、dev-community、openai-community、awesome-vibecoding、reddit-vibecoding、line-vibecoding-weekly、roboco-manual、indie-hackers\n特定社群偏好：沒有指定特定社群\n額外採編備註：沒有額外採編備註\n近期回饋訊號：目前還沒有可用的收藏回饋\n使用回饋時，Super Starred 代表優先找相似的問題深度、內容形式或實作脈絡；Starred 代表值得保留；not_interested、unstarred 或 exclude_source 代表降低相似訊號。只把它當成排序與採編方向，仍要重新驗證每篇來源，不要重複同一篇內容。\n硬性網址來源（若有，只能從這些網址或其頁面翻找）：\n沒有硬性網址限制\n\n【來源連接器先收集的候選內容】\n1. My friend vibe coded an 82-0 style game for fantasy football｜Reddit｜2026-09-03｜https://www.reddit.com/r/vibecoding/comments/1w6o3n1/my_friend_vibe_coded_an_820_style_game_for｜證據摘要：My friend was into the 82-0 NBA game and ended up building a fantasy football version of the same general idea. https://www.retrofantasy.games It's called Retro Fantasy, and he built it using Claude + Codex. You draft 1 QB, 1 RB, 1 WR and 1 TE from historical NFL seasons , then the game simulates your team against 2 to 4 other players. You can either have the historical stats shown while you draft or turn on No Stats mode and try to remember how good that player actually was that year. No Stats is easily my favorite part because you very quickly realize how often you remember the player correctly but the year completely wrong. It also keeps track of your record across games. I don't know his\n2. Link me your website and Ill tell you if it looks vibe-coded｜Reddit｜2026-09-03｜https://www.reddit.com/r/vibecoding/comments/1w6ia1d/link_me_your_website_and_ill_tell_you_if_it_looks｜證據摘要：I will not expand on the reasons, I will only give a one word answer based strictly off vibes. yes = looks vibe coded kinda = it looks kind of vibe coded no = doesnt look vibe coded plz do not be offended or insulted btw im just a random person edit: just to be clear \"looks vibe coded\" doesn't necessarily mean it looks bad or anything   submitted by   /u/Junior_Character5301 [link]   [comments]\n3. What would you say if one of your users said “I can vibe code this”｜Reddit｜2026-09-03｜https://www.reddit.com/r/vibecoding/comments/1w6hon0/what_would_you_say_if_one_of_your_users_said_i｜證據摘要：My usual response is “yea go ahead. I’m not building this for you.” Or “sure. Come back in 6 weeks and show me where you landed” People think they can prompt apps over night. When in fact, it’s a show surgical methodical work. It took 6+ months for me to build Mangos.ai, and I’m proud of where I got it to now. I had a vision. I built a prototype for myself. I asked some of my friends if they’d use it. No one said yes. I then came to Reddit and asked for feedback, most of the people said it’s a terrible idea. I learnt from their feedback, made some critical improvements. And every single day, LEGO block by LEGO block I’ve been building this product. Every time I hear someone say they can buil\n4. Claude leaked its own backend code - I extracted the VM that runs your code and found its internal codenames, a monitoring binary nobody outside has held, and 371 KB of secret prompts｜Reddit｜2026-09-03｜https://www.reddit.com/r/vibecoding/comments/1w6f5du/claude_leaked_its_own_backend_code_i_extracted｜證據摘要：I pulled the entire filesystem out of a claude.ai code-execution sandbox (the actual microVM your code runs in - 178k files), then got into the live one too. Two days later, here's what's on my drive. And none of this is a public download. as I would prob go to jail :( What I have: The entire production container - every file of the machine your code runs in: config, tool stack, the works. Internally it's called \"wiggle\". All ~40 of Anthropic's skills - the instruction playbooks Claude follows when it does things for you. Including the ones you never see. ( Not the name ones on the public REPO ) Their monitoring agent, as a binary no one outside the company has ever held. and it wasn't strip\n5. I scanned 30,998 live vibe-coded apps from the outside. 394 had a users table anyone could read, 52 exposed secrets.｜Reddit｜2026-09-03｜https://www.reddit.com/r/vibecoding/comments/1w68ce4/i_scanned_30998_live_vibecoded_apps_from_the｜證據摘要：In August I ran nine external checks on 30,998 live apps built with Lovable, Bolt, v0, Replit and Base44. Outside view only. The scanner checks what a visitor's browser already reads: the code, the headers, the endpoints named in its own bundle. No logins, no password guessing, nothing downloaded. No pentesting Nine external checks: exposed secrets, database access, private files, security headers, storage buckets, source maps, cross-site sharing, SSL certificate, domain renewal. Most of it came back fine. 76% graded A . 96% had no secret key in the bundle at all, and almost everybody gets the publishable key right, which is the thing generic scanners flag wrongly. Your Supabase anon key is \n6. I vibe coded a whole product because I wanted to see how far AI could actually take me｜Reddit｜2026-09-03｜https://www.reddit.com/r/vibecoding/comments/1w63c4e/i_vibe_coded_a_whole_product_because_i_wanted_to｜證據摘要：I had a pretty simple idea: What if I could type a topic, and instead of opening 5 different tools, writing a script, finding visuals, editing everything and exporting… I could just get the video. So I vibe coded it. https://reelyr.com/ You give it a topic or document and it turns it into a finished vertical video. The funny part is that I started with “let’s see if AI can build this” and somehow ended up with an actual product. No big team. No months of development. Just a ridiculous number of prompts, iterations, broken things, fixes and “okay… why did it do THAT?” moments. I'm still improving it, but it's live now. Would genuinely love feedback from other people who are building with AI. \n7. How can I refine this UI?｜Reddit｜2026-09-03｜https://www.reddit.com/r/vibecoding/comments/1w5vezl/how_can_i_refine_this_ui｜證據摘要：I'm building another writing app (yay) and I want feedback as well as notes about what you like or want in a writing app. Does this UI look vibe coded? I've been working hard to try not to do that. I don't feel like the writing app landscape is really that different. Most writing apps look more or less the same. But, if you had to nitpick them, what would you say? This app is NOT for formatting. If anything, I'm going to do a document format option on export. The side panels and format bar are all toggle able, and if you hit focus, everything goes away at once for a \"distraction free\" writing environment (which, just saying that makes me want to gag, its so generic sounding). In the end, I w\n8. How (and why) the Open Jobs project keeps ~3 million jobs locally searchable without monetization｜Reddit｜2026-09-03｜https://www.reddit.com/r/vibecoding/comments/1w5sdmu/how_and_why_the_open_jobs_project_keeps_3_million｜證據摘要：\"Yours\" beats \"free\" (Prompts to try out the search toolchain at the bottom.) The Open Jobs dataset and search toolchain are yours. There is no business model, and that is the whole point. It started at 960K jobs. Then 2M. This week it hit ~3M. Here is the story of how one person keeps a job index that size running for about a dollar a day. What it is A free, open-source search over job postings pulled from across the web. It crawls the boards, dedupes and normalizes everything into one dataset, and puts a semantic search on top: describe the job you actually want, get matches. No scrolling twenty career pages. No signup, no paywall, no ads. The dataset is free and open too. Vendors charge $\n候選內容已先經公開連接器收集；優先從這份清單提煉，不能捏造清單外的 URL。若需要補充，必須仍通過相同的日期、canonical URL 與來源證據檢查。\n\n請把來源推薦與硬性網址分開理解：來源推薦是排序訊號；硬性網址是來源限制。每篇都要有可以開啟的 canonical URL、發布日期與來源證據，不要捏造作者、日期、互動數據或引文。不要做產品新聞、募資消息、空泛金句或只有功能清單的內容。每篇只教一個可轉移的 idea，並說明問題、原則、可操作範例、限制、練習題與編輯綜合。難度請依先備知識與實作風險判定：初學者＝具備基本閱讀與提問能力即可嘗試；普通＝需要基本程式碼、repository 或測試經驗；困難＝需要多步驟整合、架構／權限／部署判斷，或實際操作後才能安全掌握。\n\n請只回傳 JSON object，不要 Markdown，不要前言，格式必須是：\n{\"items\":[{\"title\":\"...\",\"category\":\"思考|提示設計|Agent 管理|上下文工程|程式碼理解|驗證|工作流程|工藝與心態|安全|協作|學習系統\",\"tag\":\"新鮮實作|近期耐用|舊作高價值\",\"difficulty\":\"初學者|普通|困難\",\"takeaway\":\"...\",\"problem\":\"...\",\"principle\":\"...\",\"try_it\":\"...\",\"tradeoffs\":\"...\",\"practice_prompt\":\"...\",\"source_says\":\"...\",\"editorial_synthesis\":\"...\",\"source\":{\"url\":\"https://...\",\"platform\":\"...\",\"published_at\":\"YYYY-MM-DD\",\"evidence_excerpt\":\"...\",\"popularity_basis\":\"...\"},\"scores\":{\"timeless\":1,\"importance\":1,\"popularity\":1}}]}\n評分必須是 1 到 5 的數字。來源 URL、日期與證據不確定時，請如實降低評分或排除，不要創造來源。"
+    },
+    "source_collection": {
+      "version": "source-collection-v1",
+      "as_of_date": "2026-09-04",
+      "requested_source_ids": [
+        "github-community",
+        "hacker-news",
+        "reddit-vibecoding",
+        "dev-community"
+      ],
+      "hard_direct_url_scope": false,
+      "custom_source_count": 0,
+      "candidate_count": 8,
+      "connectors": [
+        {
+          "source_id": "dev-community",
+          "status": "empty",
+          "candidate_count": 0
+        },
+        {
+          "source_id": "github-community",
+          "status": "empty",
+          "candidate_count": 0
+        },
+        {
+          "source_id": "hacker-news",
+          "status": "empty",
+          "candidate_count": 0
+        },
+        {
+          "source_id": "reddit-vibecoding",
+          "status": "ok",
+          "candidate_count": 8
+        }
+      ],
+      "fallback_to_model_search": false,
+      "policy": "只使用公開介面、RSS、使用者指定網址或合法授權；無法讀取時明確標記。",
+      "candidates": [
+        {
+          "title": "My friend vibe coded an 82-0 style game for fantasy football",
+          "url": "https://www.reddit.com/r/vibecoding/comments/1w6o3n1/my_friend_vibe_coded_an_820_style_game_for",
+          "date": "2026-09-03",
+          "sourceType": "Reddit",
+          "source": "Reddit",
+          "category": "來源探索",
+          "difficulty": "普通",
+          "evidence": "My friend was into the 82-0 NBA game and ended up building a fantasy football version of the same general idea. https://www.retrofantasy.games It's called Retro Fantasy, and he built it using Claude + Codex. You draft 1 QB, 1 RB, 1 WR and 1 TE from historical NFL seasons , then the game simulates your team against 2 to 4 other players. You can either have the historical stats shown while you draft or turn on No Stats mode and try to remember how good that player actually was that year. No Stats is easily my favorite part because you very quickly realize how often you remember the player correctly but the year completely wrong. It also keeps track of your record across games. I don't know his",
+          "takeaway": "My friend was into the 82-0 NBA game and ended up building a fantasy football version of the same general idea. https://www.retrofantasy.games It's called Retro Fantasy, and he built it using Claude + Codex. You draft 1 QB, 1 RB, 1 WR and 1 TE from historical NFL seasons , then the game simulates your team against 2 to 4 other players. You can either have the historical stats shown while you draft or turn on No Stats mode and try to remember how good that player actually was that year. No Stats is easily my favorite part because you very quickly realize how often you remember the player correctly but the year completely wrong. It also keeps track of your record across games. I don't know his",
+          "problem": "",
+          "principle": "",
+          "tryIt": "",
+          "tradeoffs": "",
+          "timeless": 3,
+          "importance": 3,
+          "heat": 2
+        },
+        {
+          "title": "Link me your website and Ill tell you if it looks vibe-coded",
+          "url": "https://www.reddit.com/r/vibecoding/comments/1w6ia1d/link_me_your_website_and_ill_tell_you_if_it_looks",
+          "date": "2026-09-03",
+          "sourceType": "Reddit",
+          "source": "Reddit",
+          "category": "來源探索",
+          "difficulty": "普通",
+          "evidence": "I will not expand on the reasons, I will only give a one word answer based strictly off vibes. yes = looks vibe coded kinda = it looks kind of vibe coded no = doesnt look vibe coded plz do not be offended or insulted btw im just a random person edit: just to be clear \"looks vibe coded\" doesn't necessarily mean it looks bad or anything   submitted by   /u/Junior_Character5301 [link]   [comments]",
+          "takeaway": "I will not expand on the reasons, I will only give a one word answer based strictly off vibes. yes = looks vibe coded kinda = it looks kind of vibe coded no = doesnt look vibe coded plz do not be offended or insulted btw im just a random person edit: just to be clear \"looks vibe coded\" doesn't necessarily mean it looks bad or anything   submitted by   /u/Junior_Character5301 [link]   [comments]",
+          "problem": "",
+          "principle": "",
+          "tryIt": "",
+          "tradeoffs": "",
+          "timeless": 3,
+          "importance": 3,
+          "heat": 2
+        },
+        {
+          "title": "What would you say if one of your users said “I can vibe code this”",
+          "url": "https://www.reddit.com/r/vibecoding/comments/1w6hon0/what_would_you_say_if_one_of_your_users_said_i",
+          "date": "2026-09-03",
+          "sourceType": "Reddit",
+          "source": "Reddit",
+          "category": "來源探索",
+          "difficulty": "普通",
+          "evidence": "My usual response is “yea go ahead. I’m not building this for you.” Or “sure. Come back in 6 weeks and show me where you landed” People think they can prompt apps over night. When in fact, it’s a show surgical methodical work. It took 6+ months for me to build Mangos.ai, and I’m proud of where I got it to now. I had a vision. I built a prototype for myself. I asked some of my friends if they’d use it. No one said yes. I then came to Reddit and asked for feedback, most of the people said it’s a terrible idea. I learnt from their feedback, made some critical improvements. And every single day, LEGO block by LEGO block I’ve been building this product. Every time I hear someone say they can buil",
+          "takeaway": "My usual response is “yea go ahead. I’m not building this for you.” Or “sure. Come back in 6 weeks and show me where you landed” People think they can prompt apps over night. When in fact, it’s a show surgical methodical work. It took 6+ months for me to build Mangos.ai, and I’m proud of where I got it to now. I had a vision. I built a prototype for myself. I asked some of my friends if they’d use it. No one said yes. I then came to Reddit and asked for feedback, most of the people said it’s a terrible idea. I learnt from their feedback, made some critical improvements. And every single day, LEGO block by LEGO block I’ve been building this product. Every time I hear someone say they can buil",
+          "problem": "",
+          "principle": "",
+          "tryIt": "",
+          "tradeoffs": "",
+          "timeless": 3,
+          "importance": 3,
+          "heat": 2
+        },
+        {
+          "title": "Claude leaked its own backend code - I extracted the VM that runs your code and found its internal codenames, a monitoring binary nobody outside has held, and 371 KB of secret prompts",
+          "url": "https://www.reddit.com/r/vibecoding/comments/1w6f5du/claude_leaked_its_own_backend_code_i_extracted",
+          "date": "2026-09-03",
+          "sourceType": "Reddit",
+          "source": "Reddit",
+          "category": "來源探索",
+          "difficulty": "普通",
+          "evidence": "I pulled the entire filesystem out of a claude.ai code-execution sandbox (the actual microVM your code runs in - 178k files), then got into the live one too. Two days later, here's what's on my drive. And none of this is a public download. as I would prob go to jail :( What I have: The entire production container - every file of the machine your code runs in: config, tool stack, the works. Internally it's called \"wiggle\". All ~40 of Anthropic's skills - the instruction playbooks Claude follows when it does things for you. Including the ones you never see. ( Not the name ones on the public REPO ) Their monitoring agent, as a binary no one outside the company has ever held. and it wasn't strip",
+          "takeaway": "I pulled the entire filesystem out of a claude.ai code-execution sandbox (the actual microVM your code runs in - 178k files), then got into the live one too. Two days later, here's what's on my drive. And none of this is a public download. as I would prob go to jail :( What I have: The entire production container - every file of the machine your code runs in: config, tool stack, the works. Internally it's called \"wiggle\". All ~40 of Anthropic's skills - the instruction playbooks Claude follows when it does things for you. Including the ones you never see. ( Not the name ones on the public REPO ) Their monitoring agent, as a binary no one outside the company has ever held. and it wasn't strip",
+          "problem": "",
+          "principle": "",
+          "tryIt": "",
+          "tradeoffs": "",
+          "timeless": 3,
+          "importance": 3,
+          "heat": 2
+        },
+        {
+          "title": "I scanned 30,998 live vibe-coded apps from the outside. 394 had a users table anyone could read, 52 exposed secrets.",
+          "url": "https://www.reddit.com/r/vibecoding/comments/1w68ce4/i_scanned_30998_live_vibecoded_apps_from_the",
+          "date": "2026-09-03",
+          "sourceType": "Reddit",
+          "source": "Reddit",
+          "category": "來源探索",
+          "difficulty": "普通",
+          "evidence": "In August I ran nine external checks on 30,998 live apps built with Lovable, Bolt, v0, Replit and Base44. Outside view only. The scanner checks what a visitor's browser already reads: the code, the headers, the endpoints named in its own bundle. No logins, no password guessing, nothing downloaded. No pentesting Nine external checks: exposed secrets, database access, private files, security headers, storage buckets, source maps, cross-site sharing, SSL certificate, domain renewal. Most of it came back fine. 76% graded A . 96% had no secret key in the bundle at all, and almost everybody gets the publishable key right, which is the thing generic scanners flag wrongly. Your Supabase anon key is ",
+          "takeaway": "In August I ran nine external checks on 30,998 live apps built with Lovable, Bolt, v0, Replit and Base44. Outside view only. The scanner checks what a visitor's browser already reads: the code, the headers, the endpoints named in its own bundle. No logins, no password guessing, nothing downloaded. No pentesting Nine external checks: exposed secrets, database access, private files, security headers, storage buckets, source maps, cross-site sharing, SSL certificate, domain renewal. Most of it came back fine. 76% graded A . 96% had no secret key in the bundle at all, and almost everybody gets the publishable key right, which is the thing generic scanners flag wrongly. Your Supabase anon key is ",
+          "problem": "",
+          "principle": "",
+          "tryIt": "",
+          "tradeoffs": "",
+          "timeless": 3,
+          "importance": 3,
+          "heat": 2
+        },
+        {
+          "title": "I vibe coded a whole product because I wanted to see how far AI could actually take me",
+          "url": "https://www.reddit.com/r/vibecoding/comments/1w63c4e/i_vibe_coded_a_whole_product_because_i_wanted_to",
+          "date": "2026-09-03",
+          "sourceType": "Reddit",
+          "source": "Reddit",
+          "category": "來源探索",
+          "difficulty": "普通",
+          "evidence": "I had a pretty simple idea: What if I could type a topic, and instead of opening 5 different tools, writing a script, finding visuals, editing everything and exporting… I could just get the video. So I vibe coded it. https://reelyr.com/ You give it a topic or document and it turns it into a finished vertical video. The funny part is that I started with “let’s see if AI can build this” and somehow ended up with an actual product. No big team. No months of development. Just a ridiculous number of prompts, iterations, broken things, fixes and “okay… why did it do THAT?” moments. I'm still improving it, but it's live now. Would genuinely love feedback from other people who are building with AI. ",
+          "takeaway": "I had a pretty simple idea: What if I could type a topic, and instead of opening 5 different tools, writing a script, finding visuals, editing everything and exporting… I could just get the video. So I vibe coded it. https://reelyr.com/ You give it a topic or document and it turns it into a finished vertical video. The funny part is that I started with “let’s see if AI can build this” and somehow ended up with an actual product. No big team. No months of development. Just a ridiculous number of prompts, iterations, broken things, fixes and “okay… why did it do THAT?” moments. I'm still improving it, but it's live now. Would genuinely love feedback from other people who are building with AI. ",
+          "problem": "",
+          "principle": "",
+          "tryIt": "",
+          "tradeoffs": "",
+          "timeless": 3,
+          "importance": 3,
+          "heat": 2
+        },
+        {
+          "title": "How can I refine this UI?",
+          "url": "https://www.reddit.com/r/vibecoding/comments/1w5vezl/how_can_i_refine_this_ui",
+          "date": "2026-09-03",
+          "sourceType": "Reddit",
+          "source": "Reddit",
+          "category": "來源探索",
+          "difficulty": "普通",
+          "evidence": "I'm building another writing app (yay) and I want feedback as well as notes about what you like or want in a writing app. Does this UI look vibe coded? I've been working hard to try not to do that. I don't feel like the writing app landscape is really that different. Most writing apps look more or less the same. But, if you had to nitpick them, what would you say? This app is NOT for formatting. If anything, I'm going to do a document format option on export. The side panels and format bar are all toggle able, and if you hit focus, everything goes away at once for a \"distraction free\" writing environment (which, just saying that makes me want to gag, its so generic sounding). In the end, I w",
+          "takeaway": "I'm building another writing app (yay) and I want feedback as well as notes about what you like or want in a writing app. Does this UI look vibe coded? I've been working hard to try not to do that. I don't feel like the writing app landscape is really that different. Most writing apps look more or less the same. But, if you had to nitpick them, what would you say? This app is NOT for formatting. If anything, I'm going to do a document format option on export. The side panels and format bar are all toggle able, and if you hit focus, everything goes away at once for a \"distraction free\" writing environment (which, just saying that makes me want to gag, its so generic sounding). In the end, I w",
+          "problem": "",
+          "principle": "",
+          "tryIt": "",
+          "tradeoffs": "",
+          "timeless": 3,
+          "importance": 3,
+          "heat": 2
+        },
+        {
+          "title": "How (and why) the Open Jobs project keeps ~3 million jobs locally searchable without monetization",
+          "url": "https://www.reddit.com/r/vibecoding/comments/1w5sdmu/how_and_why_the_open_jobs_project_keeps_3_million",
+          "date": "2026-09-03",
+          "sourceType": "Reddit",
+          "source": "Reddit",
+          "category": "來源探索",
+          "difficulty": "普通",
+          "evidence": "\"Yours\" beats \"free\" (Prompts to try out the search toolchain at the bottom.) The Open Jobs dataset and search toolchain are yours. There is no business model, and that is the whole point. It started at 960K jobs. Then 2M. This week it hit ~3M. Here is the story of how one person keeps a job index that size running for about a dollar a day. What it is A free, open-source search over job postings pulled from across the web. It crawls the boards, dedupes and normalizes everything into one dataset, and puts a semantic search on top: describe the job you actually want, get matches. No scrolling twenty career pages. No signup, no paywall, no ads. The dataset is free and open too. Vendors charge $",
+          "takeaway": "\"Yours\" beats \"free\" (Prompts to try out the search toolchain at the bottom.) The Open Jobs dataset and search toolchain are yours. There is no business model, and that is the whole point. It started at 960K jobs. Then 2M. This week it hit ~3M. Here is the story of how one person keeps a job index that size running for about a dollar a day. What it is A free, open-source search over job postings pulled from across the web. It crawls the boards, dedupes and normalizes everything into one dataset, and puts a semantic search on top: describe the job you actually want, get matches. No scrolling twenty career pages. No signup, no paywall, no ads. The dataset is free and open too. Vendors charge $",
+          "problem": "",
+          "principle": "",
+          "tryIt": "",
+          "tradeoffs": "",
+          "timeless": 3,
+          "importance": 3,
+          "heat": 2
+        }
+      ]
+    },
+    "model": {
+      "provider": "openrouter",
+      "name": "deepseek/deepseek-v4-flash-0731",
+      "generation_method": "provider_api"
+    },
+    "search_rules": {
+      "version": "daily-search-v1",
+      "web_search_required": true,
+      "allowed_source_date_lte": "2026-09-04",
+      "minimum_distinct_platforms": 3,
+      "maximum_items_per_primary_category": 2,
+      "maximum_classic_items": 2,
+      "canonical_url_required": true,
+      "evidence_required": true,
+      "ranking_formula_version": "v1",
+      "ranking_formula": "0.52 * recency + 0.25 * importance + 0.13 * timeless + 0.10 * popularity"
+    }
+  },
+  "attempts": [
+    {
+      "number": 1,
+      "started_at": "2026-09-04T00:35:25.005Z",
+      "system": "你是遵守 vibe-coding-curator skill 的嚴謹繁體中文編輯。只保留有來源、有證據、可轉移、可實作的做法。10 篇必須有 10 個不同 canonical URL，且 primary category 不得超過 2 篇。只輸出合法 JSON object。",
+      "user": "資料截點是 2026-09-04，資料截點也是 2026-09-04。這一壺晨報本次實際必須產出 10 篇，不能多也不能少。請使用可用的 web search，找出在 2026-09-04 當天或之前已經存在的、與「Vibe Coding 入門」相關、具體且可重複的實作方法，並整理成繁體中文學習內容。嚴格禁止使用 2026-09-04 之後發布、更新或發生的發現，所有 source.published_at 必須小於或等於 2026-09-04。\n\n【這一壺的主配方】\n主題：Vibe Coding 入門\n主題說明：用 AI 寫程式、和 Coding Agent 合作，逐步建立能重複使用的開發方法。\n適合讀者：想開始做網站、工具或小型產品，也想慢慢理解開發流程的人。\n內容範圍：Vibe Coding、Coding Agent、提示設計、上下文管理、測試與驗證、除錯與工作流程\n來源方向：優先找真實 repository、issue、討論、失敗分析與可以重複的開發方法。\n\n【編輯的沖煮方式】\n語氣：實作導向。請像一位做過這件事的實作編輯，先說清楚用途，再給可執行步驟、範例與容易踩到的限制。\n編排：每日手沖。每篇保持摘要、具體例子、可轉移原則與練習問題的平衡，讓讀者讀完能理解也能動手。\n\n【使用者的晨報配方】\n想讀的方向：Vibe Coding、Coding Agent、提示設計、上下文管理、測試與驗證、除錯與工作流程\n暫時避開：產品新聞、模型發布摘要、募資消息、流行金句、純功能清單\n偏好的內容形式：實戰案例、失敗分析、可重用規則\n偏好的來源路徑：開發者討論、GitHub 實作、技術文章、建造者覆盤\n難度：初學者、普通、困難\n閱讀時間：10 分鐘；希望篇數：10 篇；新鮮度：3/5；複習：開啟\n主題權重：尚未調整主題權重\n晨報比例：新發現 60%／收藏複習 20%／經典 10%／意外驚喜 10%；實際篇數請依比例取整，但必須剛好產出 10 篇。\n來源語言偏好：繁體中文\n輸出語言：繁體中文\n偏好早晨：Asia/Taipei 07:00\n來源權重：尚未調整來源權重\n來源資料庫中已選取的提供者：使用「Vibe Coding 入門」的預設來源包：vibecoding-tw、github-community、hacker-news、dev-community、openai-community、awesome-vibecoding、reddit-vibecoding、line-vibecoding-weekly、roboco-manual、indie-hackers\n特定社群偏好：沒有指定特定社群\n額外採編備註：沒有額外採編備註\n近期回饋訊號：目前還沒有可用的收藏回饋\n使用回饋時，Super Starred 代表優先找相似的問題深度、內容形式或實作脈絡；Starred 代表值得保留；not_interested、unstarred 或 exclude_source 代表降低相似訊號。只把它當成排序與採編方向，仍要重新驗證每篇來源，不要重複同一篇內容。\n硬性網址來源（若有，只能從這些網址或其頁面翻找）：\n沒有硬性網址限制\n\n【來源連接器先收集的候選內容】\n1. My friend vibe coded an 82-0 style game for fantasy football｜Reddit｜2026-09-03｜https://www.reddit.com/r/vibecoding/comments/1w6o3n1/my_friend_vibe_coded_an_820_style_game_for｜證據摘要：My friend was into the 82-0 NBA game and ended up building a fantasy football version of the same general idea. https://www.retrofantasy.games It's called Retro Fantasy, and he built it using Claude + Codex. You draft 1 QB, 1 RB, 1 WR and 1 TE from historical NFL seasons , then the game simulates your team against 2 to 4 other players. You can either have the historical stats shown while you draft or turn on No Stats mode and try to remember how good that player actually was that year. No Stats is easily my favorite part because you very quickly realize how often you remember the player correctly but the year completely wrong. It also keeps track of your record across games. I don't know his\n2. Link me your website and Ill tell you if it looks vibe-coded｜Reddit｜2026-09-03｜https://www.reddit.com/r/vibecoding/comments/1w6ia1d/link_me_your_website_and_ill_tell_you_if_it_looks｜證據摘要：I will not expand on the reasons, I will only give a one word answer based strictly off vibes. yes = looks vibe coded kinda = it looks kind of vibe coded no = doesnt look vibe coded plz do not be offended or insulted btw im just a random person edit: just to be clear \"looks vibe coded\" doesn't necessarily mean it looks bad or anything   submitted by   /u/Junior_Character5301 [link]   [comments]\n3. What would you say if one of your users said “I can vibe code this”｜Reddit｜2026-09-03｜https://www.reddit.com/r/vibecoding/comments/1w6hon0/what_would_you_say_if_one_of_your_users_said_i｜證據摘要：My usual response is “yea go ahead. I’m not building this for you.” Or “sure. Come back in 6 weeks and show me where you landed” People think they can prompt apps over night. When in fact, it’s a show surgical methodical work. It took 6+ months for me to build Mangos.ai, and I’m proud of where I got it to now. I had a vision. I built a prototype for myself. I asked some of my friends if they’d use it. No one said yes. I then came to Reddit and asked for feedback, most of the people said it’s a terrible idea. I learnt from their feedback, made some critical improvements. And every single day, LEGO block by LEGO block I’ve been building this product. Every time I hear someone say they can buil\n4. Claude leaked its own backend code - I extracted the VM that runs your code and found its internal codenames, a monitoring binary nobody outside has held, and 371 KB of secret prompts｜Reddit｜2026-09-03｜https://www.reddit.com/r/vibecoding/comments/1w6f5du/claude_leaked_its_own_backend_code_i_extracted｜證據摘要：I pulled the entire filesystem out of a claude.ai code-execution sandbox (the actual microVM your code runs in - 178k files), then got into the live one too. Two days later, here's what's on my drive. And none of this is a public download. as I would prob go to jail :( What I have: The entire production container - every file of the machine your code runs in: config, tool stack, the works. Internally it's called \"wiggle\". All ~40 of Anthropic's skills - the instruction playbooks Claude follows when it does things for you. Including the ones you never see. ( Not the name ones on the public REPO ) Their monitoring agent, as a binary no one outside the company has ever held. and it wasn't strip\n5. I scanned 30,998 live vibe-coded apps from the outside. 394 had a users table anyone could read, 52 exposed secrets.｜Reddit｜2026-09-03｜https://www.reddit.com/r/vibecoding/comments/1w68ce4/i_scanned_30998_live_vibecoded_apps_from_the｜證據摘要：In August I ran nine external checks on 30,998 live apps built with Lovable, Bolt, v0, Replit and Base44. Outside view only. The scanner checks what a visitor's browser already reads: the code, the headers, the endpoints named in its own bundle. No logins, no password guessing, nothing downloaded. No pentesting Nine external checks: exposed secrets, database access, private files, security headers, storage buckets, source maps, cross-site sharing, SSL certificate, domain renewal. Most of it came back fine. 76% graded A . 96% had no secret key in the bundle at all, and almost everybody gets the publishable key right, which is the thing generic scanners flag wrongly. Your Supabase anon key is \n6. I vibe coded a whole product because I wanted to see how far AI could actually take me｜Reddit｜2026-09-03｜https://www.reddit.com/r/vibecoding/comments/1w63c4e/i_vibe_coded_a_whole_product_because_i_wanted_to｜證據摘要：I had a pretty simple idea: What if I could type a topic, and instead of opening 5 different tools, writing a script, finding visuals, editing everything and exporting… I could just get the video. So I vibe coded it. https://reelyr.com/ You give it a topic or document and it turns it into a finished vertical video. The funny part is that I started with “let’s see if AI can build this” and somehow ended up with an actual product. No big team. No months of development. Just a ridiculous number of prompts, iterations, broken things, fixes and “okay… why did it do THAT?” moments. I'm still improving it, but it's live now. Would genuinely love feedback from other people who are building with AI. \n7. How can I refine this UI?｜Reddit｜2026-09-03｜https://www.reddit.com/r/vibecoding/comments/1w5vezl/how_can_i_refine_this_ui｜證據摘要：I'm building another writing app (yay) and I want feedback as well as notes about what you like or want in a writing app. Does this UI look vibe coded? I've been working hard to try not to do that. I don't feel like the writing app landscape is really that different. Most writing apps look more or less the same. But, if you had to nitpick them, what would you say? This app is NOT for formatting. If anything, I'm going to do a document format option on export. The side panels and format bar are all toggle able, and if you hit focus, everything goes away at once for a \"distraction free\" writing environment (which, just saying that makes me want to gag, its so generic sounding). In the end, I w\n8. How (and why) the Open Jobs project keeps ~3 million jobs locally searchable without monetization｜Reddit｜2026-09-03｜https://www.reddit.com/r/vibecoding/comments/1w5sdmu/how_and_why_the_open_jobs_project_keeps_3_million｜證據摘要：\"Yours\" beats \"free\" (Prompts to try out the search toolchain at the bottom.) The Open Jobs dataset and search toolchain are yours. There is no business model, and that is the whole point. It started at 960K jobs. Then 2M. This week it hit ~3M. Here is the story of how one person keeps a job index that size running for about a dollar a day. What it is A free, open-source search over job postings pulled from across the web. It crawls the boards, dedupes and normalizes everything into one dataset, and puts a semantic search on top: describe the job you actually want, get matches. No scrolling twenty career pages. No signup, no paywall, no ads. The dataset is free and open too. Vendors charge $\n候選內容已先經公開連接器收集；優先從這份清單提煉，不能捏造清單外的 URL。若需要補充，必須仍通過相同的日期、canonical URL 與來源證據檢查。\n\n請把來源推薦與硬性網址分開理解：來源推薦是排序訊號；硬性網址是來源限制。每篇都要有可以開啟的 canonical URL、發布日期與來源證據，不要捏造作者、日期、互動數據或引文。不要做產品新聞、募資消息、空泛金句或只有功能清單的內容。每篇只教一個可轉移的 idea，並說明問題、原則、可操作範例、限制、練習題與編輯綜合。難度請依先備知識與實作風險判定：初學者＝具備基本閱讀與提問能力即可嘗試；普通＝需要基本程式碼、repository 或測試經驗；困難＝需要多步驟整合、架構／權限／部署判斷，或實際操作後才能安全掌握。\n\n請只回傳 JSON object，不要 Markdown，不要前言，格式必須是：\n{\"items\":[{\"title\":\"...\",\"category\":\"思考|提示設計|Agent 管理|上下文工程|程式碼理解|驗證|工作流程|工藝與心態|安全|協作|學習系統\",\"tag\":\"新鮮實作|近期耐用|舊作高價值\",\"difficulty\":\"初學者|普通|困難\",\"takeaway\":\"...\",\"problem\":\"...\",\"principle\":\"...\",\"try_it\":\"...\",\"tradeoffs\":\"...\",\"practice_prompt\":\"...\",\"source_says\":\"...\",\"editorial_synthesis\":\"...\",\"source\":{\"url\":\"https://...\",\"platform\":\"...\",\"published_at\":\"YYYY-MM-DD\",\"evidence_excerpt\":\"...\",\"popularity_basis\":\"...\"},\"scores\":{\"timeless\":1,\"importance\":1,\"popularity\":1}}]}\n評分必須是 1 到 5 的數字。來源 URL、日期與證據不確定時，請如實降低評分或排除，不要創造來源。\n\n這是第 1 次嘗試。請先在內部完成檢查，再一次性輸出完整 JSON；不要輸出分析、Markdown、引用標記或 JSON 以外的文字。",
+      "provider": "openrouter",
+      "model": "deepseek/deepseek-v4-flash-0731"
+    },
+    {
+      "number": 2,
+      "started_at": "2026-09-04T00:37:25.025Z",
+      "system": "你是遵守 vibe-coding-curator skill 的嚴謹繁體中文編輯。只保留有來源、有證據、可轉移、可實作的做法。10 篇必須有 10 個不同 canonical URL，且 primary category 不得超過 2 篇。只輸出合法 JSON object。",
+      "user": "資料截點是 2026-09-04，資料截點也是 2026-09-04。這一壺晨報本次實際必須產出 10 篇，不能多也不能少。請使用可用的 web search，找出在 2026-09-04 當天或之前已經存在的、與「Vibe Coding 入門」相關、具體且可重複的實作方法，並整理成繁體中文學習內容。嚴格禁止使用 2026-09-04 之後發布、更新或發生的發現，所有 source.published_at 必須小於或等於 2026-09-04。\n\n【這一壺的主配方】\n主題：Vibe Coding 入門\n主題說明：用 AI 寫程式、和 Coding Agent 合作，逐步建立能重複使用的開發方法。\n適合讀者：想開始做網站、工具或小型產品，也想慢慢理解開發流程的人。\n內容範圍：Vibe Coding、Coding Agent、提示設計、上下文管理、測試與驗證、除錯與工作流程\n來源方向：優先找真實 repository、issue、討論、失敗分析與可以重複的開發方法。\n\n【編輯的沖煮方式】\n語氣：實作導向。請像一位做過這件事的實作編輯，先說清楚用途，再給可執行步驟、範例與容易踩到的限制。\n編排：每日手沖。每篇保持摘要、具體例子、可轉移原則與練習問題的平衡，讓讀者讀完能理解也能動手。\n\n【使用者的晨報配方】\n想讀的方向：Vibe Coding、Coding Agent、提示設計、上下文管理、測試與驗證、除錯與工作流程\n暫時避開：產品新聞、模型發布摘要、募資消息、流行金句、純功能清單\n偏好的內容形式：實戰案例、失敗分析、可重用規則\n偏好的來源路徑：開發者討論、GitHub 實作、技術文章、建造者覆盤\n難度：初學者、普通、困難\n閱讀時間：10 分鐘；希望篇數：10 篇；新鮮度：3/5；複習：開啟\n主題權重：尚未調整主題權重\n晨報比例：新發現 60%／收藏複習 20%／經典 10%／意外驚喜 10%；實際篇數請依比例取整，但必須剛好產出 10 篇。\n來源語言偏好：繁體中文\n輸出語言：繁體中文\n偏好早晨：Asia/Taipei 07:00\n來源權重：尚未調整來源權重\n來源資料庫中已選取的提供者：使用「Vibe Coding 入門」的預設來源包：vibecoding-tw、github-community、hacker-news、dev-community、openai-community、awesome-vibecoding、reddit-vibecoding、line-vibecoding-weekly、roboco-manual、indie-hackers\n特定社群偏好：沒有指定特定社群\n額外採編備註：沒有額外採編備註\n近期回饋訊號：目前還沒有可用的收藏回饋\n使用回饋時，Super Starred 代表優先找相似的問題深度、內容形式或實作脈絡；Starred 代表值得保留；not_interested、unstarred 或 exclude_source 代表降低相似訊號。只把它當成排序與採編方向，仍要重新驗證每篇來源，不要重複同一篇內容。\n硬性網址來源（若有，只能從這些網址或其頁面翻找）：\n沒有硬性網址限制\n\n【來源連接器先收集的候選內容】\n1. My friend vibe coded an 82-0 style game for fantasy football｜Reddit｜2026-09-03｜https://www.reddit.com/r/vibecoding/comments/1w6o3n1/my_friend_vibe_coded_an_820_style_game_for｜證據摘要：My friend was into the 82-0 NBA game and ended up building a fantasy football version of the same general idea. https://www.retrofantasy.games It's called Retro Fantasy, and he built it using Claude + Codex. You draft 1 QB, 1 RB, 1 WR and 1 TE from historical NFL seasons , then the game simulates your team against 2 to 4 other players. You can either have the historical stats shown while you draft or turn on No Stats mode and try to remember how good that player actually was that year. No Stats is easily my favorite part because you very quickly realize how often you remember the player correctly but the year completely wrong. It also keeps track of your record across games. I don't know his\n2. Link me your website and Ill tell you if it looks vibe-coded｜Reddit｜2026-09-03｜https://www.reddit.com/r/vibecoding/comments/1w6ia1d/link_me_your_website_and_ill_tell_you_if_it_looks｜證據摘要：I will not expand on the reasons, I will only give a one word answer based strictly off vibes. yes = looks vibe coded kinda = it looks kind of vibe coded no = doesnt look vibe coded plz do not be offended or insulted btw im just a random person edit: just to be clear \"looks vibe coded\" doesn't necessarily mean it looks bad or anything   submitted by   /u/Junior_Character5301 [link]   [comments]\n3. What would you say if one of your users said “I can vibe code this”｜Reddit｜2026-09-03｜https://www.reddit.com/r/vibecoding/comments/1w6hon0/what_would_you_say_if_one_of_your_users_said_i｜證據摘要：My usual response is “yea go ahead. I’m not building this for you.” Or “sure. Come back in 6 weeks and show me where you landed” People think they can prompt apps over night. When in fact, it’s a show surgical methodical work. It took 6+ months for me to build Mangos.ai, and I’m proud of where I got it to now. I had a vision. I built a prototype for myself. I asked some of my friends if they’d use it. No one said yes. I then came to Reddit and asked for feedback, most of the people said it’s a terrible idea. I learnt from their feedback, made some critical improvements. And every single day, LEGO block by LEGO block I’ve been building this product. Every time I hear someone say they can buil\n4. Claude leaked its own backend code - I extracted the VM that runs your code and found its internal codenames, a monitoring binary nobody outside has held, and 371 KB of secret prompts｜Reddit｜2026-09-03｜https://www.reddit.com/r/vibecoding/comments/1w6f5du/claude_leaked_its_own_backend_code_i_extracted｜證據摘要：I pulled the entire filesystem out of a claude.ai code-execution sandbox (the actual microVM your code runs in - 178k files), then got into the live one too. Two days later, here's what's on my drive. And none of this is a public download. as I would prob go to jail :( What I have: The entire production container - every file of the machine your code runs in: config, tool stack, the works. Internally it's called \"wiggle\". All ~40 of Anthropic's skills - the instruction playbooks Claude follows when it does things for you. Including the ones you never see. ( Not the name ones on the public REPO ) Their monitoring agent, as a binary no one outside the company has ever held. and it wasn't strip\n5. I scanned 30,998 live vibe-coded apps from the outside. 394 had a users table anyone could read, 52 exposed secrets.｜Reddit｜2026-09-03｜https://www.reddit.com/r/vibecoding/comments/1w68ce4/i_scanned_30998_live_vibecoded_apps_from_the｜證據摘要：In August I ran nine external checks on 30,998 live apps built with Lovable, Bolt, v0, Replit and Base44. Outside view only. The scanner checks what a visitor's browser already reads: the code, the headers, the endpoints named in its own bundle. No logins, no password guessing, nothing downloaded. No pentesting Nine external checks: exposed secrets, database access, private files, security headers, storage buckets, source maps, cross-site sharing, SSL certificate, domain renewal. Most of it came back fine. 76% graded A . 96% had no secret key in the bundle at all, and almost everybody gets the publishable key right, which is the thing generic scanners flag wrongly. Your Supabase anon key is \n6. I vibe coded a whole product because I wanted to see how far AI could actually take me｜Reddit｜2026-09-03｜https://www.reddit.com/r/vibecoding/comments/1w63c4e/i_vibe_coded_a_whole_product_because_i_wanted_to｜證據摘要：I had a pretty simple idea: What if I could type a topic, and instead of opening 5 different tools, writing a script, finding visuals, editing everything and exporting… I could just get the video. So I vibe coded it. https://reelyr.com/ You give it a topic or document and it turns it into a finished vertical video. The funny part is that I started with “let’s see if AI can build this” and somehow ended up with an actual product. No big team. No months of development. Just a ridiculous number of prompts, iterations, broken things, fixes and “okay… why did it do THAT?” moments. I'm still improving it, but it's live now. Would genuinely love feedback from other people who are building with AI. \n7. How can I refine this UI?｜Reddit｜2026-09-03｜https://www.reddit.com/r/vibecoding/comments/1w5vezl/how_can_i_refine_this_ui｜證據摘要：I'm building another writing app (yay) and I want feedback as well as notes about what you like or want in a writing app. Does this UI look vibe coded? I've been working hard to try not to do that. I don't feel like the writing app landscape is really that different. Most writing apps look more or less the same. But, if you had to nitpick them, what would you say? This app is NOT for formatting. If anything, I'm going to do a document format option on export. The side panels and format bar are all toggle able, and if you hit focus, everything goes away at once for a \"distraction free\" writing environment (which, just saying that makes me want to gag, its so generic sounding). In the end, I w\n8. How (and why) the Open Jobs project keeps ~3 million jobs locally searchable without monetization｜Reddit｜2026-09-03｜https://www.reddit.com/r/vibecoding/comments/1w5sdmu/how_and_why_the_open_jobs_project_keeps_3_million｜證據摘要：\"Yours\" beats \"free\" (Prompts to try out the search toolchain at the bottom.) The Open Jobs dataset and search toolchain are yours. There is no business model, and that is the whole point. It started at 960K jobs. Then 2M. This week it hit ~3M. Here is the story of how one person keeps a job index that size running for about a dollar a day. What it is A free, open-source search over job postings pulled from across the web. It crawls the boards, dedupes and normalizes everything into one dataset, and puts a semantic search on top: describe the job you actually want, get matches. No scrolling twenty career pages. No signup, no paywall, no ads. The dataset is free and open too. Vendors charge $\n候選內容已先經公開連接器收集；優先從這份清單提煉，不能捏造清單外的 URL。若需要補充，必須仍通過相同的日期、canonical URL 與來源證據檢查。\n\n請把來源推薦與硬性網址分開理解：來源推薦是排序訊號；硬性網址是來源限制。每篇都要有可以開啟的 canonical URL、發布日期與來源證據，不要捏造作者、日期、互動數據或引文。不要做產品新聞、募資消息、空泛金句或只有功能清單的內容。每篇只教一個可轉移的 idea，並說明問題、原則、可操作範例、限制、練習題與編輯綜合。難度請依先備知識與實作風險判定：初學者＝具備基本閱讀與提問能力即可嘗試；普通＝需要基本程式碼、repository 或測試經驗；困難＝需要多步驟整合、架構／權限／部署判斷，或實際操作後才能安全掌握。\n\n請只回傳 JSON object，不要 Markdown，不要前言，格式必須是：\n{\"items\":[{\"title\":\"...\",\"category\":\"思考|提示設計|Agent 管理|上下文工程|程式碼理解|驗證|工作流程|工藝與心態|安全|協作|學習系統\",\"tag\":\"新鮮實作|近期耐用|舊作高價值\",\"difficulty\":\"初學者|普通|困難\",\"takeaway\":\"...\",\"problem\":\"...\",\"principle\":\"...\",\"try_it\":\"...\",\"tradeoffs\":\"...\",\"practice_prompt\":\"...\",\"source_says\":\"...\",\"editorial_synthesis\":\"...\",\"source\":{\"url\":\"https://...\",\"platform\":\"...\",\"published_at\":\"YYYY-MM-DD\",\"evidence_excerpt\":\"...\",\"popularity_basis\":\"...\"},\"scores\":{\"timeless\":1,\"importance\":1,\"popularity\":1}}]}\n評分必須是 1 到 5 的數字。來源 URL、日期與證據不確定時，請如實降低評分或排除，不要創造來源。\n\n這是第 2 次嘗試。請先在內部完成檢查，再一次性輸出完整 JSON；不要輸出分析、Markdown、引用標記或 JSON 以外的文字。",
+      "provider": "openrouter",
+      "model": "deepseek/deepseek-v4-flash-0731"
+    }
+  ],
+  "output_item_count": 0,
+  "output_sources": [],
+  "error": {
+    "code": "model_json_missing"
+  }
+}
