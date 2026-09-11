@@ -1,0 +1,315 @@
+{
+  "id": "ec960677-c97c-4e65-8d74-d94709244e36",
+  "edition_run_date": "2026-09-12",
+  "mode": "daily",
+  "status": "failed",
+  "started_at": "2026-09-11T22:34:47.877Z",
+  "completed_at": "2026-09-11T22:38:47.907Z",
+  "recipe_snapshot": {
+    "schema_version": "daily-recipe-v1",
+    "kind": "automatic_daily_brew",
+    "run_date": "2026-09-12",
+    "as_of_date": "2026-09-12",
+    "preferences": {
+      "recipe_id": "vibe-coding",
+      "editorial_tone": "hands-on-editor",
+      "brew_method": "daily-pour",
+      "source_language": "zh-Hant",
+      "output_language": "zh-Hant",
+      "selected_source_ids": [
+        "vibecoding-tw",
+        "github-community",
+        "hacker-news",
+        "dev-community",
+        "openai-community",
+        "awesome-vibecoding",
+        "reddit-vibecoding",
+        "line-vibecoding-weekly",
+        "roboco-manual",
+        "indie-hackers"
+      ],
+      "source_weights": {},
+      "topic_weights": {},
+      "blend_ratios": {
+        "new_discoveries": 60,
+        "saved_reviews": 20,
+        "classic": 10,
+        "surprise": 10
+      },
+      "timezone": "Asia/Taipei",
+      "morning_time": "07:00",
+      "specific_sources": {},
+      "direct_urls": [],
+      "source_prompt": "",
+      "topics": [
+        "Vibe Coding",
+        "Coding Agent",
+        "提示設計",
+        "上下文管理",
+        "測試與驗證",
+        "除錯與工作流程"
+      ],
+      "excluded_topics": [
+        "產品新聞",
+        "模型發布摘要",
+        "募資消息",
+        "流行金句",
+        "純功能清單"
+      ],
+      "content_styles": [
+        "實戰案例",
+        "失敗分析",
+        "可重用規則"
+      ],
+      "source_lanes": [
+        "開發者討論",
+        "GitHub 實作",
+        "技術文章",
+        "建造者覆盤"
+      ],
+      "difficulty_levels": [
+        "初學者",
+        "普通",
+        "困難"
+      ],
+      "language": "zh-Hant",
+      "item_count": 10,
+      "novelty_level": 3,
+      "review_enabled": true,
+      "blend": {
+        "new_discoveries": 60,
+        "saved_reviews": 20,
+        "classic": 10,
+        "surprise": 10
+      }
+    },
+    "prompt": {
+      "version": "daily-prompt-v1",
+      "system": "你是遵守 vibe-coding-curator skill 的嚴謹繁體中文編輯。只保留有來源、有證據、可轉移、可實作的做法。10 篇必須有 10 個不同 canonical URL，且 primary category 不得超過 2 篇。只輸出合法 JSON object。",
+      "text": "資料截點是 2026-09-12，資料截點也是 2026-09-12。這一壺晨報本次實際必須產出 10 篇，不能多也不能少。請使用可用的 web search，找出在 2026-09-12 當天或之前已經存在的、與「Vibe Coding 入門」相關、具體且可重複的實作方法，並整理成繁體中文學習內容。嚴格禁止使用 2026-09-12 之後發布、更新或發生的發現，所有 source.published_at 必須小於或等於 2026-09-12。\n\n【這一壺的主配方】\n主題：Vibe Coding 入門\n主題說明：用 AI 寫程式、和 Coding Agent 合作，逐步建立能重複使用的開發方法。\n適合讀者：想開始做網站、工具或小型產品，也想慢慢理解開發流程的人。\n內容範圍：Vibe Coding、Coding Agent、提示設計、上下文管理、測試與驗證、除錯與工作流程\n來源方向：優先找真實 repository、issue、討論、失敗分析與可以重複的開發方法。\n\n【編輯的沖煮方式】\n語氣：實作導向。請像一位做過這件事的實作編輯，先說清楚用途，再給可執行步驟、範例與容易踩到的限制。\n編排：每日手沖。每篇保持摘要、具體例子、可轉移原則與練習問題的平衡，讓讀者讀完能理解也能動手。\n\n【使用者的晨報配方】\n想讀的方向：Vibe Coding、Coding Agent、提示設計、上下文管理、測試與驗證、除錯與工作流程\n暫時避開：產品新聞、模型發布摘要、募資消息、流行金句、純功能清單\n偏好的內容形式：實戰案例、失敗分析、可重用規則\n偏好的來源路徑：開發者討論、GitHub 實作、技術文章、建造者覆盤\n難度：初學者、普通、困難\n閱讀時間：10 分鐘；希望篇數：10 篇；新鮮度：3/5；複習：開啟\n主題權重：尚未調整主題權重\n晨報比例：新發現 60%／收藏複習 20%／經典 10%／意外驚喜 10%；實際篇數請依比例取整，但必須剛好產出 10 篇。\n來源語言偏好：繁體中文\n輸出語言：繁體中文\n偏好早晨：Asia/Taipei 07:00\n來源權重：尚未調整來源權重\n來源資料庫中已選取的提供者：使用「Vibe Coding 入門」的預設來源包：vibecoding-tw、github-community、hacker-news、dev-community、openai-community、awesome-vibecoding、reddit-vibecoding、line-vibecoding-weekly、roboco-manual、indie-hackers\n特定社群偏好：沒有指定特定社群\n額外採編備註：沒有額外採編備註\n近期回饋訊號：目前還沒有可用的收藏回饋\n使用回饋時，Super Starred 代表優先找相似的問題深度、內容形式或實作脈絡；Starred 代表值得保留；not_interested、unstarred 或 exclude_source 代表降低相似訊號。只把它當成排序與採編方向，仍要重新驗證每篇來源，不要重複同一篇內容。\n硬性網址來源（若有，只能從這些網址或其頁面翻找）：\n沒有硬性網址限制\n\n【來源連接器先收集的候選內容】\n1. Vibe coded a WhatsApp clone with many automation features｜Reddit｜2026-09-11｜https://www.reddit.com/r/vibecoding/comments/1wdrayt/vibe_coded_a_whatsapp_clone_with_many_automation｜證據摘要：https://preview.redd.it/v6gx4jfk7yoh1.png?width=1556&format=png&auto=webp&s=a7c5220d6873b5ea8b8630defdf784d089abdc16 Hey everyone! If your like me, sick of Whatsapp web using tons of RAM and being slow on the browser, and using a few Whatsapp accounts at the same time, WhatsAppGo is for you. Automation: 108 RPC methods, self-describing via rpc.discover. JSON-lines over 0600 Unix socket, local only. Live filterable event stream (whatsappctl events). whatsappctl call METHOD JSON reaches any method. WhatsApp Web has none of this. In short you can automate messaging Multi-account: isolated profiles, own store + daemon each. Account tabs in UI. Switching clears drafts, media, starred, dialogs. Lo\n2. Artificial analysis used to have an agentic coding capabilities index next to the intelligence once. Where has it gone?｜Reddit｜2026-09-11｜https://www.reddit.com/r/vibecoding/comments/1wdpnim/artificial_analysis_used_to_have_an_agentic｜證據摘要：  submitted by   /u/Prior-Meeting1645 [link]   [comments]\n3. Just got Rick Rolled by my vibe coded desktop assistant｜Reddit｜2026-09-11｜https://www.reddit.com/r/vibecoding/comments/1wdifa2/just_got_rick_rolled_by_my_vibe_coded_desktop｜證據摘要：I'm building a desktop assistant that can do various things based on input, and asked it to open a specific link on a webpage that was open (I think it was a search for \"funny cat videos\" that I used to test its ability to search on YouTube. I'm guessing it can't properly access the text on the webpage yet or something, but it helpfully came up with another YouTube URL to send me to. Here's a screenshot of the logs. Just goes to show that these LLMs really are trained on Reddit data because who the fuck still Rick Rolls people in 2026?   submitted by   /u/GreenockScatman [link]   [comments]\n4. Minimax summer jam has ended - now think about efficient prd and orchestration｜Reddit｜2026-09-11｜https://www.reddit.com/r/vibecoding/comments/1wd6z6j/minimax_summer_jam_has_ended_now_think_about｜證據摘要：Minimax all summer was a massive blessing, that shit was effing awesome. Like most of you minimax purveyors, I'm left reeling, with missing 2.7 flow and 3.0 plan/fix. Although they are gone, it doesn't mean there aren't other angles to utilize a workflow, for free. I wanna introduce an angle for ya all. [app dot kilo dot ai] has an auto free tier that routes models through openrouter, without the openrouter daily limits. (I dont think you can use it's api outside kilo without pay). That means you can code like all day inside the kilo cloud ui. The catch is that their context window is 256k, so all that routing eats it fast. The solution is that they support multi agent under the hood. You ca\n5. Getting Started AI Game Development | AI Gaming Conference｜Reddit｜2026-09-11｜https://www.reddit.com/r/vibecoding/comments/1wd23wz/getting_started_ai_game_development_ai_gaming｜證據摘要：Tomorrow's talk at the AI Gaming Conference, Intro To Vibe Coding , is for those looking to make their first game with AI, this will go about how to setup your game environment and start vibe coding. This is both for developers that want to take the leap and get into AI, and for vibe coders as well. It will cover: State of the game development Setting up Claude and Codex Setting up Blender Setting up your phone for development Prompt basics (subagents, calling other agents, memory, etc) The biggest mistakes to avoid when vibe coding your game There is a lot of talks at all different levels in the conference, here is the full schedule.   submitted by   /u/bingewavecinema [link]   [comments]\n6. I vibe coded a Chrome extension that shows what a website is connected to.｜Reddit｜2026-09-10｜https://www.reddit.com/r/vibecoding/comments/1wcrfwe/i_vibe_coded_a_chrome_extension_that_shows_what_a｜證據摘要：It maps scripts, trackers, CDNs, analytics, embeds, and other third-party domains into a graph, then tries to explain what each one is doing. Also added privacy scores, scan history, change tracking, and domain following. Everything stays local. Still adding stuff to it. What would you add? GitHub: https://github.com/Schmiedey/linkscope https://chromewebstore.google.com/detail/linkscope/eedjncgcdepjbmpapihoigdbdfobmdmc?authuser=0&hl=en   submitted by   /u/Conscious-Image-4161 [link]   [comments]\n7. \"Agentic Engineering\" is a just vibecoding `md` files rather than `js` ones｜Reddit｜2026-09-10｜https://www.reddit.com/r/vibecoding/comments/1wcqamc/agentic_engineering_is_a_just_vibecoding_md_files｜證據摘要：AI can write code well enough, but when we use it for that, we have a slight identity crisis that we're just a \"vibecoder\". So we got smart and started vibecoding a bunch of md files and \"workflow\" stuff to micromanage the AI, pretending the new file extension somehow graduates us from vibecoder to \"Agentic Engineer\". Really we're just generating cruft between ourselves and the actual code that we dare not bother ourselves with. The end result kinda works out for us, and we feel a little more important because we brought some complexity back into our lives again.   submitted by   /u/Alarmed-Western-655 [link]   [comments]\n8. 1 year ago -> Sr dev using AI like jr devs fora project / NOW -> CTO getting reports from managers on the various projects being worked on｜Reddit｜2026-09-10｜https://www.reddit.com/r/vibecoding/comments/1wcog73/1_year_ago_sr_dev_using_ai_like_jr_devs_fora｜證據摘要：Anyone else feeling this ? Not only am I no longer touching code but I am running 4 projects at once since some prompts take 10 or so minutes just to complete. Often, it ends up doing things I am not even aware of (using Claude code /goal to go figure things out) My wife tells me I have been on the computer too much lately, but what has happened is not I have 20+ project ideas I have been implement with multiple laptops and I am jumping between them all day (and doing my real job) and it feels like things are still changing. One example is this .. I am using Unreal english +Mujoco + learning agents +Isaac lab to do a Sumo wrestling simulation and at first, I create a plan.. but once I kick o\n候選內容已先經公開連接器收集；優先從這份清單提煉，不能捏造清單外的 URL。若需要補充，必須仍通過相同的日期、canonical URL 與來源證據檢查。\n\n請把來源推薦與硬性網址分開理解：來源推薦是排序訊號；硬性網址是來源限制。每篇都要有可以開啟的 canonical URL、發布日期與來源證據，不要捏造作者、日期、互動數據或引文。不要做產品新聞、募資消息、空泛金句或只有功能清單的內容。每篇只教一個可轉移的 idea，並說明問題、原則、可操作範例、限制、練習題與編輯綜合。難度請依先備知識與實作風險判定：初學者＝具備基本閱讀與提問能力即可嘗試；普通＝需要基本程式碼、repository 或測試經驗；困難＝需要多步驟整合、架構／權限／部署判斷，或實際操作後才能安全掌握。\n\n請只回傳 JSON object，不要 Markdown，不要前言，格式必須是：\n{\"items\":[{\"title\":\"...\",\"category\":\"思考|提示設計|Agent 管理|上下文工程|程式碼理解|驗證|工作流程|工藝與心態|安全|協作|學習系統\",\"tag\":\"新鮮實作|近期耐用|舊作高價值\",\"difficulty\":\"初學者|普通|困難\",\"takeaway\":\"...\",\"problem\":\"...\",\"principle\":\"...\",\"try_it\":\"...\",\"tradeoffs\":\"...\",\"practice_prompt\":\"...\",\"source_says\":\"...\",\"editorial_synthesis\":\"...\",\"source\":{\"url\":\"https://...\",\"platform\":\"...\",\"published_at\":\"YYYY-MM-DD\",\"evidence_excerpt\":\"...\",\"popularity_basis\":\"...\"},\"scores\":{\"timeless\":1,\"importance\":1,\"popularity\":1}}]}\n評分必須是 1 到 5 的數字。來源 URL、日期與證據不確定時，請如實降低評分或排除，不要創造來源。"
+    },
+    "source_collection": {
+      "version": "source-collection-v1",
+      "as_of_date": "2026-09-12",
+      "requested_source_ids": [
+        "github-community",
+        "hacker-news",
+        "reddit-vibecoding",
+        "dev-community"
+      ],
+      "hard_direct_url_scope": false,
+      "custom_source_count": 0,
+      "candidate_count": 8,
+      "connectors": [
+        {
+          "source_id": "dev-community",
+          "status": "empty",
+          "candidate_count": 0
+        },
+        {
+          "source_id": "github-community",
+          "status": "empty",
+          "candidate_count": 0
+        },
+        {
+          "source_id": "hacker-news",
+          "status": "empty",
+          "candidate_count": 0
+        },
+        {
+          "source_id": "reddit-vibecoding",
+          "status": "ok",
+          "candidate_count": 8
+        }
+      ],
+      "fallback_to_model_search": false,
+      "policy": "只使用公開介面、RSS、使用者指定網址或合法授權；無法讀取時明確標記。",
+      "candidates": [
+        {
+          "title": "Vibe coded a WhatsApp clone with many automation features",
+          "url": "https://www.reddit.com/r/vibecoding/comments/1wdrayt/vibe_coded_a_whatsapp_clone_with_many_automation",
+          "date": "2026-09-11",
+          "sourceType": "Reddit",
+          "source": "Reddit",
+          "category": "來源探索",
+          "difficulty": "普通",
+          "evidence": "https://preview.redd.it/v6gx4jfk7yoh1.png?width=1556&format=png&auto=webp&s=a7c5220d6873b5ea8b8630defdf784d089abdc16 Hey everyone! If your like me, sick of Whatsapp web using tons of RAM and being slow on the browser, and using a few Whatsapp accounts at the same time, WhatsAppGo is for you. Automation: 108 RPC methods, self-describing via rpc.discover. JSON-lines over 0600 Unix socket, local only. Live filterable event stream (whatsappctl events). whatsappctl call METHOD JSON reaches any method. WhatsApp Web has none of this. In short you can automate messaging Multi-account: isolated profiles, own store + daemon each. Account tabs in UI. Switching clears drafts, media, starred, dialogs. Lo",
+          "takeaway": "https://preview.redd.it/v6gx4jfk7yoh1.png?width=1556&format=png&auto=webp&s=a7c5220d6873b5ea8b8630defdf784d089abdc16 Hey everyone! If your like me, sick of Whatsapp web using tons of RAM and being slow on the browser, and using a few Whatsapp accounts at the same time, WhatsAppGo is for you. Automation: 108 RPC methods, self-describing via rpc.discover. JSON-lines over 0600 Unix socket, local only. Live filterable event stream (whatsappctl events). whatsappctl call METHOD JSON reaches any method. WhatsApp Web has none of this. In short you can automate messaging Multi-account: isolated profiles, own store + daemon each. Account tabs in UI. Switching clears drafts, media, starred, dialogs. Lo",
+          "problem": "",
+          "principle": "",
+          "tryIt": "",
+          "tradeoffs": "",
+          "timeless": 3,
+          "importance": 3,
+          "heat": 2
+        },
+        {
+          "title": "Artificial analysis used to have an agentic coding capabilities index next to the intelligence once. Where has it gone?",
+          "url": "https://www.reddit.com/r/vibecoding/comments/1wdpnim/artificial_analysis_used_to_have_an_agentic",
+          "date": "2026-09-11",
+          "sourceType": "Reddit",
+          "source": "Reddit",
+          "category": "來源探索",
+          "difficulty": "普通",
+          "evidence": "  submitted by   /u/Prior-Meeting1645 [link]   [comments]",
+          "takeaway": "  submitted by   /u/Prior-Meeting1645 [link]   [comments]",
+          "problem": "",
+          "principle": "",
+          "tryIt": "",
+          "tradeoffs": "",
+          "timeless": 3,
+          "importance": 3,
+          "heat": 2
+        },
+        {
+          "title": "Just got Rick Rolled by my vibe coded desktop assistant",
+          "url": "https://www.reddit.com/r/vibecoding/comments/1wdifa2/just_got_rick_rolled_by_my_vibe_coded_desktop",
+          "date": "2026-09-11",
+          "sourceType": "Reddit",
+          "source": "Reddit",
+          "category": "來源探索",
+          "difficulty": "普通",
+          "evidence": "I'm building a desktop assistant that can do various things based on input, and asked it to open a specific link on a webpage that was open (I think it was a search for \"funny cat videos\" that I used to test its ability to search on YouTube. I'm guessing it can't properly access the text on the webpage yet or something, but it helpfully came up with another YouTube URL to send me to. Here's a screenshot of the logs. Just goes to show that these LLMs really are trained on Reddit data because who the fuck still Rick Rolls people in 2026?   submitted by   /u/GreenockScatman [link]   [comments]",
+          "takeaway": "I'm building a desktop assistant that can do various things based on input, and asked it to open a specific link on a webpage that was open (I think it was a search for \"funny cat videos\" that I used to test its ability to search on YouTube. I'm guessing it can't properly access the text on the webpage yet or something, but it helpfully came up with another YouTube URL to send me to. Here's a screenshot of the logs. Just goes to show that these LLMs really are trained on Reddit data because who the fuck still Rick Rolls people in 2026?   submitted by   /u/GreenockScatman [link]   [comments]",
+          "problem": "",
+          "principle": "",
+          "tryIt": "",
+          "tradeoffs": "",
+          "timeless": 3,
+          "importance": 3,
+          "heat": 2
+        },
+        {
+          "title": "Minimax summer jam has ended - now think about efficient prd and orchestration",
+          "url": "https://www.reddit.com/r/vibecoding/comments/1wd6z6j/minimax_summer_jam_has_ended_now_think_about",
+          "date": "2026-09-11",
+          "sourceType": "Reddit",
+          "source": "Reddit",
+          "category": "來源探索",
+          "difficulty": "普通",
+          "evidence": "Minimax all summer was a massive blessing, that shit was effing awesome. Like most of you minimax purveyors, I'm left reeling, with missing 2.7 flow and 3.0 plan/fix. Although they are gone, it doesn't mean there aren't other angles to utilize a workflow, for free. I wanna introduce an angle for ya all. [app dot kilo dot ai] has an auto free tier that routes models through openrouter, without the openrouter daily limits. (I dont think you can use it's api outside kilo without pay). That means you can code like all day inside the kilo cloud ui. The catch is that their context window is 256k, so all that routing eats it fast. The solution is that they support multi agent under the hood. You ca",
+          "takeaway": "Minimax all summer was a massive blessing, that shit was effing awesome. Like most of you minimax purveyors, I'm left reeling, with missing 2.7 flow and 3.0 plan/fix. Although they are gone, it doesn't mean there aren't other angles to utilize a workflow, for free. I wanna introduce an angle for ya all. [app dot kilo dot ai] has an auto free tier that routes models through openrouter, without the openrouter daily limits. (I dont think you can use it's api outside kilo without pay). That means you can code like all day inside the kilo cloud ui. The catch is that their context window is 256k, so all that routing eats it fast. The solution is that they support multi agent under the hood. You ca",
+          "problem": "",
+          "principle": "",
+          "tryIt": "",
+          "tradeoffs": "",
+          "timeless": 3,
+          "importance": 3,
+          "heat": 2
+        },
+        {
+          "title": "Getting Started AI Game Development | AI Gaming Conference",
+          "url": "https://www.reddit.com/r/vibecoding/comments/1wd23wz/getting_started_ai_game_development_ai_gaming",
+          "date": "2026-09-11",
+          "sourceType": "Reddit",
+          "source": "Reddit",
+          "category": "來源探索",
+          "difficulty": "普通",
+          "evidence": "Tomorrow's talk at the AI Gaming Conference, Intro To Vibe Coding , is for those looking to make their first game with AI, this will go about how to setup your game environment and start vibe coding. This is both for developers that want to take the leap and get into AI, and for vibe coders as well. It will cover: State of the game development Setting up Claude and Codex Setting up Blender Setting up your phone for development Prompt basics (subagents, calling other agents, memory, etc) The biggest mistakes to avoid when vibe coding your game There is a lot of talks at all different levels in the conference, here is the full schedule.   submitted by   /u/bingewavecinema [link]   [comments]",
+          "takeaway": "Tomorrow's talk at the AI Gaming Conference, Intro To Vibe Coding , is for those looking to make their first game with AI, this will go about how to setup your game environment and start vibe coding. This is both for developers that want to take the leap and get into AI, and for vibe coders as well. It will cover: State of the game development Setting up Claude and Codex Setting up Blender Setting up your phone for development Prompt basics (subagents, calling other agents, memory, etc) The biggest mistakes to avoid when vibe coding your game There is a lot of talks at all different levels in the conference, here is the full schedule.   submitted by   /u/bingewavecinema [link]   [comments]",
+          "problem": "",
+          "principle": "",
+          "tryIt": "",
+          "tradeoffs": "",
+          "timeless": 3,
+          "importance": 3,
+          "heat": 2
+        },
+        {
+          "title": "I vibe coded a Chrome extension that shows what a website is connected to.",
+          "url": "https://www.reddit.com/r/vibecoding/comments/1wcrfwe/i_vibe_coded_a_chrome_extension_that_shows_what_a",
+          "date": "2026-09-10",
+          "sourceType": "Reddit",
+          "source": "Reddit",
+          "category": "來源探索",
+          "difficulty": "普通",
+          "evidence": "It maps scripts, trackers, CDNs, analytics, embeds, and other third-party domains into a graph, then tries to explain what each one is doing. Also added privacy scores, scan history, change tracking, and domain following. Everything stays local. Still adding stuff to it. What would you add? GitHub: https://github.com/Schmiedey/linkscope https://chromewebstore.google.com/detail/linkscope/eedjncgcdepjbmpapihoigdbdfobmdmc?authuser=0&hl=en   submitted by   /u/Conscious-Image-4161 [link]   [comments]",
+          "takeaway": "It maps scripts, trackers, CDNs, analytics, embeds, and other third-party domains into a graph, then tries to explain what each one is doing. Also added privacy scores, scan history, change tracking, and domain following. Everything stays local. Still adding stuff to it. What would you add? GitHub: https://github.com/Schmiedey/linkscope https://chromewebstore.google.com/detail/linkscope/eedjncgcdepjbmpapihoigdbdfobmdmc?authuser=0&hl=en   submitted by   /u/Conscious-Image-4161 [link]   [comments]",
+          "problem": "",
+          "principle": "",
+          "tryIt": "",
+          "tradeoffs": "",
+          "timeless": 3,
+          "importance": 3,
+          "heat": 2
+        },
+        {
+          "title": "\"Agentic Engineering\" is a just vibecoding `md` files rather than `js` ones",
+          "url": "https://www.reddit.com/r/vibecoding/comments/1wcqamc/agentic_engineering_is_a_just_vibecoding_md_files",
+          "date": "2026-09-10",
+          "sourceType": "Reddit",
+          "source": "Reddit",
+          "category": "來源探索",
+          "difficulty": "普通",
+          "evidence": "AI can write code well enough, but when we use it for that, we have a slight identity crisis that we're just a \"vibecoder\". So we got smart and started vibecoding a bunch of md files and \"workflow\" stuff to micromanage the AI, pretending the new file extension somehow graduates us from vibecoder to \"Agentic Engineer\". Really we're just generating cruft between ourselves and the actual code that we dare not bother ourselves with. The end result kinda works out for us, and we feel a little more important because we brought some complexity back into our lives again.   submitted by   /u/Alarmed-Western-655 [link]   [comments]",
+          "takeaway": "AI can write code well enough, but when we use it for that, we have a slight identity crisis that we're just a \"vibecoder\". So we got smart and started vibecoding a bunch of md files and \"workflow\" stuff to micromanage the AI, pretending the new file extension somehow graduates us from vibecoder to \"Agentic Engineer\". Really we're just generating cruft between ourselves and the actual code that we dare not bother ourselves with. The end result kinda works out for us, and we feel a little more important because we brought some complexity back into our lives again.   submitted by   /u/Alarmed-Western-655 [link]   [comments]",
+          "problem": "",
+          "principle": "",
+          "tryIt": "",
+          "tradeoffs": "",
+          "timeless": 3,
+          "importance": 3,
+          "heat": 2
+        },
+        {
+          "title": "1 year ago -> Sr dev using AI like jr devs fora project / NOW -> CTO getting reports from managers on the various projects being worked on",
+          "url": "https://www.reddit.com/r/vibecoding/comments/1wcog73/1_year_ago_sr_dev_using_ai_like_jr_devs_fora",
+          "date": "2026-09-10",
+          "sourceType": "Reddit",
+          "source": "Reddit",
+          "category": "來源探索",
+          "difficulty": "普通",
+          "evidence": "Anyone else feeling this ? Not only am I no longer touching code but I am running 4 projects at once since some prompts take 10 or so minutes just to complete. Often, it ends up doing things I am not even aware of (using Claude code /goal to go figure things out) My wife tells me I have been on the computer too much lately, but what has happened is not I have 20+ project ideas I have been implement with multiple laptops and I am jumping between them all day (and doing my real job) and it feels like things are still changing. One example is this .. I am using Unreal english +Mujoco + learning agents +Isaac lab to do a Sumo wrestling simulation and at first, I create a plan.. but once I kick o",
+          "takeaway": "Anyone else feeling this ? Not only am I no longer touching code but I am running 4 projects at once since some prompts take 10 or so minutes just to complete. Often, it ends up doing things I am not even aware of (using Claude code /goal to go figure things out) My wife tells me I have been on the computer too much lately, but what has happened is not I have 20+ project ideas I have been implement with multiple laptops and I am jumping between them all day (and doing my real job) and it feels like things are still changing. One example is this .. I am using Unreal english +Mujoco + learning agents +Isaac lab to do a Sumo wrestling simulation and at first, I create a plan.. but once I kick o",
+          "problem": "",
+          "principle": "",
+          "tryIt": "",
+          "tradeoffs": "",
+          "timeless": 3,
+          "importance": 3,
+          "heat": 2
+        }
+      ]
+    },
+    "model": {
+      "provider": "openrouter",
+      "name": "deepseek/deepseek-v4-flash-0731",
+      "generation_method": "provider_api"
+    },
+    "search_rules": {
+      "version": "daily-search-v1",
+      "web_search_required": true,
+      "allowed_source_date_lte": "2026-09-12",
+      "minimum_distinct_platforms": 3,
+      "maximum_items_per_primary_category": 2,
+      "maximum_classic_items": 2,
+      "canonical_url_required": true,
+      "evidence_required": true,
+      "ranking_formula_version": "v1",
+      "ranking_formula": "0.52 * recency + 0.25 * importance + 0.13 * timeless + 0.10 * popularity"
+    }
+  },
+  "attempts": [
+    {
+      "number": 1,
+      "started_at": "2026-09-11T22:34:47.880Z",
+      "system": "你是遵守 vibe-coding-curator skill 的嚴謹繁體中文編輯。只保留有來源、有證據、可轉移、可實作的做法。10 篇必須有 10 個不同 canonical URL，且 primary category 不得超過 2 篇。只輸出合法 JSON object。",
+      "user": "資料截點是 2026-09-12，資料截點也是 2026-09-12。這一壺晨報本次實際必須產出 10 篇，不能多也不能少。請使用可用的 web search，找出在 2026-09-12 當天或之前已經存在的、與「Vibe Coding 入門」相關、具體且可重複的實作方法，並整理成繁體中文學習內容。嚴格禁止使用 2026-09-12 之後發布、更新或發生的發現，所有 source.published_at 必須小於或等於 2026-09-12。\n\n【這一壺的主配方】\n主題：Vibe Coding 入門\n主題說明：用 AI 寫程式、和 Coding Agent 合作，逐步建立能重複使用的開發方法。\n適合讀者：想開始做網站、工具或小型產品，也想慢慢理解開發流程的人。\n內容範圍：Vibe Coding、Coding Agent、提示設計、上下文管理、測試與驗證、除錯與工作流程\n來源方向：優先找真實 repository、issue、討論、失敗分析與可以重複的開發方法。\n\n【編輯的沖煮方式】\n語氣：實作導向。請像一位做過這件事的實作編輯，先說清楚用途，再給可執行步驟、範例與容易踩到的限制。\n編排：每日手沖。每篇保持摘要、具體例子、可轉移原則與練習問題的平衡，讓讀者讀完能理解也能動手。\n\n【使用者的晨報配方】\n想讀的方向：Vibe Coding、Coding Agent、提示設計、上下文管理、測試與驗證、除錯與工作流程\n暫時避開：產品新聞、模型發布摘要、募資消息、流行金句、純功能清單\n偏好的內容形式：實戰案例、失敗分析、可重用規則\n偏好的來源路徑：開發者討論、GitHub 實作、技術文章、建造者覆盤\n難度：初學者、普通、困難\n閱讀時間：10 分鐘；希望篇數：10 篇；新鮮度：3/5；複習：開啟\n主題權重：尚未調整主題權重\n晨報比例：新發現 60%／收藏複習 20%／經典 10%／意外驚喜 10%；實際篇數請依比例取整，但必須剛好產出 10 篇。\n來源語言偏好：繁體中文\n輸出語言：繁體中文\n偏好早晨：Asia/Taipei 07:00\n來源權重：尚未調整來源權重\n來源資料庫中已選取的提供者：使用「Vibe Coding 入門」的預設來源包：vibecoding-tw、github-community、hacker-news、dev-community、openai-community、awesome-vibecoding、reddit-vibecoding、line-vibecoding-weekly、roboco-manual、indie-hackers\n特定社群偏好：沒有指定特定社群\n額外採編備註：沒有額外採編備註\n近期回饋訊號：目前還沒有可用的收藏回饋\n使用回饋時，Super Starred 代表優先找相似的問題深度、內容形式或實作脈絡；Starred 代表值得保留；not_interested、unstarred 或 exclude_source 代表降低相似訊號。只把它當成排序與採編方向，仍要重新驗證每篇來源，不要重複同一篇內容。\n硬性網址來源（若有，只能從這些網址或其頁面翻找）：\n沒有硬性網址限制\n\n【來源連接器先收集的候選內容】\n1. Vibe coded a WhatsApp clone with many automation features｜Reddit｜2026-09-11｜https://www.reddit.com/r/vibecoding/comments/1wdrayt/vibe_coded_a_whatsapp_clone_with_many_automation｜證據摘要：https://preview.redd.it/v6gx4jfk7yoh1.png?width=1556&format=png&auto=webp&s=a7c5220d6873b5ea8b8630defdf784d089abdc16 Hey everyone! If your like me, sick of Whatsapp web using tons of RAM and being slow on the browser, and using a few Whatsapp accounts at the same time, WhatsAppGo is for you. Automation: 108 RPC methods, self-describing via rpc.discover. JSON-lines over 0600 Unix socket, local only. Live filterable event stream (whatsappctl events). whatsappctl call METHOD JSON reaches any method. WhatsApp Web has none of this. In short you can automate messaging Multi-account: isolated profiles, own store + daemon each. Account tabs in UI. Switching clears drafts, media, starred, dialogs. Lo\n2. Artificial analysis used to have an agentic coding capabilities index next to the intelligence once. Where has it gone?｜Reddit｜2026-09-11｜https://www.reddit.com/r/vibecoding/comments/1wdpnim/artificial_analysis_used_to_have_an_agentic｜證據摘要：  submitted by   /u/Prior-Meeting1645 [link]   [comments]\n3. Just got Rick Rolled by my vibe coded desktop assistant｜Reddit｜2026-09-11｜https://www.reddit.com/r/vibecoding/comments/1wdifa2/just_got_rick_rolled_by_my_vibe_coded_desktop｜證據摘要：I'm building a desktop assistant that can do various things based on input, and asked it to open a specific link on a webpage that was open (I think it was a search for \"funny cat videos\" that I used to test its ability to search on YouTube. I'm guessing it can't properly access the text on the webpage yet or something, but it helpfully came up with another YouTube URL to send me to. Here's a screenshot of the logs. Just goes to show that these LLMs really are trained on Reddit data because who the fuck still Rick Rolls people in 2026?   submitted by   /u/GreenockScatman [link]   [comments]\n4. Minimax summer jam has ended - now think about efficient prd and orchestration｜Reddit｜2026-09-11｜https://www.reddit.com/r/vibecoding/comments/1wd6z6j/minimax_summer_jam_has_ended_now_think_about｜證據摘要：Minimax all summer was a massive blessing, that shit was effing awesome. Like most of you minimax purveyors, I'm left reeling, with missing 2.7 flow and 3.0 plan/fix. Although they are gone, it doesn't mean there aren't other angles to utilize a workflow, for free. I wanna introduce an angle for ya all. [app dot kilo dot ai] has an auto free tier that routes models through openrouter, without the openrouter daily limits. (I dont think you can use it's api outside kilo without pay). That means you can code like all day inside the kilo cloud ui. The catch is that their context window is 256k, so all that routing eats it fast. The solution is that they support multi agent under the hood. You ca\n5. Getting Started AI Game Development | AI Gaming Conference｜Reddit｜2026-09-11｜https://www.reddit.com/r/vibecoding/comments/1wd23wz/getting_started_ai_game_development_ai_gaming｜證據摘要：Tomorrow's talk at the AI Gaming Conference, Intro To Vibe Coding , is for those looking to make their first game with AI, this will go about how to setup your game environment and start vibe coding. This is both for developers that want to take the leap and get into AI, and for vibe coders as well. It will cover: State of the game development Setting up Claude and Codex Setting up Blender Setting up your phone for development Prompt basics (subagents, calling other agents, memory, etc) The biggest mistakes to avoid when vibe coding your game There is a lot of talks at all different levels in the conference, here is the full schedule.   submitted by   /u/bingewavecinema [link]   [comments]\n6. I vibe coded a Chrome extension that shows what a website is connected to.｜Reddit｜2026-09-10｜https://www.reddit.com/r/vibecoding/comments/1wcrfwe/i_vibe_coded_a_chrome_extension_that_shows_what_a｜證據摘要：It maps scripts, trackers, CDNs, analytics, embeds, and other third-party domains into a graph, then tries to explain what each one is doing. Also added privacy scores, scan history, change tracking, and domain following. Everything stays local. Still adding stuff to it. What would you add? GitHub: https://github.com/Schmiedey/linkscope https://chromewebstore.google.com/detail/linkscope/eedjncgcdepjbmpapihoigdbdfobmdmc?authuser=0&hl=en   submitted by   /u/Conscious-Image-4161 [link]   [comments]\n7. \"Agentic Engineering\" is a just vibecoding `md` files rather than `js` ones｜Reddit｜2026-09-10｜https://www.reddit.com/r/vibecoding/comments/1wcqamc/agentic_engineering_is_a_just_vibecoding_md_files｜證據摘要：AI can write code well enough, but when we use it for that, we have a slight identity crisis that we're just a \"vibecoder\". So we got smart and started vibecoding a bunch of md files and \"workflow\" stuff to micromanage the AI, pretending the new file extension somehow graduates us from vibecoder to \"Agentic Engineer\". Really we're just generating cruft between ourselves and the actual code that we dare not bother ourselves with. The end result kinda works out for us, and we feel a little more important because we brought some complexity back into our lives again.   submitted by   /u/Alarmed-Western-655 [link]   [comments]\n8. 1 year ago -> Sr dev using AI like jr devs fora project / NOW -> CTO getting reports from managers on the various projects being worked on｜Reddit｜2026-09-10｜https://www.reddit.com/r/vibecoding/comments/1wcog73/1_year_ago_sr_dev_using_ai_like_jr_devs_fora｜證據摘要：Anyone else feeling this ? Not only am I no longer touching code but I am running 4 projects at once since some prompts take 10 or so minutes just to complete. Often, it ends up doing things I am not even aware of (using Claude code /goal to go figure things out) My wife tells me I have been on the computer too much lately, but what has happened is not I have 20+ project ideas I have been implement with multiple laptops and I am jumping between them all day (and doing my real job) and it feels like things are still changing. One example is this .. I am using Unreal english +Mujoco + learning agents +Isaac lab to do a Sumo wrestling simulation and at first, I create a plan.. but once I kick o\n候選內容已先經公開連接器收集；優先從這份清單提煉，不能捏造清單外的 URL。若需要補充，必須仍通過相同的日期、canonical URL 與來源證據檢查。\n\n請把來源推薦與硬性網址分開理解：來源推薦是排序訊號；硬性網址是來源限制。每篇都要有可以開啟的 canonical URL、發布日期與來源證據，不要捏造作者、日期、互動數據或引文。不要做產品新聞、募資消息、空泛金句或只有功能清單的內容。每篇只教一個可轉移的 idea，並說明問題、原則、可操作範例、限制、練習題與編輯綜合。難度請依先備知識與實作風險判定：初學者＝具備基本閱讀與提問能力即可嘗試；普通＝需要基本程式碼、repository 或測試經驗；困難＝需要多步驟整合、架構／權限／部署判斷，或實際操作後才能安全掌握。\n\n請只回傳 JSON object，不要 Markdown，不要前言，格式必須是：\n{\"items\":[{\"title\":\"...\",\"category\":\"思考|提示設計|Agent 管理|上下文工程|程式碼理解|驗證|工作流程|工藝與心態|安全|協作|學習系統\",\"tag\":\"新鮮實作|近期耐用|舊作高價值\",\"difficulty\":\"初學者|普通|困難\",\"takeaway\":\"...\",\"problem\":\"...\",\"principle\":\"...\",\"try_it\":\"...\",\"tradeoffs\":\"...\",\"practice_prompt\":\"...\",\"source_says\":\"...\",\"editorial_synthesis\":\"...\",\"source\":{\"url\":\"https://...\",\"platform\":\"...\",\"published_at\":\"YYYY-MM-DD\",\"evidence_excerpt\":\"...\",\"popularity_basis\":\"...\"},\"scores\":{\"timeless\":1,\"importance\":1,\"popularity\":1}}]}\n評分必須是 1 到 5 的數字。來源 URL、日期與證據不確定時，請如實降低評分或排除，不要創造來源。\n\n這是第 1 次嘗試。請先在內部完成檢查，再一次性輸出完整 JSON；不要輸出分析、Markdown、引用標記或 JSON 以外的文字。",
+      "provider": "openrouter",
+      "model": "deepseek/deepseek-v4-flash-0731"
+    },
+    {
+      "number": 2,
+      "started_at": "2026-09-11T22:36:47.896Z",
+      "system": "你是遵守 vibe-coding-curator skill 的嚴謹繁體中文編輯。只保留有來源、有證據、可轉移、可實作的做法。10 篇必須有 10 個不同 canonical URL，且 primary category 不得超過 2 篇。只輸出合法 JSON object。",
+      "user": "資料截點是 2026-09-12，資料截點也是 2026-09-12。這一壺晨報本次實際必須產出 10 篇，不能多也不能少。請使用可用的 web search，找出在 2026-09-12 當天或之前已經存在的、與「Vibe Coding 入門」相關、具體且可重複的實作方法，並整理成繁體中文學習內容。嚴格禁止使用 2026-09-12 之後發布、更新或發生的發現，所有 source.published_at 必須小於或等於 2026-09-12。\n\n【這一壺的主配方】\n主題：Vibe Coding 入門\n主題說明：用 AI 寫程式、和 Coding Agent 合作，逐步建立能重複使用的開發方法。\n適合讀者：想開始做網站、工具或小型產品，也想慢慢理解開發流程的人。\n內容範圍：Vibe Coding、Coding Agent、提示設計、上下文管理、測試與驗證、除錯與工作流程\n來源方向：優先找真實 repository、issue、討論、失敗分析與可以重複的開發方法。\n\n【編輯的沖煮方式】\n語氣：實作導向。請像一位做過這件事的實作編輯，先說清楚用途，再給可執行步驟、範例與容易踩到的限制。\n編排：每日手沖。每篇保持摘要、具體例子、可轉移原則與練習問題的平衡，讓讀者讀完能理解也能動手。\n\n【使用者的晨報配方】\n想讀的方向：Vibe Coding、Coding Agent、提示設計、上下文管理、測試與驗證、除錯與工作流程\n暫時避開：產品新聞、模型發布摘要、募資消息、流行金句、純功能清單\n偏好的內容形式：實戰案例、失敗分析、可重用規則\n偏好的來源路徑：開發者討論、GitHub 實作、技術文章、建造者覆盤\n難度：初學者、普通、困難\n閱讀時間：10 分鐘；希望篇數：10 篇；新鮮度：3/5；複習：開啟\n主題權重：尚未調整主題權重\n晨報比例：新發現 60%／收藏複習 20%／經典 10%／意外驚喜 10%；實際篇數請依比例取整，但必須剛好產出 10 篇。\n來源語言偏好：繁體中文\n輸出語言：繁體中文\n偏好早晨：Asia/Taipei 07:00\n來源權重：尚未調整來源權重\n來源資料庫中已選取的提供者：使用「Vibe Coding 入門」的預設來源包：vibecoding-tw、github-community、hacker-news、dev-community、openai-community、awesome-vibecoding、reddit-vibecoding、line-vibecoding-weekly、roboco-manual、indie-hackers\n特定社群偏好：沒有指定特定社群\n額外採編備註：沒有額外採編備註\n近期回饋訊號：目前還沒有可用的收藏回饋\n使用回饋時，Super Starred 代表優先找相似的問題深度、內容形式或實作脈絡；Starred 代表值得保留；not_interested、unstarred 或 exclude_source 代表降低相似訊號。只把它當成排序與採編方向，仍要重新驗證每篇來源，不要重複同一篇內容。\n硬性網址來源（若有，只能從這些網址或其頁面翻找）：\n沒有硬性網址限制\n\n【來源連接器先收集的候選內容】\n1. Vibe coded a WhatsApp clone with many automation features｜Reddit｜2026-09-11｜https://www.reddit.com/r/vibecoding/comments/1wdrayt/vibe_coded_a_whatsapp_clone_with_many_automation｜證據摘要：https://preview.redd.it/v6gx4jfk7yoh1.png?width=1556&format=png&auto=webp&s=a7c5220d6873b5ea8b8630defdf784d089abdc16 Hey everyone! If your like me, sick of Whatsapp web using tons of RAM and being slow on the browser, and using a few Whatsapp accounts at the same time, WhatsAppGo is for you. Automation: 108 RPC methods, self-describing via rpc.discover. JSON-lines over 0600 Unix socket, local only. Live filterable event stream (whatsappctl events). whatsappctl call METHOD JSON reaches any method. WhatsApp Web has none of this. In short you can automate messaging Multi-account: isolated profiles, own store + daemon each. Account tabs in UI. Switching clears drafts, media, starred, dialogs. Lo\n2. Artificial analysis used to have an agentic coding capabilities index next to the intelligence once. Where has it gone?｜Reddit｜2026-09-11｜https://www.reddit.com/r/vibecoding/comments/1wdpnim/artificial_analysis_used_to_have_an_agentic｜證據摘要：  submitted by   /u/Prior-Meeting1645 [link]   [comments]\n3. Just got Rick Rolled by my vibe coded desktop assistant｜Reddit｜2026-09-11｜https://www.reddit.com/r/vibecoding/comments/1wdifa2/just_got_rick_rolled_by_my_vibe_coded_desktop｜證據摘要：I'm building a desktop assistant that can do various things based on input, and asked it to open a specific link on a webpage that was open (I think it was a search for \"funny cat videos\" that I used to test its ability to search on YouTube. I'm guessing it can't properly access the text on the webpage yet or something, but it helpfully came up with another YouTube URL to send me to. Here's a screenshot of the logs. Just goes to show that these LLMs really are trained on Reddit data because who the fuck still Rick Rolls people in 2026?   submitted by   /u/GreenockScatman [link]   [comments]\n4. Minimax summer jam has ended - now think about efficient prd and orchestration｜Reddit｜2026-09-11｜https://www.reddit.com/r/vibecoding/comments/1wd6z6j/minimax_summer_jam_has_ended_now_think_about｜證據摘要：Minimax all summer was a massive blessing, that shit was effing awesome. Like most of you minimax purveyors, I'm left reeling, with missing 2.7 flow and 3.0 plan/fix. Although they are gone, it doesn't mean there aren't other angles to utilize a workflow, for free. I wanna introduce an angle for ya all. [app dot kilo dot ai] has an auto free tier that routes models through openrouter, without the openrouter daily limits. (I dont think you can use it's api outside kilo without pay). That means you can code like all day inside the kilo cloud ui. The catch is that their context window is 256k, so all that routing eats it fast. The solution is that they support multi agent under the hood. You ca\n5. Getting Started AI Game Development | AI Gaming Conference｜Reddit｜2026-09-11｜https://www.reddit.com/r/vibecoding/comments/1wd23wz/getting_started_ai_game_development_ai_gaming｜證據摘要：Tomorrow's talk at the AI Gaming Conference, Intro To Vibe Coding , is for those looking to make their first game with AI, this will go about how to setup your game environment and start vibe coding. This is both for developers that want to take the leap and get into AI, and for vibe coders as well. It will cover: State of the game development Setting up Claude and Codex Setting up Blender Setting up your phone for development Prompt basics (subagents, calling other agents, memory, etc) The biggest mistakes to avoid when vibe coding your game There is a lot of talks at all different levels in the conference, here is the full schedule.   submitted by   /u/bingewavecinema [link]   [comments]\n6. I vibe coded a Chrome extension that shows what a website is connected to.｜Reddit｜2026-09-10｜https://www.reddit.com/r/vibecoding/comments/1wcrfwe/i_vibe_coded_a_chrome_extension_that_shows_what_a｜證據摘要：It maps scripts, trackers, CDNs, analytics, embeds, and other third-party domains into a graph, then tries to explain what each one is doing. Also added privacy scores, scan history, change tracking, and domain following. Everything stays local. Still adding stuff to it. What would you add? GitHub: https://github.com/Schmiedey/linkscope https://chromewebstore.google.com/detail/linkscope/eedjncgcdepjbmpapihoigdbdfobmdmc?authuser=0&hl=en   submitted by   /u/Conscious-Image-4161 [link]   [comments]\n7. \"Agentic Engineering\" is a just vibecoding `md` files rather than `js` ones｜Reddit｜2026-09-10｜https://www.reddit.com/r/vibecoding/comments/1wcqamc/agentic_engineering_is_a_just_vibecoding_md_files｜證據摘要：AI can write code well enough, but when we use it for that, we have a slight identity crisis that we're just a \"vibecoder\". So we got smart and started vibecoding a bunch of md files and \"workflow\" stuff to micromanage the AI, pretending the new file extension somehow graduates us from vibecoder to \"Agentic Engineer\". Really we're just generating cruft between ourselves and the actual code that we dare not bother ourselves with. The end result kinda works out for us, and we feel a little more important because we brought some complexity back into our lives again.   submitted by   /u/Alarmed-Western-655 [link]   [comments]\n8. 1 year ago -> Sr dev using AI like jr devs fora project / NOW -> CTO getting reports from managers on the various projects being worked on｜Reddit｜2026-09-10｜https://www.reddit.com/r/vibecoding/comments/1wcog73/1_year_ago_sr_dev_using_ai_like_jr_devs_fora｜證據摘要：Anyone else feeling this ? Not only am I no longer touching code but I am running 4 projects at once since some prompts take 10 or so minutes just to complete. Often, it ends up doing things I am not even aware of (using Claude code /goal to go figure things out) My wife tells me I have been on the computer too much lately, but what has happened is not I have 20+ project ideas I have been implement with multiple laptops and I am jumping between them all day (and doing my real job) and it feels like things are still changing. One example is this .. I am using Unreal english +Mujoco + learning agents +Isaac lab to do a Sumo wrestling simulation and at first, I create a plan.. but once I kick o\n候選內容已先經公開連接器收集；優先從這份清單提煉，不能捏造清單外的 URL。若需要補充，必須仍通過相同的日期、canonical URL 與來源證據檢查。\n\n請把來源推薦與硬性網址分開理解：來源推薦是排序訊號；硬性網址是來源限制。每篇都要有可以開啟的 canonical URL、發布日期與來源證據，不要捏造作者、日期、互動數據或引文。不要做產品新聞、募資消息、空泛金句或只有功能清單的內容。每篇只教一個可轉移的 idea，並說明問題、原則、可操作範例、限制、練習題與編輯綜合。難度請依先備知識與實作風險判定：初學者＝具備基本閱讀與提問能力即可嘗試；普通＝需要基本程式碼、repository 或測試經驗；困難＝需要多步驟整合、架構／權限／部署判斷，或實際操作後才能安全掌握。\n\n請只回傳 JSON object，不要 Markdown，不要前言，格式必須是：\n{\"items\":[{\"title\":\"...\",\"category\":\"思考|提示設計|Agent 管理|上下文工程|程式碼理解|驗證|工作流程|工藝與心態|安全|協作|學習系統\",\"tag\":\"新鮮實作|近期耐用|舊作高價值\",\"difficulty\":\"初學者|普通|困難\",\"takeaway\":\"...\",\"problem\":\"...\",\"principle\":\"...\",\"try_it\":\"...\",\"tradeoffs\":\"...\",\"practice_prompt\":\"...\",\"source_says\":\"...\",\"editorial_synthesis\":\"...\",\"source\":{\"url\":\"https://...\",\"platform\":\"...\",\"published_at\":\"YYYY-MM-DD\",\"evidence_excerpt\":\"...\",\"popularity_basis\":\"...\"},\"scores\":{\"timeless\":1,\"importance\":1,\"popularity\":1}}]}\n評分必須是 1 到 5 的數字。來源 URL、日期與證據不確定時，請如實降低評分或排除，不要創造來源。\n\n這是第 2 次嘗試。請先在內部完成檢查，再一次性輸出完整 JSON；不要輸出分析、Markdown、引用標記或 JSON 以外的文字。",
+      "provider": "openrouter",
+      "model": "deepseek/deepseek-v4-flash-0731"
+    }
+  ],
+  "output_item_count": 0,
+  "output_sources": [],
+  "error": {
+    "code": "model_json_missing"
+  }
+}
